@@ -1,0 +1,19 @@
+.digital-cursor {
+    width: 1em;
+    height: 1.1em;
+    background: var(--color-accent);
+    display: inline-block;
+    margin-left: 4px;
+    transform: translateY(2px);
+    opacity: 0.4;
+}
+
+.right-panel-margin {
+    margin-right: 16px;
+    width: 28rem;
+
+    @media (max-width: 768px) {
+        width: 100%;
+        max-width: 28rem;
+    }
+}

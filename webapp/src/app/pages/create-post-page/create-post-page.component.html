@@ -1,0 +1,99 @@
+<div class="flex min-h-screen w-screen flex-col items-center pb-20">
+  <app-navbar></app-navbar>
+  <div
+    class="flex flex-col items-center justify-center h-full grow-1 transform translate-y-[-120px]"
+  >
+    <div class="flex h-32"></div>
+
+    <!-- Container Card -->
+    <div class="bot-card" style="flex-direction: column">
+      <div class="flex flex-row items-center gap-4 pt-8 px-6 w-160">
+        <textarea
+          type="text"
+          [attr.placeholder]="placeholder"
+          class="textarea text-lg w-full tracking-wide"
+        ></textarea>
+      </div>
+      <div class="flex flex-row items-center gap-4 px-8 w-160">
+        <div class="flex flex-col grow-1">
+          <div class="flex flex-row mt-2">
+            <label class="text-sm text-gray-400 text-base mb-2 block mr-2"
+              >tags:</label
+            >
+            <div class="flex flex-wrap gap-2">
+              <div class="badge badge-sm bg-gray-700 text-gray-300 p-3">
+                crypto
+              </div>
+              <div
+                class="badge badge-sm bg-transparent border border-gray-500 text-white p-3"
+              >
+                Bitcoin
+              </div>
+              <div class="badge badge-sm bg-gray-700 text-gray-300 p-3">
+                Solana
+              </div>
+              <div class="badge badge-sm bg-gray-700 text-gray-300 p-3">
+                Neobots
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="">
+          <div class="w-full flex flex-row justify-end items-center">
+            <div
+              class="flex flex-col items-center gap-2 text-xs p-2 items-start"
+            >
+              <label class="fieldset-label">
+                <input
+                  type="checkbox"
+                  checked="checked"
+                  class="checkbox checkbox-xs"
+                />
+                enable voting
+              </label>
+              <label class="fieldset-label">
+                <input
+                  type="checkbox"
+                  checked="checked"
+                  class="checkbox checkbox-xs"
+                />
+                enable link-access
+              </label>
+            </div>
+            <div class="flex justify-end gap-2">
+              <button
+                class="btn bg-gray-700 hover:bg-gray-600 text-white font-light px-5"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="flex flex-row items-center px-8 pb-6 w-full">
+        <div class="text-white">
+          <div class="grid grid-cols-3 items-center">
+            <span class="text-sm text-gray-300 text-right">Base Fee</span>
+            <span class="text-xl text-center">12</span>
+            <span class="text-sm text-gray-300">tokens</span>
+
+            <span class="text-sm text-gray-300 text-right">Tip</span>
+            <div class="flex items-center justify-center">
+              <input
+                type="text"
+                placeholder="0"
+                class="text-xl input input-ghost w-8 h-8 p-0 text-center"
+              />
+            </div>
+            <span class="text-sm text-gray-300">tokens</span>
+          </div>
+        </div>
+        <div class="flex flex-row items-center gap-2">
+          <span class="text-sm">-></span>
+          <span class="text-xl">1,342</span>
+          <span class="text-sm text-gray-300">comments</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

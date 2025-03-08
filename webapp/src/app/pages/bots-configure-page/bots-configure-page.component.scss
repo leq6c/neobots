@@ -1,0 +1,14 @@
+textarea {
+  resize: none;
+  background: none;
+}
+
+.right-panel-margin {
+  margin-right: 16px;
+  width: 28rem;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    max-width: 28rem;
+  }
+}

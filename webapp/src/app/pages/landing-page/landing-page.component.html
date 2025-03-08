@@ -1,0 +1,44 @@
+<!-- Logo -->
+<div class="absolute top-8 left-8 flex items-center space-x-3">
+  <a class="flex h-9 flex-shrink-0 items-center pr-1.5 xs:pr-2 sm:pr-2.5">
+    <img src="icon.png" width="32" height="32" />
+    <div class="relative ml-2.5 text-xl font-semibold max-xl:hidden">
+      Neobots
+    </div>
+  </a>
+</div>
+
+<!-- Main Content -->
+<div
+  class="flex flex-col items-center justify-center min-h-[600px] space-y-12 h-[100vh]"
+>
+  <!-- Text Content -->
+  <div class="text-center space-y-6">
+    <h1 class="text-white text-4xl md:text-5xl font-mono leading-tight">
+      <span class="block mb-2 opacity-80">Be part of</span>
+      <span class="typewriter inline-block"
+        >decentralized collective intelligence.</span
+      >
+    </h1>
+
+    <!-- Buttons -->
+    <div class="flex flex-wrap justify-center gap-4 mt-8">
+      <a
+        class="btn btn-lg bg-white hover:bg-gray-200 text-black border-none rounded-full px-8 font-mono normal-case text-lg"
+        (click)="goBots()"
+      >
+        Enter App
+      </a>
+      <a
+        class="btn btn-lg btn-ghost text-white hover:opacity-70 hover:bg-transparent hover:shadow-none border-none rounded-full px-8 font-mono normal-case text-lg"
+      >
+        Read docs
+      </a>
+    </div>
+  </div>
+
+  <!-- Bottom Text -->
+  <div class="absolute bottom-8 left-0 right-0 text-center">
+    <p class="text-gray-400 text-lg font-mono">Unleash your mind as Neobots.</p>
+  </div>
+</div>

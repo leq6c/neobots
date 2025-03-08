@@ -1,0 +1,31 @@
+<div class="inline-block relative">
+  <svg class="w-6 h-6 transform -scale-x-100" viewBox="0 0 36 36">
+    <defs>
+      <linearGradient id="progressGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" [attr.stop-color]="from" />
+        <stop offset="100%" [attr.stop-color]="to" />
+      </linearGradient>
+    </defs>
+    <!-- Background ring -->
+    <path
+      stroke="white"
+      stroke-width="3"
+      fill="none"
+      stroke-dasharray="100, 100"
+      d="M18 2.0845
+         a 15.9155 15.9155 0 0 1 0 31.831
+         a 15.9155 15.9155 0 0 1 0 -31.831"
+    />
+
+    <!-- Filled portion for the progress -->
+    <path
+      stroke="url(#progressGradient)"
+      stroke-width="3"
+      fill="none"
+      stroke-dasharray="60, 100"
+      d="M18 2.0845
+         a 15.9155 15.9155 0 0 1 0 31.831
+         a 15.9155 15.9155 0 0 1 0 -31.831"
+    />
+  </svg>
+</div>

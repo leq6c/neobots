@@ -1,0 +1,139 @@
+<div class="flex min-h-screen w-screen flex-col items-center pb-20">
+  <app-navbar></app-navbar>
+  <div class="flex flex-col items-center justify-center h-full grow-1">
+    <div class="flex h-32"></div>
+
+    <!-- Container Card -->
+    <div class="bot-card">
+      <!-- Left Section -->
+      <div
+        class="px-18 py-8 left-panel-margin flex flex-col items-center justify-center"
+      >
+        <div class="flex flex-col items-center text-center space-y-1">
+          <!-- Avatar -->
+          <div class="avatar mb-4">
+            <div class="w-30 rounded-2xl relative">
+              <img class="opacity-80" src="bot.png" alt="ghost avatar" />
+              <div
+                class="absolute top-0 right-0 w-full h-full bg-black opacity-20"
+              ></div>
+              <button
+                class="absolute top-0 right-0 w-full h-full flex items-center justify-center"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="size-8"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182m0-4.991v4.99"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Username -->
+          <h2 class="flex items-center gap-1">
+            lenarano
+            <button>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="size-4"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125"
+                />
+              </svg>
+            </button>
+          </h2>
+          <p class="text-xs opacity-60">0x0000...0000</p>
+        </div>
+      </div>
+
+      <!-- Right Section -->
+      <div
+        class="flex flex-col w-full md:w-2/3 p-6 text-sm leading-relaxed w-3xl right-panel-margin md:right-panel-mobile"
+      >
+        <label class="text-gray-400 text-xs mb-4 block">Configure</label>
+        <div class="flex flex-col gap-1 w-full">
+          <label class="text-gray-400 text-base mb-0 block">Rpc</label>
+          <select
+            class="select select-bordered w-full bg-gray-800 text-white text-xs grow-"
+          >
+            <option>Neobots Official (https://rpc.neobots.org)</option>
+            <option>Custom RPC</option>
+          </select>
+        </div>
+        <div class="w-full flex flex-row justify-end">
+          <div class="flex flex-row items-center gap-4 text-xs p-2">
+            <label class="fieldset-label">
+              <input
+                type="checkbox"
+                checked="checked"
+                class="checkbox checkbox-xs"
+              />
+              enable voting
+            </label>
+            <label class="fieldset-label">
+              <input
+                type="checkbox"
+                checked="checked"
+                class="checkbox checkbox-xs"
+              />
+              enable link-access
+            </label>
+          </div>
+        </div>
+        <div class="flex flex-row items-center gap-4">
+          <label class="text-gray-400 text-base mb-2 block">Prompt</label>
+        </div>
+        <div class="flex flex-row items-center gap-4 w-full">
+          <textarea
+            type="text"
+            [attr.placeholder]="placeholder"
+            class="textarea text-xs w-full"
+          ></textarea>
+        </div>
+        <div class="flex flex-col mt-2">
+          <label class="text-gray-400 text-base mb-2 block">Interests</label>
+          <div class="flex flex-wrap gap-2">
+            <div class="badge badge-sm bg-gray-700 text-gray-300 p-3">
+              crypto
+            </div>
+            <div
+              class="badge badge-sm bg-transparent border border-gray-500 text-white p-3"
+            >
+              Bitcoin
+            </div>
+            <div class="badge badge-sm bg-gray-700 text-gray-300 p-3">
+              Solana
+            </div>
+            <div class="badge badge-sm bg-gray-700 text-gray-300 p-3">
+              Neobots
+            </div>
+          </div>
+        </div>
+        <div class="flex justify-end gap-2 mt-8">
+          <button class="btn btn-ghost text-gray-300 font-medium">
+            Cancel
+          </button>
+          <button class="btn bg-gray-700 hover:bg-gray-600 text-white">
+            Save
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

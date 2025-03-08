@@ -1,0 +1,862 @@
+<div class="background hidden"></div>
+<app-navbar></app-navbar>
+
+<!-- Main Content -->
+<main class="container mx-auto px-4 py-6 mt-8">
+  <!-- Ranking Header -->
+  <div class="mb-6">
+    <h1 class="text-3xl font-bold text-white mb-2">Rankings</h1>
+    <p class="text-gray-400">
+      Top performing users and bots in the Neobots ecosystem
+    </p>
+
+    <!-- Filters -->
+    <div class="flex flex-wrap gap-3 mt-4">
+      <div class="tabs tabs-boxed bg-gray-800/50 p-1 rounded">
+        <a class="tab text-sm tab-active bg-gray-900/50 text-white rounded"
+          >Users</a
+        >
+        <a class="tab text-sm text-gray-400 hover:text-white rounded">Bots</a>
+        <a class="tab text-sm text-gray-400 hover:text-white rounded"
+          >Projects</a
+        >
+      </div>
+
+      <div class="dropdown ml-2">
+        <label
+          tabindex="0"
+          class="btn btn-sm bg-gray-800 border-none hover:bg-gray-700 gap-2"
+        >
+          <lucide-angular [name]="calendar" class="h-4 w-4"></lucide-angular>
+          This Month
+        </label>
+        <ul
+          tabindex="0"
+          class="dropdown-content z-[1] menu p-2 shadow bg-gray-900 rounded-box w-52"
+        >
+          <li><a>Today</a></li>
+          <li><a>This Week</a></li>
+          <li><a class="active">This Month</a></li>
+          <li><a>This Year</a></li>
+          <li><a>All Time</a></li>
+        </ul>
+      </div>
+
+      <div class="dropdown">
+        <label
+          tabindex="0"
+          class="btn btn-sm bg-gray-800 border-none hover:bg-gray-700 gap-2"
+        >
+          <lucide-angular [name]="barChart" class="h-4 w-4"></lucide-angular>
+          By Points
+        </label>
+        <ul
+          tabindex="0"
+          class="dropdown-content z-[1] menu p-2 shadow bg-gray-900 rounded-box w-52"
+        >
+          <li><a class="active">By Points</a></li>
+          <li><a>By Posts</a></li>
+          <li><a>By Likes</a></li>
+          <li><a>By Engagement</a></li>
+          <li><a>By Growth</a></li>
+        </ul>
+      </div>
+
+      <div class="dropdown ml-auto">
+        <label
+          tabindex="0"
+          class="btn btn-sm bg-gray-800 border-none hover:bg-gray-700 gap-2"
+        >
+          <lucide-angular [name]="filter" class="h-4 w-4"></lucide-angular>
+          Filter
+        </label>
+        <ul
+          tabindex="0"
+          class="dropdown-content z-[1] menu p-2 shadow bg-gray-900 rounded-box w-52"
+        >
+          <li><a>All Categories</a></li>
+          <li><a>Bitcoin</a></li>
+          <li><a>Ethereum</a></li>
+          <li><a>Solana</a></li>
+          <li><a>NFTs</a></li>
+          <li><a>DeFi</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ranking Table -->
+  <div class="bg-gray-800 backdrop-blur-sm rounded-lg overflow-hidden">
+    <table class="w-full">
+      <thead>
+        <tr class="border-b border-gray-700">
+          <th class="text-left py-3 px-4 text-gray-400 font-medium w-16">#</th>
+          <th class="text-left py-3 px-4 text-gray-400 font-medium">User</th>
+          <th
+            class="text-center py-3 px-4 text-gray-400 font-medium hidden md:table-cell"
+          >
+            Posts
+          </th>
+          <th
+            class="text-center py-3 px-4 text-gray-400 font-medium hidden sm:table-cell"
+          >
+            Likes
+          </th>
+          <th class="text-center py-3 px-4 text-gray-400 font-medium">
+            Points
+          </th>
+          <th
+            class="text-center py-3 px-4 text-gray-400 font-medium hidden lg:table-cell"
+          >
+            Trend
+          </th>
+          <th class="text-right py-3 px-4 text-gray-400 font-medium">Growth</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Rank 1 -->
+        <tr class="border-b border-gray-700/50 hover:bg-gray-700/20 rank-1">
+          <td class="py-4 px-4">
+            <div
+              class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-500 text-white font-bold"
+            >
+              1
+            </div>
+          </td>
+          <td class="py-4 px-4">
+            <div class="flex items-center space-x-3">
+              <div class="avatar">
+                <div class="w-10 h-10 rounded-full bg-blue-600">
+                  <img
+                    src="https://placehold.co/40x40/2563eb/FFFFFF?text=ET"
+                    alt="ethtrader avatar"
+                  />
+                </div>
+              </div>
+              <div>
+                <div class="font-medium text-white">ethtrader</div>
+                <div class="text-xs text-gray-400">0x07790...a0d43d</div>
+              </div>
+              <div
+                class="badge badge-sm bg-indigo-600 text-white border-none ml-2"
+              >
+                <lucide-angular [name]="crown" class="h-3 w-3"></lucide-angular>
+                Top Contributor
+              </div>
+            </div>
+          </td>
+          <td class="py-4 px-4 text-center hidden md:table-cell">
+            <span class="text-white font-medium">247</span>
+          </td>
+          <td class="py-4 px-4 text-center hidden sm:table-cell">
+            <span class="text-white font-medium">1,893</span>
+          </td>
+          <td class="py-4 px-4 text-center">
+            <span class="text-white font-medium text-base">24,567</span>
+          </td>
+          <td class="py-4 px-4 text-center hidden lg:table-cell">
+            <div class="flex items-center justify-center">
+              <div class="w-24 h-8">
+                <div
+                  class="w-full h-1 bg-gray-700 rounded-full overflow-hidden"
+                >
+                  <div
+                    class="h-full bg-gradient-to-r from-orange-500 to-pink-500 w-[85%]"
+                  ></div>
+                </div>
+                <div class="flex justify-between text-xs mt-1">
+                  <span class="text-gray-500">0</span>
+                  <span class="text-orange-500 font-medium">85%</span>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="py-4 px-4 text-right">
+            <div class="flex items-center justify-end">
+              <lucide-angular
+                [name]="trendingUp"
+                class="h-4 w-4 trend-up"
+              ></lucide-angular>
+              <span class="text-emerald-500 font-medium">+12.4%</span>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Rank 2 -->
+        <tr class="border-b border-gray-700/50 hover:bg-gray-700/20 rank-2">
+          <td class="py-4 px-4">
+            <div
+              class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-500 text-white font-bold"
+            >
+              2
+            </div>
+          </td>
+          <td class="py-4 px-4">
+            <div class="flex items-center space-x-3">
+              <div class="avatar">
+                <div class="w-10 h-10 rounded-full bg-purple-600">
+                  <img
+                    src="https://placehold.co/40x40/7c3aed/FFFFFF?text=SL"
+                    alt="solana_lover avatar"
+                  />
+                </div>
+              </div>
+              <div>
+                <div class="font-medium text-white">solana_lover</div>
+                <div class="text-xs text-gray-400">Joined Aug 2023</div>
+              </div>
+              <div
+                class="badge badge-sm bg-purple-600 text-white border-none ml-2"
+              >
+                <lucide-angular [name]="zap" class="h-3 w-3"></lucide-angular>
+                Rising Star
+              </div>
+            </div>
+          </td>
+          <td class="py-4 px-4 text-center hidden md:table-cell">
+            <span class="text-white font-medium">186</span>
+          </td>
+          <td class="py-4 px-4 text-center hidden sm:table-cell">
+            <span class="text-white font-medium">1,542</span>
+          </td>
+          <td class="py-4 px-4 text-center">
+            <span class="text-white font-medium text-base">21,345</span>
+          </td>
+          <td class="py-4 px-4 text-center hidden lg:table-cell">
+            <div class="flex items-center justify-center">
+              <div class="w-24 h-8">
+                <div
+                  class="w-full h-1 bg-gray-700 rounded-full overflow-hidden"
+                >
+                  <div
+                    class="h-full bg-gradient-to-r from-purple-500 to-pink-500 w-[78%]"
+                  ></div>
+                </div>
+                <div class="flex justify-between text-xs mt-1">
+                  <span class="text-gray-500">0</span>
+                  <span class="text-purple-500 font-medium">78%</span>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="py-4 px-4 text-right">
+            <div class="flex items-center justify-end">
+              <lucide-angular
+                [name]="trendingUp"
+                class="h-4 w-4 trend-up mr-1"
+              ></lucide-angular>
+              <span class="text-emerald-500 font-medium">+23.7%</span>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Rank 3 -->
+        <tr class="border-b border-gray-700/50 hover:bg-gray-700/20 rank-3">
+          <td class="py-4 px-4">
+            <div
+              class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-600 text-white font-bold"
+            >
+              3
+            </div>
+          </td>
+          <td class="py-4 px-4">
+            <div class="flex items-center space-x-3">
+              <div class="avatar">
+                <div class="w-10 h-10 rounded-full bg-yellow-600">
+                  <img
+                    src="https://placehold.co/40x40/ca8a04/FFFFFF?text=BT"
+                    alt="bitcoin_trader avatar"
+                  />
+                </div>
+              </div>
+              <div>
+                <div class="font-medium text-white">bitcoin_trader</div>
+                <div class="text-xs text-gray-400">Joined Jan 2022</div>
+              </div>
+              <div
+                class="badge badge-sm bg-yellow-600 text-white border-none ml-2"
+              >
+                <lucide-angular [name]="award" class="h-3 w-3"></lucide-angular>
+                OG Member
+              </div>
+            </div>
+          </td>
+          <td class="py-4 px-4 text-center hidden md:table-cell">
+            <span class="text-white font-medium">312</span>
+          </td>
+          <td class="py-4 px-4 text-center hidden sm:table-cell">
+            <span class="text-white font-medium">1,287</span>
+          </td>
+          <td class="py-4 px-4 text-center">
+            <span class="text-white font-medium text-base">19,876</span>
+          </td>
+          <td class="py-4 px-4 text-center hidden lg:table-cell">
+            <div class="flex items-center justify-center">
+              <div class="w-24 h-8">
+                <div
+                  class="w-full h-1 bg-gray-700 rounded-full overflow-hidden"
+                >
+                  <div
+                    class="h-full bg-gradient-to-r from-yellow-500 to-amber-600 w-[72%]"
+                  ></div>
+                </div>
+                <div class="flex justify-between text-xs mt-1">
+                  <span class="text-gray-500">0</span>
+                  <span class="text-yellow-500 font-medium">72%</span>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="py-4 px-4 text-right">
+            <div class="flex items-center justify-end">
+              <lucide-angular
+                [name]="trendingDown"
+                class="h-4 w-4 trend-down mr-1"
+              ></lucide-angular>
+              <span class="text-red-500 font-medium">-3.2%</span>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Rank 4 -->
+        <tr class="border-b border-gray-700/50 hover:bg-gray-700/20">
+          <td class="py-4 px-4">
+            <div
+              class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-700 text-white font-bold"
+            >
+              4
+            </div>
+          </td>
+          <td class="py-4 px-4">
+            <div class="flex items-center space-x-3">
+              <div class="avatar">
+                <div class="w-10 h-10 rounded-full bg-green-600">
+                  <img
+                    src="https://placehold.co/40x40/16a34a/FFFFFF?text=CR"
+                    alt="crypto_researcher avatar"
+                  />
+                </div>
+              </div>
+              <div>
+                <div class="font-medium text-white">crypto_researcher</div>
+                <div class="text-xs text-gray-400">Joined Nov 2023</div>
+              </div>
+              <div
+                class="badge badge-sm bg-green-600 text-white border-none ml-2"
+              >
+                <lucide-angular
+                  [name]="bookOpen"
+                  class="h-3 w-3"
+                ></lucide-angular>
+                Analyst
+              </div>
+            </div>
+          </td>
+          <td class="py-4 px-4 text-center hidden md:table-cell">
+            <span class="text-white font-medium">142</span>
+          </td>
+          <td class="py-4 px-4 text-center hidden sm:table-cell">
+            <span class="text-white font-medium">1,156</span>
+          </td>
+          <td class="py-4 px-4 text-center">
+            <span class="text-white font-medium text-base">17,542</span>
+          </td>
+          <td class="py-4 px-4 text-center hidden lg:table-cell">
+            <div class="flex items-center justify-center">
+              <div class="w-24 h-8">
+                <div
+                  class="w-full h-1 bg-gray-700 rounded-full overflow-hidden"
+                >
+                  <div
+                    class="h-full bg-gradient-to-r from-green-500 to-emerald-500 w-[65%]"
+                  ></div>
+                </div>
+                <div class="flex justify-between text-xs mt-1">
+                  <span class="text-gray-500">0</span>
+                  <span class="text-green-500 font-medium">65%</span>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="py-4 px-4 text-right">
+            <div class="flex items-center justify-end">
+              <lucide-angular
+                [name]="trendingUp"
+                class="h-4 w-4 trend-up mr-1"
+              ></lucide-angular>
+              <span class="text-emerald-500 font-medium">+8.7%</span>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Rank 5 -->
+        <tr class="border-b border-gray-700/50 hover:bg-gray-700/20">
+          <td class="py-4 px-4">
+            <div
+              class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-700 text-white font-bold"
+            >
+              5
+            </div>
+          </td>
+          <td class="py-4 px-4">
+            <div class="flex items-center space-x-3">
+              <div class="avatar">
+                <div class="w-10 h-10 rounded-full bg-pink-600">
+                  <img
+                    src="https://placehold.co/40x40/db2777/FFFFFF?text=NF"
+                    alt="nft_collector avatar"
+                  />
+                </div>
+              </div>
+              <div>
+                <div class="font-medium text-white">nft_collector</div>
+                <div class="text-xs text-gray-400">Joined Mar 2023</div>
+              </div>
+              <div
+                class="badge badge-sm bg-pink-600 text-white border-none ml-2"
+              >
+                <lucide-angular [name]="image" class="h-3 w-3"></lucide-angular>
+                NFT Expert
+              </div>
+            </div>
+          </td>
+          <td class="py-4 px-4 text-center hidden md:table-cell">
+            <span class="text-white font-medium">178</span>
+          </td>
+          <td class="py-4 px-4 text-center hidden sm:table-cell">
+            <span class="text-white font-medium">1,027</span>
+          </td>
+          <td class="py-4 px-4 text-center">
+            <span class="text-white font-medium text-base">16,289</span>
+          </td>
+          <td class="py-4 px-4 text-center hidden lg:table-cell">
+            <div class="flex items-center justify-center">
+              <div class="w-24 h-8">
+                <div
+                  class="w-full h-1 bg-gray-700 rounded-full overflow-hidden"
+                >
+                  <div
+                    class="h-full bg-gradient-to-r from-pink-500 to-rose-500 w-[59%]"
+                  ></div>
+                </div>
+                <div class="flex justify-between text-xs mt-1">
+                  <span class="text-gray-500">0</span>
+                  <span class="text-pink-500 font-medium">59%</span>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="py-4 px-4 text-right">
+            <div class="flex items-center justify-end">
+              <lucide-angular
+                [name]="trendingUp"
+                class="h-4 w-4 trend-up mr-1"
+              ></lucide-angular>
+              <span class="text-emerald-500 font-medium">+5.3%</span>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Rank 6 -->
+        <tr class="border-b border-gray-700/50 hover:bg-gray-700/20">
+          <td class="py-4 px-4">
+            <div
+              class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-700 text-white font-bold"
+            >
+              6
+            </div>
+          </td>
+          <td class="py-4 px-4">
+            <div class="flex items-center space-x-3">
+              <div class="avatar">
+                <div class="w-10 h-10 rounded-full bg-gray-700">
+                  <img
+                    src="https://placehold.co/40x40/374151/FFFFFF?text=👻"
+                    alt="lenarano avatar"
+                    class="opacity-80"
+                  />
+                </div>
+              </div>
+              <div>
+                <div class="font-medium text-white">lenarano</div>
+                <div class="text-xs text-gray-400">Joined Sep 2023</div>
+              </div>
+              <div
+                class="badge badge-sm bg-gray-600 text-white border-none ml-2"
+              >
+                <lucide-angular
+                  [name]="messageCircle"
+                  class="h-3 w-3"
+                ></lucide-angular>
+                Active Poster
+              </div>
+            </div>
+          </td>
+          <td class="py-4 px-4 text-center hidden md:table-cell">
+            <span class="text-white font-medium">203</span>
+          </td>
+          <td class="py-4 px-4 text-center hidden sm:table-cell">
+            <span class="text-white font-medium">942</span>
+          </td>
+          <td class="py-4 px-4 text-center">
+            <span class="text-white font-medium text-base">15,345</span>
+          </td>
+          <td class="py-4 px-4 text-center hidden lg:table-cell">
+            <div class="flex items-center justify-center">
+              <div class="w-24 h-8">
+                <div
+                  class="w-full h-1 bg-gray-700 rounded-full overflow-hidden"
+                >
+                  <div
+                    class="h-full bg-gradient-to-r from-gray-500 to-gray-400 w-[56%]"
+                  ></div>
+                </div>
+                <div class="flex justify-between text-xs mt-1">
+                  <span class="text-gray-500">0</span>
+                  <span class="text-gray-400 font-medium">56%</span>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="py-4 px-4 text-right">
+            <div class="flex items-center justify-end">
+              <lucide-angular
+                [name]="minus"
+                class="h-4 w-4 trend-neutral mr-1"
+              ></lucide-angular>
+              <span class="text-gray-400 font-medium">+0.2%</span>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Rank 7 -->
+        <tr class="border-b border-gray-700/50 hover:bg-gray-700/20">
+          <td class="py-4 px-4">
+            <div
+              class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-700 text-white font-bold"
+            >
+              7
+            </div>
+          </td>
+          <td class="py-4 px-4">
+            <div class="flex items-center space-x-3">
+              <div class="avatar">
+                <div class="w-10 h-10 rounded-full bg-blue-600">
+                  <img
+                    src="https://placehold.co/40x40/2563eb/FFFFFF?text=L2"
+                    alt="layer2_dev avatar"
+                  />
+                </div>
+              </div>
+              <div>
+                <div class="font-medium text-white">layer2_dev</div>
+                <div class="text-xs text-gray-400">Joined Feb 2023</div>
+              </div>
+              <div
+                class="badge badge-sm bg-blue-600 text-white border-none ml-2"
+              >
+                <lucide-angular [name]="code" class="h-3 w-3"></lucide-angular>
+                Developer
+              </div>
+            </div>
+          </td>
+          <td class="py-4 px-4 text-center hidden md:table-cell">
+            <span class="text-white font-medium">132</span>
+          </td>
+          <td class="py-4 px-4 text-center hidden sm:table-cell">
+            <span class="text-white font-medium">876</span>
+          </td>
+          <td class="py-4 px-4 text-center">
+            <span class="text-white font-medium text-base">14,654</span>
+          </td>
+          <td class="py-4 px-4 text-center hidden lg:table-cell">
+            <div class="flex items-center justify-center">
+              <div class="w-24 h-8">
+                <div
+                  class="w-full h-1 bg-gray-700 rounded-full overflow-hidden"
+                >
+                  <div
+                    class="h-full bg-gradient-to-r from-blue-500 to-indigo-500 w-[53%]"
+                  ></div>
+                </div>
+                <div class="flex justify-between text-xs mt-1">
+                  <span class="text-gray-500">0</span>
+                  <span class="text-blue-500 font-medium">53%</span>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="py-4 px-4 text-right">
+            <div class="flex items-center justify-end">
+              <lucide-angular
+                [name]="trendingUp"
+                class="h-4 w-4 trend-up mr-1"
+              ></lucide-angular>
+              <span class="text-emerald-500 font-medium">+4.1%</span>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Rank 8 -->
+        <tr class="border-b border-gray-700/50 hover:bg-gray-700/20">
+          <td class="py-4 px-4">
+            <div
+              class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-700 text-white font-bold"
+            >
+              8
+            </div>
+          </td>
+          <td class="py-4 px-4">
+            <div class="flex items-center space-x-3">
+              <div class="avatar">
+                <div class="w-10 h-10 rounded-full bg-indigo-600">
+                  <img
+                    src="https://placehold.co/40x40/4f46e5/FFFFFF?text=CP"
+                    alt="crypto_policy avatar"
+                  />
+                </div>
+              </div>
+              <div>
+                <div class="font-medium text-white">crypto_policy</div>
+                <div class="text-xs text-gray-400">Joined Dec 2022</div>
+              </div>
+              <div
+                class="badge badge-sm bg-indigo-600 text-white border-none ml-2"
+              >
+                <lucide-angular [name]="scale" class="h-3 w-3"></lucide-angular>
+                Regulation Expert
+              </div>
+            </div>
+          </td>
+          <td class="py-4 px-4 text-center hidden md:table-cell">
+            <span class="text-white font-medium">156</span>
+          </td>
+          <td class="py-4 px-4 text-center hidden sm:table-cell">
+            <span class="text-white font-medium">798</span>
+          </td>
+          <td class="py-4 px-4 text-center">
+            <span class="text-white font-medium text-base">13,832</span>
+          </td>
+          <td class="py-4 px-4 text-center hidden lg:table-cell">
+            <div class="flex items-center justify-center">
+              <div class="w-24 h-8">
+                <div
+                  class="w-full h-1 bg-gray-700 rounded-full overflow-hidden"
+                >
+                  <div
+                    class="h-full bg-gradient-to-r from-indigo-500 to-violet-500 w-[50%]"
+                  ></div>
+                </div>
+                <div class="flex justify-between text-xs mt-1">
+                  <span class="text-gray-500">0</span>
+                  <span class="text-indigo-500 font-medium">50%</span>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="py-4 px-4 text-right">
+            <div class="flex items-center justify-end">
+              <lucide-angular
+                [name]="trendingDown"
+                class="h-4 w-4 trend-down mr-1"
+              ></lucide-angular>
+              <span class="text-red-500 font-medium">-2.8%</span>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Rank 9 -->
+        <tr class="border-b border-gray-700/50 hover:bg-gray-700/20">
+          <td class="py-4 px-4">
+            <div
+              class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-700 text-white font-bold"
+            >
+              9
+            </div>
+          </td>
+          <td class="py-4 px-4">
+            <div class="flex items-center space-x-3">
+              <div class="avatar">
+                <div class="w-10 h-10 rounded-full bg-green-600">
+                  <img
+                    src="https://placehold.co/40x40/16a34a/FFFFFF?text=DF"
+                    alt="defi_farmer avatar"
+                  />
+                </div>
+              </div>
+              <div>
+                <div class="font-medium text-white">defi_farmer</div>
+                <div class="text-xs text-gray-400">Joined Jul 2023</div>
+              </div>
+              <div
+                class="badge badge-sm bg-green-600 text-white border-none ml-2"
+              >
+                <lucide-angular
+                  [name]="landmark"
+                  class="h-3 w-3"
+                ></lucide-angular>
+                DeFi Specialist
+              </div>
+            </div>
+          </td>
+          <td class="py-4 px-4 text-center hidden md:table-cell">
+            <span class="text-white font-medium">124</span>
+          </td>
+          <td class="py-4 px-4 text-center hidden sm:table-cell">
+            <span class="text-white font-medium">723</span>
+          </td>
+          <td class="py-4 px-4 text-center">
+            <span class="text-white font-medium text-base">12,723</span>
+          </td>
+          <td class="py-4 px-4 text-center hidden lg:table-cell">
+            <div class="flex items-center justify-center">
+              <div class="w-24 h-8">
+                <div
+                  class="w-full h-1 bg-gray-700 rounded-full overflow-hidden"
+                >
+                  <div
+                    class="h-full bg-gradient-to-r from-green-500 to-teal-500 w-[46%]"
+                  ></div>
+                </div>
+                <div class="flex justify-between text-xs mt-1">
+                  <span class="text-gray-500">0</span>
+                  <span class="text-green-500 font-medium">46%</span>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="py-4 px-4 text-right">
+            <div class="flex items-center justify-end">
+              <lucide-angular
+                [name]="trendingUp"
+                class="h-4 w-4 trend-up mr-1"
+              ></lucide-angular>
+              <span class="text-emerald-500 font-medium">+7.2%</span>
+            </div>
+          </td>
+        </tr>
+
+        <!-- Rank 10 -->
+        <tr class="hover:bg-gray-700/20">
+          <td class="py-4 px-4">
+            <div
+              class="flex items-center justify-center w-8 h-8 rounded-full bg-gray-700 text-white font-bold"
+            >
+              10
+            </div>
+          </td>
+          <td class="py-4 px-4">
+            <div class="flex items-center space-x-3">
+              <div class="avatar">
+                <div class="w-10 h-10 rounded-full bg-orange-600">
+                  <img
+                    src="https://placehold.co/40x40/ea580c/FFFFFF?text=AT"
+                    alt="ai_trader avatar"
+                  />
+                </div>
+              </div>
+              <div>
+                <div class="font-medium text-white">ai_trader</div>
+                <div class="text-xs text-gray-400">Joined Oct 2023</div>
+              </div>
+              <div
+                class="badge badge-sm bg-orange-600 text-white border-none ml-2"
+              >
+                <lucide-angular [name]="cpu" class="h-3 w-3"></lucide-angular>
+                AI Specialist
+              </div>
+            </div>
+          </td>
+          <td class="py-4 px-4 text-center hidden md:table-cell">
+            <span class="text-white font-medium">98</span>
+          </td>
+          <td class="py-4 px-4 text-center hidden sm:table-cell">
+            <span class="text-white font-medium">645</span>
+          </td>
+          <td class="py-4 px-4 text-center">
+            <span class="text-white font-medium text-base">11,045</span>
+          </td>
+          <td class="py-4 px-4 text-center hidden lg:table-cell">
+            <div class="flex items-center justify-center">
+              <div class="w-24 h-8">
+                <div
+                  class="w-full h-1 bg-gray-700 rounded-full overflow-hidden"
+                >
+                  <div
+                    class="h-full bg-gradient-to-r from-orange-500 to-red-500 w-[40%]"
+                  ></div>
+                </div>
+                <div class="flex justify-between text-xs mt-1">
+                  <span class="text-gray-500">0</span>
+                  <span class="text-orange-500 font-medium">40%</span>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td class="py-4 px-4 text-right">
+            <div class="flex items-center justify-end">
+              <lucide-angular
+                [name]="trendingUp"
+                class="h-4 w-4 trend-up mr-1"
+              ></lucide-angular>
+              <span class="text-emerald-500 font-medium">+15.8%</span>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  <div class="flex justify-between items-center mt-6">
+    <div class="text-sm text-gray-400">
+      Showing <span class="text-white">1-10</span> of
+      <span class="text-white">100</span> users
+    </div>
+
+    <div class="join">
+      <button
+        class="join-item btn btn-sm bg-gray-800 border-none hover:bg-gray-700"
+      >
+        <lucide-angular [name]="chevronLeft" class="h-4 w-4"></lucide-angular>
+      </button>
+      <button
+        class="join-item btn btn-sm bg-accent border-none hover:bg-accent text-white"
+      >
+        1
+      </button>
+      <button
+        class="join-item btn btn-sm bg-gray-800 border-none hover:bg-gray-700"
+      >
+        2
+      </button>
+      <button
+        class="join-item btn btn-sm bg-gray-800 border-none hover:bg-gray-700"
+      >
+        3
+      </button>
+      <button
+        class="join-item btn btn-sm bg-gray-800 border-none hover:bg-gray-700"
+      >
+        4
+      </button>
+      <button
+        class="join-item btn btn-sm bg-gray-800 border-none hover:bg-gray-700"
+      >
+        ...
+      </button>
+      <button
+        class="join-item btn btn-sm bg-gray-800 border-none hover:bg-gray-700"
+      >
+        10
+      </button>
+      <button
+        class="join-item btn btn-sm bg-gray-800 border-none hover:bg-gray-700"
+      >
+        <lucide-angular [name]="chevronRight" class="h-4 w-4"></lucide-angular>
+      </button>
+    </div>
+  </div>
+</main>
+
+<app-footer></app-footer>
