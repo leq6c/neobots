@@ -44,9 +44,7 @@ export class NavbarComponent {
       }
     });
 
-    setTimeout(() => {
-      this.connectWallet();
-    });
+    this.connectWallet();
   }
 
   async connectWallet() {

@@ -6,17 +6,29 @@ import { WalletReadyState } from '@solana/wallet-adapter-base';
 import { firstValueFrom } from 'rxjs';
 import { AnchorProvider, setProvider } from '@coral-xyz/anchor';
 import { injectPublicKey } from '../lib/solana/lib/inject-public-key';
+import { injectConnected } from '../lib/solana/lib/inject-connected';
 
 @Injectable({
   providedIn: 'root',
 })
 export class WalletService {
+  readonly connected = injectConnected();
   readonly publicKey = injectPublicKey();
   readonly walletStore = inject(WalletStore);
   readonly connectionStore = inject(ConnectionStore);
   readonly wallets = injectWallets();
 
+  callbacks: (() => void)[] = [];
+
   constructor() {}
+
+  callOrWhenReady(fn: () => void) {
+    if (this.connected()) {
+      fn();
+    } else {
+      this.callbacks.push(fn);
+    }
+  }
 
   getPublicKey(shrink: boolean = false): string {
     const publicKey = this.publicKey();
@@ -53,6 +65,9 @@ export class WalletService {
       commitment: 'confirmed',
     });
     setProvider(anchorProvider);
+
+    this.callbacks.forEach((fn) => fn());
+    this.callbacks = [];
   }
 
   async disconnectWallet(): Promise<void> {

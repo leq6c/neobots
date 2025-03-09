@@ -1,0 +1,10 @@
+diff --git a/node_modules/node-fetch/lib/index.mjs b/node_modules/node-fetch/lib/index.mjs
+index 2863dd9..9b46ef8 100644
+--- a/node_modules/node-fetch/lib/index.mjs
++++ b/node_modules/node-fetch/lib/index.mjs
+@@ -1,4 +1,4 @@
+-import Stream from 'stream';
++/*import Stream from 'stream';*/
+ import http from 'http';
+ import Url from 'url';
+ import whatwgUrl from 'whatwg-url';
