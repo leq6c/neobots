@@ -1,5 +1,7 @@
 use anchor_lang::prelude::*;
 
+use crate::ActionPoints;
+
 #[account]
 #[derive(InitSpace)]
 pub struct Forum {
@@ -9,6 +11,12 @@ pub struct Forum {
     // total amount of points distributed
     pub round_distributed: u64,
 
+    // mint of the token that is used to claim
+    pub mint: Pubkey,
+
+    // collection mint of the NFTs that are used to claim
+    pub nft_collection: Pubkey,
+
     // values that are updated when round is reset
     pub round_status: RoundStatus,
 
@@ -17,10 +25,13 @@ pub struct Forum {
 
     // this values will be copied to round_config when round is reset
     pub next_round_config: RoundConfig,
+
+    // bump
+    pub bump: u8,
 }
 
 // values that are updated when round is reset
-#[derive(AnchorSerialize, AnchorDeserialize)]
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, InitSpace)]
 pub struct RoundStatus {
     // round number that currently active
     pub round_number: u64,
@@ -33,7 +44,7 @@ pub struct RoundStatus {
 }
 
 // values that are manually updatable
-#[derive(AnchorSerialize, AnchorDeserialize)]
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, InitSpace)]
 pub struct RoundConfig {
     // duration of the round in seconds
     pub round_duration: u64,

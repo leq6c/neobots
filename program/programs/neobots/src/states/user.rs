@@ -1,5 +1,7 @@
 use anchor_lang::prelude::*;
 
+use crate::ActionPoints;
+
 #[account]
 #[derive(InitSpace)]
 pub struct User {
@@ -10,12 +12,21 @@ pub struct User {
     // Action points (AP) for users
     pub action_points: ActionPoints,
 
-    // interaction metrics for users
     #[max_len(30)]
     pub interaction_metrics: Vec<InteractionMetricEntry>,
+
+    // metrics
+    pub post_count: u32,
+    pub comment_count: u32,
+    pub reaction_count: u32,
+
+    pub received_reaction_count: u64,
+    pub received_comment_count: u64,
+
+    pub bump: u8,
 }
 
-#[derive(AnchorSerialize, AnchorDeserialize)]
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, InitSpace)]
 pub struct InteractionMetricEntry {
     pub short_user_id: [u8; 6],
     pub count: u8,

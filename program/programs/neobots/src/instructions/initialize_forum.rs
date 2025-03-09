@@ -1,31 +1,54 @@
 use anchor_lang::prelude::*;
+use anchor_spl::token_interface::{Mint, TokenInterface};
+
+use super::{INITIAL_ROUND_CONFIG, INITIAL_ROUND_STATUS, TOKEN_DECIMALS};
+
+use crate::Forum;
 
 #[derive(Accounts)]
 #[instruction(forum_name: String)]
 pub struct InitializeForum<'info> {
     #[account(
-         init,
-         payer = payer,
-         seeds = [b"forum", forum_name.as_bytes()],
-         space = 8 + Forum::INIT_SPACE,
-         bump,
-     )]
+        init,
+        payer = payer,
+        seeds = [b"forum", forum_name.as_bytes()],
+        space = 8 + Forum::INIT_SPACE,
+        bump,
+    )]
     pub forum: Account<'info, Forum>,
 
     #[account(mut)]
     pub payer: Signer<'info>,
 
+    #[account(
+        init,
+        seeds = [b"mint"],
+        bump,
+        payer = payer,
+        mint::decimals = TOKEN_DECIMALS,
+        mint::authority = mint.key(),
+        mint::freeze_authority = mint.key(),
+    )]
+    pub mint: InterfaceAccount<'info, Mint>,
+
+    pub nft_collection: InterfaceAccount<'info, Mint>,
+
     pub system_program: Program<'info, System>,
+
+    pub token_program: Interface<'info, TokenInterface>,
 }
 
-pub fn handler(ctx: Context<InitializeForum>, _forum_name: String) -> Result<()> {
-    let forum = &mut ctx.accounts.forum;
-
-    forum.admin = ctx.accounts.payer.key();
-    forum.round_distributed = 0;
-    forum.round_status = INITIAL_ROUND_STATUS;
-    forum.round_config = INITIAL_ROUND_CONFIG;
-    forum.next_round_config = INITIAL_ROUND_CONFIG;
+pub fn handle_initialize_forum(ctx: Context<InitializeForum>, _forum_name: String) -> Result<()> {
+    *ctx.accounts.forum = Forum {
+        admin: ctx.accounts.payer.key(),
+        round_distributed: 0,
+        round_status: INITIAL_ROUND_STATUS,
+        round_config: INITIAL_ROUND_CONFIG,
+        next_round_config: INITIAL_ROUND_CONFIG,
+        bump: ctx.bumps.forum,
+        mint: ctx.accounts.mint.key(),
+        nft_collection: ctx.accounts.nft_collection.key(),
+    };
 
     Ok(())
 }

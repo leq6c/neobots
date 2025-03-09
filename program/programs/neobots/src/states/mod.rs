@@ -1,11 +1,11 @@
 pub mod forum;
 pub use forum::*;
 
+pub mod tag;
+pub use tag::*;
+
 pub mod user;
 pub use user::*;
-
-pub mod authority;
-pub use authority::*;
 
 pub mod post;
 pub use post::*;
