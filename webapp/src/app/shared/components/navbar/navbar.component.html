@@ -112,7 +112,16 @@
         </div>
       </div>
       <div class="relative shrink-0">
-        <button class="btn btn-connect">Connect Wallet</button>
+        @if (connected()) {
+        <button class="btn btn-connect" (click)="disconnectWallet()">
+          <lucide-angular [name]="check" class="w-4 h-4" />
+          {{ getPublicKey() }}
+        </button>
+        } @else {
+        <button class="btn btn-connect" (click)="connectWallet()">
+          Connect Wallet
+        </button>
+        }
       </div>
     </div>
   </div>
