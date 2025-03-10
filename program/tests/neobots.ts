@@ -16,11 +16,11 @@ import {
   mintTo,
   TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
-import { NFTBuilder } from "./NFTBuilder";
 import { CreateCompressedNftOutput } from "@metaplex-foundation/js";
 import { expect } from "chai";
 import { SYSTEM_PROGRAM_ID } from "@coral-xyz/anchor/dist/cjs/native/system";
 import { publicKey } from "@coral-xyz/anchor/dist/cjs/utils";
+import { CoreNFTBuilder } from "./CoreNFTBuilder";
 
 // pub const TOKEN_UNIT: u64 = 1_000_000_000;
 // pub const RATIO_SCALE: u64 = 1_000_000;
@@ -44,11 +44,14 @@ describe("neobots", async () => {
   let postPda: PublicKey;
 
   let splTokenMint: PublicKey;
-  let collection: CreateCompressedNftOutput;
+
+  // NFT Builder
+  let coreNftBuilder: CoreNFTBuilder;
+  let collection: Keypair;
   // nft1 is owned by user1
-  let nft1: CreateCompressedNftOutput;
+  let nft1: Keypair;
   // nft2 is owned by user2
-  let nft2: CreateCompressedNftOutput;
+  let nft2: Keypair;
 
   let mintAuthority: PublicKey;
 
@@ -93,24 +96,34 @@ describe("neobots", async () => {
     console.log("Airdropped 1 SOL to the user 2:", txUser2);
   });
 
-  it("NFT Builder", async () => {
-    const nftBuilder = new NFTBuilder(provider, authority);
-    collection = await nftBuilder.createCollection();
-    nft1 = await nftBuilder.createNft("NeoBots #1", "NB", user1.publicKey);
-    nft2 = await nftBuilder.createNft("NeoBots #2", "NB", user2.publicKey);
-    console.log("Created NFT Collection:", collection.nft.address.toBase58());
-    console.log("Created NFT 1:", nft1.nft.address.toBase58());
-    console.log("Created NFT 2:", nft2.nft.address.toBase58());
+  it("Core NFT Builder", async () => {
+    coreNftBuilder = new CoreNFTBuilder(provider, authority);
+    await coreNftBuilder.createCollection();
+    await coreNftBuilder.createCandyMachine();
+    await coreNftBuilder.addItemsToCandyMachine();
+    await coreNftBuilder.checkCandyMachine();
 
+    // airdrop
+    await coreNftBuilder.airdrop(user1, 100); // 100 SOL
+    await coreNftBuilder.airdrop(user2, 100); // 100 SOL
+
+    // mint NFT
+    nft1 = await coreNftBuilder.mintNFT(user1);
+    nft2 = await coreNftBuilder.mintNFT(user2);
+
+    // generate PDA for user1 and user2 (neobots platform user)
     [user1Pda] = PublicKey.findProgramAddressSync(
-      [Buffer.from("user"), nft1.nft.address.toBuffer()],
+      [Buffer.from("user"), nft1.publicKey.toBuffer()],
       program.programId
     );
 
     [user2Pda] = PublicKey.findProgramAddressSync(
-      [Buffer.from("user"), nft2.nft.address.toBuffer()],
+      [Buffer.from("user"), nft2.publicKey.toBuffer()],
       program.programId
     );
+
+    // get collection mint
+    collection = coreNftBuilder.getCollectionMint();
   });
 
   it("initialize forum", async () => {
@@ -119,7 +132,7 @@ describe("neobots", async () => {
       .initializeForum("forum_id")
       .accounts({
         payer: provider.wallet.publicKey,
-        nftCollection: collection.mintAddress,
+        nftCollection: collection.publicKey,
         tokenProgram: TOKEN_PROGRAM_ID,
       })
       .rpc();
@@ -140,9 +153,7 @@ describe("neobots", async () => {
       .initializeUser("forum_id")
       .accounts({
         payer: user1.publicKey,
-        nftMint: nft1.mintAddress,
-        nftMetadata: nft1.metadataAddress,
-        nftTokenAccount: nft1.tokenAddress,
+        nftMint: nft1.publicKey,
       })
       .signers([user1])
       .rpc();
@@ -157,9 +168,7 @@ describe("neobots", async () => {
       .createPost("forum_id", "Hello, world!", "tag_name")
       .accounts({
         owner: user1.publicKey,
-        nftMint: nft1.mintAddress,
-        nftMetadata: nft1.metadataAddress,
-        nftTokenAccount: nft1.tokenAddress,
+        nftMint: nft1.publicKey,
       })
       .signers([user1])
       .rpc();
@@ -187,9 +196,7 @@ describe("neobots", async () => {
       .initializeUser("forum_id")
       .accounts({
         payer: user2.publicKey,
-        nftMint: nft2.mintAddress,
-        nftMetadata: nft2.metadataAddress,
-        nftTokenAccount: nft2.tokenAddress,
+        nftMint: nft2.publicKey,
       })
       .signers([user2])
       .rpc();
@@ -205,9 +212,7 @@ describe("neobots", async () => {
       .addComment("forum_id", 0, "Hello, world!")
       .accounts({
         postAuthor: user1Pda,
-        senderNftMint: nft2.nft.address,
-        senderNftTokenAccount: nft2.tokenAddress,
-        senderNftMetadata: nft2.metadataAddress,
+        senderNftMint: nft2.publicKey,
         sender: user2.publicKey,
       })
       .signers([user2])
@@ -227,9 +232,7 @@ describe("neobots", async () => {
       .accounts({
         postAuthor: user1Pda,
         commentAuthorUser: user2Pda,
-        senderNftMint: nft1.nft.address,
-        senderNftTokenAccount: nft1.tokenAddress,
-        senderNftMetadata: nft1.metadataAddress,
+        senderNftMint: nft1.publicKey,
         sender: user1.publicKey,
       })
       .signers([user1])
@@ -260,9 +263,7 @@ describe("neobots", async () => {
     const tx = await program.methods
       .claim("forum_id")
       .accounts({
-        nftMint: nft1.mintAddress,
-        nftTokenAccount: nft1.tokenAddress,
-        nftMetadata: nft1.metadataAddress,
+        nftMint: nft1.publicKey,
         beneficiary: user1.publicKey,
         mint: splTokenMint,
         mintAuthority: splTokenMint,

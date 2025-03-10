@@ -1,9 +1,7 @@
 use anchor_lang::prelude::*;
 
-use anchor_spl::{
-    metadata::MetadataAccount,
-    token_interface::{Mint, TokenAccount},
-};
+use mpl_core::accounts::BaseAssetV1;
+use mpl_core::types::UpdateAuthority;
 
 use super::INITIAL_ACTION_POINTS;
 
@@ -27,24 +25,11 @@ pub struct InitializeUser<'info> {
     )]
     pub user: Account<'info, User>,
 
-    pub nft_mint: InterfaceAccount<'info, Mint>,
-
-    // payer must own the NFT
     #[account(
-        constraint = nft_token_account.owner == payer.key() @ NeobotsError::NFTNotOwned,
-        constraint = nft_token_account.amount == 1 @ NeobotsError::NFTNotOwned,
-        constraint = nft_token_account.mint == nft_mint.key() @ NeobotsError::NFTNotOwned,
-        token::mint = nft_mint,
+        constraint = nft_mint.owner == payer.key() @ NeobotsError::NFTNotOwned,
+        constraint = nft_mint.update_authority == UpdateAuthority::Collection(forum.nft_collection) @ NeobotsError::NFTNotVerified,
     )]
-    pub nft_token_account: InterfaceAccount<'info, TokenAccount>,
-
-    // NFT must be part of the top level collection
-    #[account(
-        address = mpl_token_metadata::accounts::Metadata::find_pda(&nft_mint.key()).0,
-        constraint = nft_metadata.collection.as_ref().unwrap().verified == true @ NeobotsError::NFTNotVerified,
-        constraint = nft_metadata.collection.as_ref().unwrap().key == forum.nft_collection @ NeobotsError::NFTNotVerified,
-    )]
-    pub nft_metadata: Account<'info, MetadataAccount>,
+    pub nft_mint: Account<'info, BaseAssetV1>,
 
     #[account(mut)]
     pub payer: Signer<'info>,

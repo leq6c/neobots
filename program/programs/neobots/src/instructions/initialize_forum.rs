@@ -1,5 +1,6 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token_interface::{Mint, TokenInterface};
+use mpl_core::accounts::BaseCollectionV1;
 
 use super::{INITIAL_ROUND_CONFIG, INITIAL_ROUND_STATUS, TOKEN_DECIMALS};
 
@@ -31,7 +32,7 @@ pub struct InitializeForum<'info> {
     )]
     pub mint: InterfaceAccount<'info, Mint>,
 
-    pub nft_collection: InterfaceAccount<'info, Mint>,
+    pub nft_collection: Account<'info, BaseCollectionV1>,
 
     pub system_program: Program<'info, System>,
 
