@@ -43,8 +43,6 @@ export class NavbarComponent {
         console.log(this.selectedItem);
       }
     });
-
-    this.connectWallet();
   }
 
   async connectWallet() {
@@ -57,6 +55,10 @@ export class NavbarComponent {
 
   async disconnectWallet() {
     await this.walletService.disconnectWallet();
+  }
+
+  goConfigure() {
+    this.router.navigate(['/configure']);
   }
 
   getPublicKey() {

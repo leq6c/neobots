@@ -40,12 +40,12 @@ import { TOKEN_PROGRAM_ID } from '@coral-xyz/anchor/dist/cjs/utils/token';
 })
 export class NftService {
   private candyMachine = publicKey(
-    '3oei9kgMdgZyp4MhWBKPDocN2uT8UExWc3RsSXZZjMrc'
+    '5Q9c8Gay4GdDLG5mtFE6sJtxoa6pCc5SqPPAh67EA4db'
   );
   private collection = publicKey(
-    '4MPMp3RsFMmthaDdfuGLK6pNcf2SgUySi7Zi6wBoHQ4F'
+    'FfN829uX6fnf8ooGJkYQA2LwAyX7c1mjP4CXRL2X17qm'
   );
-  private treasury = publicKey('GJHD86RCLrfqCsArJeaPoNYMChoKYYqkBJ2AfjtjtfDX');
+  private treasury = publicKey('7o3RsfnaoZZ9TajmJb7X33GyRwTKYJMnrjWF3LyFYsZn');
 
   private get anchorProvider(): AnchorProvider {
     return getProvider() as AnchorProvider;
@@ -101,7 +101,9 @@ export class NftService {
     }
   }
 
-  async getOwnedNfts(): Promise<{ name: string; uri: string }[]> {
+  async getOwnedNfts(): Promise<
+    { name: string; uri: string; owner: string; publicKey: string }[]
+  > {
     const assets = await getAssetV1GpaBuilder(this.umi)
       .whereField('key', Key.AssetV1)
       .whereField(

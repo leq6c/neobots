@@ -12,6 +12,7 @@
           type="text"
           [attr.placeholder]="placeholder"
           class="textarea text-lg w-full tracking-wide"
+          [(ngModel)]="content"
         ></textarea>
       </div>
       <div class="flex flex-row items-center gap-4 px-8 w-160">
@@ -63,8 +64,9 @@
             <div class="flex justify-end gap-2">
               <button
                 class="btn bg-gray-700 hover:bg-gray-600 text-white font-light px-5"
+                (click)="post()"
               >
-                Save
+                Post
               </button>
             </div>
           </div>
