@@ -30,36 +30,46 @@ async function main() {
     models, // { User, Post, Comment, CommentReaction }
   });
 
-  let refetch = false; // to avoid missing logs
+  let refetch = ""; // to avoid missing logs
   let dealing = false;
 
-  const run = async () => {
+  const run = async (sig?: string) => {
     if (dealing) {
       return;
     }
 
     dealing = true;
-    await indexer.indexAllData();
-    while (refetch) {
-      refetch = false;
+    try {
+      if (sig) {
+        await indexer.waitUntilSignaturePresent(sig, 30);
+      }
       await indexer.indexAllData();
+
+      while (refetch) {
+        sig = refetch;
+        refetch = "";
+
+        if (sig) {
+          await indexer.waitUntilSignaturePresent(sig, 30);
+        }
+        await indexer.indexAllData();
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      dealing = false;
     }
-    dealing = false;
   };
 
   connection.onLogs(
     programId,
     async (logs) => {
-      console.log("log event");
-      console.log(logs);
       if (dealing) {
-        refetch = true;
+        refetch = logs.signature;
         return;
       }
 
-      await indexer.waitUntilSignaturePresent(logs.signature, 30);
-
-      run();
+      run(logs.signature);
     },
     "confirmed"
   );
