@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "npx tsx src/app.ts",
+    "simulate": "npx tsx src/scripts/simulate_basics.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -18,6 +19,15 @@
   "dependencies": {
     "sequelize": "^6.37.6",
     "sqlite3": "^5.1.7",
-    "ts-node": "^10.9.2"
+    "ts-node": "^10.9.2",
+    "@coral-xyz/anchor": "^0.30.1",
+    "@metaplex-foundation/digital-asset-standard-api": "^1.0.6",
+    "@metaplex-foundation/mpl-core": "^1.2.0",
+    "@metaplex-foundation/mpl-core-candy-machine": "^0.3.0",
+    "@metaplex-foundation/mpl-token-metadata": "^3.3.0",
+    "@metaplex-foundation/umi": "^0.9.1",
+    "@metaplex-foundation/umi-bundle-defaults": "^0.9.1",
+    "@metaplex-foundation/umi-web3js-adapters": "^0.9.2",
+    "@solana/web3.js": "^1.98.0"
   }
 }

@@ -1,106 +1,69 @@
-import { Sequelize, Options } from "sequelize";
+// forum-library/index.ts
 
-// Model init functions
+import { Sequelize, Options as SequelizeOptions } from "sequelize";
+
 import { initUserModel, User } from "./models/user.model";
-import { initCategoryModel, Category } from "./models/category.model";
 import { initPostModel, Post } from "./models/post.model";
 import { initCommentModel, Comment } from "./models/comment.model";
-import { initVoteModel, Vote } from "./models/vote.model";
-import { initHonorTagModel, HonorTag } from "./models/honorTag.model";
 import {
-  initUserHonorTagModel,
-  UserHonorTag,
-} from "./models/userHonorTag.model";
+  initCommentReactionModel,
+  CommentReaction,
+} from "./models/commentReaction.model";
+import {
+  IndexMetadata,
+  initIndexMetadataModel,
+} from "./models/indexMetadata.model";
 
-// Interface for all forum models in one place
+/**
+ * Aggregates all models in one interface
+ */
 export interface ForumModels {
   User: typeof User;
-  Category: typeof Category;
   Post: typeof Post;
   Comment: typeof Comment;
-  Vote: typeof Vote;
-  HonorTag: typeof HonorTag;
-  UserHonorTag: typeof UserHonorTag;
+  CommentReaction: typeof CommentReaction;
+  IndexMetadata: typeof IndexMetadata;
 }
 
 /**
- * Initializes all forum models and returns them with the Sequelize instance.
+ * Main initialization function
+ * Creates a Sequelize instance, initializes all models, syncs with DB.
  */
 export async function initForum(
-  dbConfig: Options
+  dbConfig: SequelizeOptions
 ): Promise<{ sequelize: Sequelize; models: ForumModels }> {
-  // Create the Sequelize instance
+  // Create the sequelize instance
   const sequelize = new Sequelize(dbConfig);
 
-  // Initialize each model
+  // Init each model with the same Sequelize instance
   initUserModel(sequelize);
-  initCategoryModel(sequelize);
   initPostModel(sequelize);
   initCommentModel(sequelize);
-  initVoteModel(sequelize);
-  initHonorTagModel(sequelize);
-  initUserHonorTagModel(sequelize);
+  initCommentReactionModel(sequelize);
+  initIndexMetadataModel(sequelize);
 
-  // ----- Define Associations -----
-  // 1) User <-> Post
-  User.hasMany(Post, { foreignKey: "user_id", onDelete: "CASCADE" });
-  Post.belongsTo(User, { foreignKey: "user_id" });
+  // If you'd like to define relationships, you can do so here:
+  // Example:
+  // User.hasMany(Post, {
+  //   foreignKey: 'post_author_pda',
+  //   sourceKey: 'user_pda',
+  // });
+  // Post.belongsTo(User, {
+  //   foreignKey: 'post_author_pda',
+  //   targetKey: 'user_pda',
+  // });
 
-  // 2) Category <-> Post
-  Category.hasMany(Post, { foreignKey: "category_id", onDelete: "CASCADE" });
-  Post.belongsTo(Category, { foreignKey: "category_id" });
+  // Sync DB - creates tables if they do not exist
+  // For production, you'd typically run migrations instead.
+  await sequelize.sync();
 
-  // 3) User <-> Comment
-  User.hasMany(Comment, { foreignKey: "user_id", onDelete: "CASCADE" });
-  Comment.belongsTo(User, { foreignKey: "user_id" });
-
-  // 4) Post <-> Comment
-  Post.hasMany(Comment, { foreignKey: "post_id", onDelete: "CASCADE" });
-  Comment.belongsTo(Post, { foreignKey: "post_id" });
-
-  // 5) Self-association for nested comments
-  Comment.hasMany(Comment, {
-    foreignKey: "parent_comment_id",
-    as: "replies",
-    onDelete: "CASCADE",
-  });
-  Comment.belongsTo(Comment, {
-    foreignKey: "parent_comment_id",
-    as: "parentComment",
-  });
-
-  // 6) User <-> Vote
-  User.hasMany(Vote, { foreignKey: "user_id", onDelete: "CASCADE" });
-  Vote.belongsTo(User, { foreignKey: "user_id" });
-
-  // (We do not directly associate Vote <-> Post or Vote <-> Comment
-  //  because we are using a polymorphic approach with target_type/target_id.)
-
-  // 7) User <-> HonorTag (many-to-many via UserHonorTag)
-  User.belongsToMany(HonorTag, {
-    through: UserHonorTag,
-    foreignKey: "user_id",
-    otherKey: "honor_tag_id",
-  });
-  HonorTag.belongsToMany(User, {
-    through: UserHonorTag,
-    foreignKey: "honor_tag_id",
-    otherKey: "user_id",
-  });
-
-  // Synchronize with DB (creates tables if they don't exist)
-  await sequelize.sync(/* { force: true } */);
-
-  // Collect models into a single object
+  // Return the instance and the models
   const models: ForumModels = {
     User,
-    Category,
     Post,
     Comment,
-    Vote,
-    HonorTag,
-    UserHonorTag,
+    CommentReaction,
+    IndexMetadata,
   };
-
   return { sequelize, models };
 }
