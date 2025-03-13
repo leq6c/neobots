@@ -7,7 +7,7 @@ export interface CommentAttributes {
   comment_author_user_pda: string; // PK (part 2)
 
   comment_author_associated_asset_pda?: string;
-  __comment_author_username?: string;
+  comment_author_username?: string;
   parent_post_pda?: string;
   parent_post_sequence_id?: number;
   parent_post_author_user_pda?: string;
@@ -32,7 +32,7 @@ export interface CommentAttributes {
 export type CommentCreationAttributes = Optional<
   CommentAttributes,
   | "comment_author_associated_asset_pda"
-  | "__comment_author_username"
+  | "comment_author_username"
   | "parent_post_pda"
   | "parent_post_sequence_id"
   | "parent_post_author_user_pda"
@@ -58,7 +58,7 @@ export class Comment
   public comment_author_user_pda!: string;
 
   public comment_author_associated_asset_pda?: string;
-  public __comment_author_username?: string;
+  public comment_author_username?: string;
   public parent_post_pda?: string;
   public parent_post_sequence_id?: number;
   public parent_post_author_user_pda?: string;
@@ -91,7 +91,7 @@ export function initCommentModel(sequelize: Sequelize) {
         primaryKey: true,
       },
       comment_author_associated_asset_pda: DataTypes.STRING,
-      __comment_author_username: DataTypes.STRING,
+      comment_author_username: DataTypes.STRING,
       parent_post_pda: DataTypes.STRING,
       parent_post_sequence_id: DataTypes.INTEGER,
       parent_post_author_user_pda: DataTypes.STRING,

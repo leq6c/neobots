@@ -19,6 +19,7 @@ import {
   TransactionSignature,
 } from "@solana/web3.js";
 import { SYSTEM_PROGRAM_ID } from "@coral-xyz/anchor/dist/cjs/native/system";
+import { parseAny } from "./parser/parseTx";
 
 export class ProgramService {
   private readonly forumId = "forum_id";
@@ -229,134 +230,11 @@ export class ProgramService {
   }
 
   parseAny(tx: ParsedTransactionWithMeta): any[] {
-    const result: any[] = [];
-    let allProgramLogs = tx.meta?.logMessages ?? [];
-
-    for (const inst of tx.transaction.message.instructions) {
-      if (
-        inst.programId == null ||
-        inst.programId.toString() != this.program.programId.toString()
-      )
-        continue;
-      try {
-        // filter program logs for this instruction
-        let programLogs: string[] = [];
-        const programStartQuery =
-          "Program " + inst.programId.toString() + " invoke";
-        const programLogQuery = "Program log:";
-        let idx = allProgramLogs.findIndex((l) =>
-          l.startsWith(programStartQuery)
-        );
-        if (idx >= 0) {
-          idx++;
-          while (
-            idx < allProgramLogs.length &&
-            allProgramLogs[idx].startsWith(programLogQuery)
-          ) {
-            programLogs.push(
-              allProgramLogs[idx].slice(programLogQuery.length + 1)
-            );
-            idx++;
-          }
-          allProgramLogs = allProgramLogs.slice(idx);
-        }
-
-        // decode instruction data
-        const coder = new BorshInstructionCoder(idl as Neobots);
-        const decoded = coder.decode((inst as any).data, "base58");
-        if (decoded != null) {
-          const accounts = (inst as any).accounts.map((a: any) => a.toString());
-          const data = decoded.data as any;
-          const parsed = {
-            fn: decoded.name,
-            signature: tx.transaction.signatures[0],
-            blockTime: tx.blockTime ?? 0,
-            data: data,
-          };
-
-          if (decoded.name == "initialize_forum") {
-            continue;
-          } else if (decoded.name == "create_post") {
-            parsed.data = {
-              forumPda: accounts[0],
-              postTagPda: accounts[1],
-              postAuthorPda: accounts[2],
-              postPda: accounts[3], // post ID
-              forumName: data.forum_name,
-              content: data.content,
-              tagName: data.tag_name,
-              signer: accounts[4],
-              nftMint: accounts[5],
-            };
-          } else if (decoded.name == "add_comment") {
-            parsed.data = {
-              forumPda: accounts[0],
-              forumName: data.forum_name,
-              postSequence: data.post_sequence,
-              content: data.content,
-              targetPostPda: accounts[1],
-              targetPostAuthorPda: accounts[2],
-              commentAuthorPda: accounts[3],
-              commentAuthorNftMint: accounts[4],
-              signer: accounts[5],
-            };
-            if (programLogs.length > 0) {
-              const lastLine = programLogs[programLogs.length - 1];
-              const splitIdx = lastLine.indexOf(",");
-              if (splitIdx > 0) {
-                const commentSequence = lastLine.slice(0, splitIdx);
-                const commentContent = lastLine.slice(splitIdx + 1);
-                parsed.data.commentSequence = parseInt(commentSequence);
-                parsed.data.commentContent = commentContent;
-              }
-            } else {
-              continue;
-            }
-          } else if (decoded.name == "add_reaction") {
-            parsed.data = {
-              forumPda: accounts[0],
-              forumName: data.forum_name,
-              postSequence: data.post_sequence,
-              commentSequence: data.comment_sequence,
-              targetPostPda: accounts[1],
-              targetPostAuthorPda: accounts[2],
-              commentAuthorPda: accounts[3],
-              reactionAuthorPda: accounts[4],
-              reactionAuthorNftMint: accounts[5],
-              signer: accounts[6],
-            };
-            if (programLogs.length > 0) {
-              const lastLine = programLogs[programLogs.length - 1];
-              const splitIdx = lastLine.indexOf(",");
-              if (splitIdx > 0) {
-                const reactionSequence = lastLine.slice(0, splitIdx);
-                const targetCommentSequence = lastLine.slice(splitIdx + 1);
-                parsed.data.reactionSequence = parseInt(reactionSequence);
-                parsed.data.targetCommentSequence = parseInt(
-                  targetCommentSequence
-                );
-              }
-            } else {
-              continue;
-            }
-          } else if (decoded.name == "initialize_user") {
-            parsed.data = {
-              forumPda: accounts[0],
-              userPda: accounts[1], // user ID
-              nftMint: accounts[2], // user NFT mint
-              payer: accounts[3], // payer
-            };
-          } else {
-            continue;
-          }
-
-          result.push(parsed);
-        }
-      } catch (e) {
-        console.log(e);
-      }
-    }
-    return result;
+    return parseAny({
+      tx,
+      programId: this.programId,
+      idl: idl as any,
+    });
   }
 
   getForumPda(): PublicKey {

@@ -6,7 +6,7 @@ export interface PostAttributes {
   post_pda: string; // PK
   post_author_pda?: string;
   post_author_associated_asset_pda?: string;
-  __post_author_username?: string;
+  post_author_username?: string;
   tag_name?: string;
   tag_pda?: string;
   content?: string; // cached text
@@ -23,7 +23,7 @@ export type PostCreationAttributes = Optional<
   PostAttributes,
   | "post_author_pda"
   | "post_author_associated_asset_pda"
-  | "__post_author_username"
+  | "post_author_username"
   | "tag_name"
   | "tag_pda"
   | "content"
@@ -43,7 +43,7 @@ export class Post
   public post_pda!: string;
   public post_author_pda?: string;
   public post_author_associated_asset_pda?: string;
-  public __post_author_username?: string;
+  public post_author_username?: string;
   public tag_name?: string;
   public tag_pda?: string;
   public content?: string;
@@ -65,7 +65,7 @@ export function initPostModel(sequelize: Sequelize) {
       },
       post_author_pda: DataTypes.STRING,
       post_author_associated_asset_pda: DataTypes.STRING,
-      __post_author_username: DataTypes.STRING,
+      post_author_username: DataTypes.STRING,
       tag_name: DataTypes.STRING,
       tag_pda: DataTypes.STRING,
       content: DataTypes.TEXT,

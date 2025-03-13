@@ -299,7 +299,7 @@ export class ForumIndexer {
       post_pda: data.postPda,
       post_author_pda: data.postAuthorPda,
       post_author_associated_asset_pda: data.nftMint,
-      __post_author_username: data.signer, // or store data.forumName, or userName
+      post_author_username: data.signer, // or store data.forumName, or userName
       tag_name: data.tagName,
       // tag_pda: ??? If you want to store data.postTagPda
       content: data.content,
@@ -333,7 +333,7 @@ export class ForumIndexer {
       comment_author_sequence_id: data.commentSequence,
       comment_author_user_pda: data.commentAuthorPda,
       comment_author_associated_asset_pda: data.commentAuthorNftMint,
-      __comment_author_username: data.signer, // or data.forumName?
+      comment_author_username: data.signer, // or data.forumName?
 
       parent_post_pda: data.targetPostPda,
       parent_post_author_user_pda: data.targetPostAuthorPda,
@@ -371,7 +371,7 @@ export class ForumIndexer {
       reaction_author_sequence_id: data.reactionSequence,
       reaction_author_user_pda: data.reactionAuthorPda,
       reaction_author_associated_asset_pda: data.reactionAuthorNftMint,
-      __reaction_author_username: data.signer,
+      reaction_author_username: data.signer,
 
       parent_post_pda: data.targetPostPda,
       parent_post_author_user_pda: data.targetPostAuthorPda,

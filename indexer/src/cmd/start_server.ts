@@ -1,0 +1,31 @@
+// indexApp.ts
+import { Connection, Keypair, PublicKey } from "@solana/web3.js";
+import { AnchorProvider, setProvider, Wallet } from "@coral-xyz/anchor";
+
+import { ForumIndexer } from "../indexing/forum_indexer";
+import { initForum } from "../forum/init"; // our DB init
+import { ProgramService } from "../solana/program.service"; // your custom code
+import { startServer } from "../server/server";
+
+export async function server() {
+  // 1) Setup the Solana connection
+  const connection = new Connection("http://localhost:8899");
+  const wallet = new Wallet(Keypair.generate());
+  const anchorProvider = new AnchorProvider(connection, wallet, {});
+  setProvider(anchorProvider);
+
+  // 2) Setup your program
+  const programService = new ProgramService();
+  const programId = programService.programId; // or new PublicKey(...)
+
+  // 3) Init your DB (Sequelize)
+  const { sequelize, models } = await initForum({
+    dialect: "sqlite",
+    storage: "test.db",
+  });
+
+  // Entry point
+  await startServer({ models }).catch((err) => {
+    console.error("Server failed to start", err);
+  });
+}
