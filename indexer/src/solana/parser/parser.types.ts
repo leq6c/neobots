@@ -29,6 +29,7 @@ export interface CreatePostData {
   tagName: string;
   signer: string;
   nftMint: string;
+  postSequence: number;
 }
 
 // Example: "add_comment" data

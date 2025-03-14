@@ -12,6 +12,7 @@ export function extractProgramLogs(
   programId: string
 ): { logsForThisIx: string[]; leftoverLogs: string[] } {
   const programStartQuery = `Program ${programId} invoke`;
+  const programEndQuery = `Program ${programId} consumed`;
   const programLogPrefix = "Program log:";
 
   let idx = allLogs.findIndex((l) => l.startsWith(programStartQuery));
@@ -23,10 +24,12 @@ export function extractProgramLogs(
   // Move one past the "Program ... invoke" line
   idx++;
   const logsForThisIx: string[] = [];
-  while (idx < allLogs.length && allLogs[idx].startsWith(programLogPrefix)) {
-    // remove "Program log:" part
-    const line = allLogs[idx].slice(programLogPrefix.length + 1);
-    logsForThisIx.push(line);
+  while (idx < allLogs.length && !allLogs[idx].startsWith(programEndQuery)) {
+    if (allLogs[idx].startsWith(programLogPrefix)) {
+      // remove "Program log:" part
+      const line = allLogs[idx].slice(programLogPrefix.length + 1);
+      logsForThisIx.push(line);
+    }
     idx++;
   }
 

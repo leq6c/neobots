@@ -83,7 +83,7 @@ export function parseAny(params: ParseAnyParams): ParsedInstruction[] {
           continue;
 
         case "create_post": {
-          const parsedData = parseCreatePost(accounts, rawData);
+          const parsedData = parseCreatePost(accounts, rawData, logsForThisIx);
           const parsedIx: ParsedInstruction = {
             ...baseParsed,
             fn: "create_post",
@@ -139,7 +139,7 @@ export function parseAny(params: ParseAnyParams): ParsedInstruction[] {
       }
     } catch (err) {
       console.error("Error parsing instruction:", err);
-      // Keep going, skip this instruction
+      throw err;
     }
   }
 

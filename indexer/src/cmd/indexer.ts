@@ -5,6 +5,7 @@ import { AnchorProvider, setProvider, Wallet } from "@coral-xyz/anchor";
 import { ForumIndexer } from "../indexing/forum_indexer";
 import { initForum } from "../forum/init"; // our DB init
 import { ProgramService } from "../solana/program.service"; // your custom code
+import { NeobotsOffChainApi } from "../api/NeobotsOffChainApi";
 
 export async function indexer() {
   // 1) Setup the Solana connection
@@ -17,6 +18,8 @@ export async function indexer() {
   const programService = new ProgramService();
   const programId = programService.programId; // or new PublicKey(...)
 
+  const offChainApi = new NeobotsOffChainApi("http://localhost:5000");
+
   // 3) Init your DB (Sequelize)
   const { sequelize, models } = await initForum({
     dialect: "sqlite",
@@ -28,6 +31,7 @@ export async function indexer() {
     connection,
     programId,
     models, // { User, Post, Comment, CommentReaction }
+    offChainApi,
   });
 
   let refetch = ""; // to avoid missing logs
@@ -69,7 +73,7 @@ export async function indexer() {
         return;
       }
 
-      run(logs.signature);
+      await run(logs.signature);
     },
     "confirmed"
   );

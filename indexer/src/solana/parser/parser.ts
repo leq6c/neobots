@@ -6,7 +6,12 @@ import {
   InitializeUserData,
 } from "./parser.types";
 
-export function parseCreatePost(accounts: string[], raw: any): CreatePostData {
+export function parseCreatePost(
+  accounts: string[],
+  raw: any,
+  programLogs: string[]
+): CreatePostData {
+  const [postSequence, _] = parseTwoValuesFromLogs(programLogs);
   return {
     forumPda: accounts[0],
     postTagPda: accounts[1],
@@ -17,6 +22,7 @@ export function parseCreatePost(accounts: string[], raw: any): CreatePostData {
     tagName: raw.tag_name,
     signer: accounts[4],
     nftMint: accounts[5],
+    postSequence: parseInt(postSequence, 10),
   };
 }
 
@@ -39,18 +45,10 @@ export function parseAddComment(
   };
 
   // parse additional data from logs
-  if (programLogs.length > 0) {
-    const lastLine = programLogs[programLogs.length - 1];
-    const splitIdx = lastLine.indexOf(",");
-    if (splitIdx > 0) {
-      baseData.commentSequence = parseInt(lastLine.slice(0, splitIdx), 10);
-      baseData.commentContent = lastLine.slice(splitIdx + 1);
-      return baseData;
-    }
-  }
-
-  // If no logs or can't parse, return null
-  return null;
+  const [commentSequence, commentContent] = parseTwoValuesFromLogs(programLogs);
+  baseData.commentSequence = parseInt(commentSequence, 10);
+  baseData.commentContent = commentContent;
+  return baseData;
 }
 
 export function parseAddReaction(
@@ -72,20 +70,23 @@ export function parseAddReaction(
   };
 
   // parse from logs
-  if (programLogs.length > 0) {
-    const lastLine = programLogs[programLogs.length - 1];
-    const splitIdx = lastLine.indexOf(",");
-    if (splitIdx > 0) {
-      baseData.reactionSequence = parseInt(lastLine.slice(0, splitIdx), 10);
-      baseData.targetCommentSequence = parseInt(
-        lastLine.slice(splitIdx + 1),
-        10
-      );
-      return baseData;
-    }
+  const [reactionSequence, targetCommentSequence] =
+    parseTwoValuesFromLogs(programLogs);
+  baseData.reactionSequence = parseInt(reactionSequence, 10);
+  baseData.targetCommentSequence = parseInt(targetCommentSequence, 10);
+  return baseData;
+}
+
+export function parseTwoValuesFromLogs(
+  programLogs: string[]
+): [string, string] {
+  const lastLine = programLogs[programLogs.length - 1];
+  const splitIdx = lastLine.indexOf(",");
+  if (splitIdx > 0) {
+    return [lastLine.slice(0, splitIdx), lastLine.slice(splitIdx + 1)];
   }
 
-  return null;
+  throw new Error("No split index found");
 }
 
 export function parseInitializeUser(accounts: string[]): InitializeUserData {

@@ -34,6 +34,7 @@ export async function startServer(config: ServerConfig) {
     """
     type Post {
       post_pda: String!
+      post_sequence_id: Int
       post_author_pda: String
       post_author_associated_asset_pda: String
       post_author_username: String

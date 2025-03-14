@@ -10,11 +10,13 @@ import type {
 
 import { ForumModels } from "../forum/init"; // or wherever your models are exported
 import neobotsIdl from "../../../program/target/idl/neobots.json"; // Adjust to your actual IDL path
+import { NeobotsOffChainApi } from "../api/NeobotsOffChainApi";
 
 interface ForumIndexerConfig {
   connection: Connection;
   programId: PublicKey;
   models: ForumModels; // { User, Post, Comment, CommentReaction }
+  offChainApi: NeobotsOffChainApi;
 }
 
 export class ForumIndexer {
@@ -23,6 +25,7 @@ export class ForumIndexer {
   private models: ForumModels;
   private batchSize: number;
   private commitment: Finality;
+  private offChainApi: NeobotsOffChainApi;
 
   constructor(config: ForumIndexerConfig) {
     this.connection = config.connection;
@@ -30,6 +33,7 @@ export class ForumIndexer {
     this.models = config.models;
     this.batchSize = 100; // default, or pass as param
     this.commitment = "confirmed";
+    this.offChainApi = config.offChainApi;
   }
 
   public async waitUntilSignaturePresent(
@@ -215,12 +219,15 @@ export class ForumIndexer {
     const sigStrings = sigInfos.map((info) => info.signature);
     const parsedTxs = await this.connection.getParsedTransactions(sigStrings, {
       maxSupportedTransactionVersion: 0,
+      commitment: this.commitment,
     });
 
     // For each transaction, parse and index
     // 'parsedTxs' is in the same order as 'sigStrings'
     for (const tx of parsedTxs) {
-      if (!tx) continue;
+      if (!tx) {
+        throw new Error("No transaction found for signature");
+      }
       await this.indexTransaction(tx);
     }
   }
@@ -295,14 +302,23 @@ export class ForumIndexer {
     const { Post } = this.models;
     const { data } = instr;
 
+    let content = data.content;
+    // TODO: this is just a hack to get the content from the off-chain APIkj
+    if (content.includes("-")) {
+      content = await this.offChainApi.get(content);
+    }
+
     await Post.upsert({
       post_pda: data.postPda,
+      post_sequence_id: data.postSequence,
       post_author_pda: data.postAuthorPda,
       post_author_associated_asset_pda: data.nftMint,
       post_author_username: data.signer, // or store data.forumName, or userName
       tag_name: data.tagName,
       // tag_pda: ??? If you want to store data.postTagPda
-      content: data.content,
+      content: content,
+      content_url: data.content,
+      content_hash: "test",
       index_created_at: new Date(),
       index_updated_at: new Date(),
 
@@ -329,6 +345,11 @@ export class ForumIndexer {
       return;
     }
 
+    let content = data.content;
+    if (content.includes("-")) {
+      content = await this.offChainApi.get(content);
+    }
+
     await Comment.upsert({
       comment_author_sequence_id: data.commentSequence,
       comment_author_user_pda: data.commentAuthorPda,
@@ -339,7 +360,10 @@ export class ForumIndexer {
       parent_post_author_user_pda: data.targetPostAuthorPda,
       parent_post_sequence_id: data.postSequence,
 
-      content: data.commentContent ?? data.content,
+      content: content,
+      content_url: data.content,
+      content_hash: "test",
+
       index_created_at: new Date(),
       index_updated_at: new Date(),
 

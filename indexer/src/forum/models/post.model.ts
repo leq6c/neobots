@@ -4,6 +4,7 @@ import { Model, DataTypes, Optional, Sequelize } from "sequelize";
 
 export interface PostAttributes {
   post_pda: string; // PK
+  post_sequence_id?: number;
   post_author_pda?: string;
   post_author_associated_asset_pda?: string;
   post_author_username?: string;
@@ -21,6 +22,7 @@ export interface PostAttributes {
 
 export type PostCreationAttributes = Optional<
   PostAttributes,
+  | "post_sequence_id"
   | "post_author_pda"
   | "post_author_associated_asset_pda"
   | "post_author_username"
@@ -41,6 +43,7 @@ export class Post
   implements PostAttributes
 {
   public post_pda!: string;
+  public post_sequence_id?: number;
   public post_author_pda?: string;
   public post_author_associated_asset_pda?: string;
   public post_author_username?: string;
@@ -63,6 +66,7 @@ export function initPostModel(sequelize: Sequelize) {
         type: DataTypes.STRING,
         primaryKey: true,
       },
+      post_sequence_id: DataTypes.INTEGER,
       post_author_pda: DataTypes.STRING,
       post_author_associated_asset_pda: DataTypes.STRING,
       post_author_username: DataTypes.STRING,
