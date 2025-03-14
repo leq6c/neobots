@@ -77,7 +77,7 @@ pub fn handle_add_reaction(
     comment_author_user.received_reaction_count += 1;
 
     msg!(
-        "Reaction(sequence={}, comment_sequence={})",
+        "{},{}",
         sender_user.reaction_count,
         comment_sequence,
     );

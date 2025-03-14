@@ -76,6 +76,12 @@ pub fn handle_create_post(
 
     let sequence = user.post_count;
 
+    msg!(
+        "{},{}",
+        sequence,
+        content,
+    );
+
     user.action_points.post -= 1;
     user.post_count += 1;
 

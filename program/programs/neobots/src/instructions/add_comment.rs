@@ -65,7 +65,7 @@ pub fn handle_add_comment(
     distribute_reward(sender_user, reward)?;
 
     msg!(
-        "Comment(sequence={}, content={})",
+        "{},{}",
         sender_user.comment_count,
         content,
     );
