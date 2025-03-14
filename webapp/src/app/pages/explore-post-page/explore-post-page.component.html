@@ -36,9 +36,9 @@
           tabindex="0"
           class="dropdown-content z-[1] menu p-2 shadow bg-gray-900 rounded-box w-52"
         >
-          <li><a>Most Recent</a></li>
-          <li><a>Most Popular</a></li>
-          <li><a>Most Discussed</a></li>
+          <li><a (click)="setFilter('recent')">Most Recent</a></li>
+          <li><a (click)="setFilter('popular')">Most Popular</a></li>
+          <li><a (click)="setFilter('discussed')">Most Discussed</a></li>
         </ul>
       </div>
 
@@ -73,11 +73,12 @@
           tabindex="0"
           class="dropdown-content z-[1] menu p-2 shadow bg-gray-900 rounded-box w-52"
         >
-          <li><a>Bitcoin</a></li>
-          <li><a>Ethereum</a></li>
-          <li><a>Solana</a></li>
-          <li><a>NFTs</a></li>
-          <li><a>DeFi</a></li>
+          <li><a (click)="setCategory('Bitcoin')">Bitcoin</a></li>
+          <li><a (click)="setCategory('Ethereum')">Ethereum</a></li>
+          <li><a (click)="setCategory('Solana')">Solana</a></li>
+          <li><a (click)="setCategory('NFTs')">NFTs</a></li>
+          <li><a (click)="setCategory('DeFi')">DeFi</a></li>
+          <li><a (click)="setCategory(null)">All Categories</a></li>
         </ul>
       </div>
 
@@ -107,10 +108,10 @@
           tabindex="0"
           class="dropdown-content z-[1] menu p-2 shadow bg-gray-900 rounded-box w-52"
         >
-          <li><a>Today</a></li>
-          <li><a>This Week</a></li>
-          <li><a>This Month</a></li>
-          <li><a>All Time</a></li>
+          <li><a (click)="setTimePeriod('today')">Today</a></li>
+          <li><a (click)="setTimePeriod('week')">This Week</a></li>
+          <li><a (click)="setTimePeriod('month')">This Month</a></li>
+          <li><a (click)="setTimePeriod('all')">All Time</a></li>
         </ul>
       </div>
 
@@ -139,8 +140,26 @@
     </div>
   </div>
 
+  <!-- Loading State -->
+  <div *ngIf="loading" class="flex justify-center py-10">
+    <div
+      class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent"
+    ></div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="bg-red-900/30 text-red-200 p-4 rounded-lg mb-6">
+    <p>{{ error }}</p>
+    <button (click)="loadPosts()" class="btn btn-sm btn-outline mt-2">
+      Try Again
+    </button>
+  </div>
+
   <!-- Posts List -->
-  <div class="bg-gray-800 backdrop-blur-sm rounded-lg overflow-hidden">
+  <div
+    *ngIf="!loading && !error && posts.length > 0"
+    class="bg-gray-800 backdrop-blur-sm rounded-lg overflow-hidden"
+  >
     <table class="w-full">
       <thead>
         <tr class="border-b border-gray-700">
@@ -169,22 +188,27 @@
         </tr>
       </thead>
       <tbody>
-        <!-- Post 2 -->
-        <tr class="border-b border-gray-700/50 hover:bg-gray-700/20">
+        <!-- Dynamic Posts -->
+        <tr
+          *ngFor="let post of posts"
+          class="border-b border-gray-700/50 hover:bg-gray-700/20"
+        >
           <td class="py-3 px-4">
             <div>
               <a
-                href="#"
+                [routerLink]="['/post', post.post_pda]"
                 class="text-white hover:text-accent transition-colors font-medium"
-                >The impact of Ethereum's latest upgrade on gas fees</a
+                >{{
+                  post.content.length > 80
+                    ? (post.content | slice : 0 : 80) + "..."
+                    : post.content
+                }}</a
               >
               <div class="flex gap-2 mt-1">
-                <span class="badge badge-xs bg-blue-600 text-white border-none"
-                  >Ethereum</span
-                >
                 <span
-                  class="badge badge-xs bg-gray-800 text-gray-400 border-none"
-                  >Gas</span
+                  class="badge badge-xs text-white border-none"
+                  [ngClass]="getRandomColor(post.tag_name || 'default')"
+                  >{{ post.tag_name || "General" }}</span
                 >
               </div>
             </div>
@@ -192,428 +216,84 @@
           <td class="py-3 px-4 hidden md:table-cell">
             <div class="flex items-center space-x-2">
               <div class="avatar">
-                <div class="w-6 h-6 rounded-full bg-blue-600 opacity-60">
-                  <img
-                    src="https://placehold.co/24x24/2563eb/FFFFFF?text=ET"
-                    alt="ethtrader avatar"
-                  />
+                <div
+                  class="w-6 h-6 rounded-full opacity-60"
+                  [ngClass]="
+                    getRandomColor(post.post_author_username || 'Anonymous')
+                  "
+                >
+                  <div
+                    class="flex items-center justify-center text-white text-xs font-bold"
+                  >
+                    {{ getInitials(post.post_author_username || "Anonymous") }}
+                  </div>
                 </div>
               </div>
-              <span class="text-sm text-gray-300">ethtrader</span>
-            </div>
-          </td>
-          <td class="py-3 px-4 text-center hidden lg:table-cell">
-            <span class="text-gray-300 text-sm">56</span>
-          </td>
-          <td class="py-3 px-4 text-center hidden sm:table-cell">
-            <span class="text-gray-300 text-sm">218</span>
-          </td>
-          <td class="py-3 px-4 text-center">
-            <span class="text-gray-300 text-sm">2,103</span>
-          </td>
-          <td class="py-3 px-4 text-right">
-            <span class="text-gray-400 text-sm">Aug 23, 2025</span>
-          </td>
-        </tr>
-
-        <!-- Post 3 -->
-        <tr class="border-b border-gray-700/50 hover:bg-gray-700/20">
-          <td class="py-3 px-4">
-            <div>
-              <a
-                href="#"
-                class="text-white hover:text-accent transition-colors font-medium"
-                >Solana's DeFi ecosystem growth in 2025</a
+              <span
+                class="text-sm text-gray-300"
+                style="
+                  max-width: 64px;
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                "
+                >{{ post.post_author_username || "Anonymous" }}</span
               >
-              <div class="flex gap-2 mt-1">
-                <span
-                  class="badge badge-xs bg-purple-600 text-white border-none"
-                  >Solana</span
-                >
-                <span
-                  class="badge badge-xs bg-gray-800 text-gray-400 border-none"
-                  >DeFi</span
-                >
-              </div>
-            </div>
-          </td>
-          <td class="py-3 px-4 hidden md:table-cell">
-            <div class="flex items-center space-x-2">
-              <div class="avatar">
-                <div class="w-6 h-6 rounded-full bg-purple-600 opacity-60">
-                  <img
-                    src="https://placehold.co/24x24/7c3aed/FFFFFF?text=SL"
-                    alt="solana_lover avatar"
-                  />
-                </div>
-              </div>
-              <span class="text-sm text-gray-300">solana_lover</span>
             </div>
           </td>
           <td class="py-3 px-4 text-center hidden lg:table-cell">
-            <span class="text-gray-300 text-sm">37</span>
+            <span class="text-gray-300 text-sm">-</span>
           </td>
           <td class="py-3 px-4 text-center hidden sm:table-cell">
-            <span class="text-gray-300 text-sm">189</span>
+            <span class="text-gray-300 text-sm">-</span>
           </td>
           <td class="py-3 px-4 text-center">
-            <span class="text-gray-300 text-sm">1,876</span>
+            <span class="text-gray-300 text-sm">-</span>
           </td>
           <td class="py-3 px-4 text-right">
-            <span class="text-gray-400 text-sm">Aug 22, 2025</span>
-          </td>
-        </tr>
-
-        <!-- Post 4 -->
-        <tr class="border-b border-gray-700/50 hover:bg-gray-700/20">
-          <td class="py-3 px-4">
-            <div>
-              <a
-                href="#"
-                class="text-white hover:text-accent transition-colors font-medium"
-                >Analyzing the correlation between crypto and traditional
-                markets</a
-              >
-              <div class="flex gap-2 mt-1">
-                <span class="badge badge-xs bg-green-600 text-white border-none"
-                  >Research</span
-                >
-                <span
-                  class="badge badge-xs bg-gray-800 text-gray-400 border-none"
-                  >Markets</span
-                >
-              </div>
-            </div>
-          </td>
-          <td class="py-3 px-4 hidden md:table-cell">
-            <div class="flex items-center space-x-2">
-              <div class="avatar">
-                <div class="w-6 h-6 rounded-full bg-green-600 opacity-60">
-                  <img
-                    src="https://placehold.co/24x24/16a34a/FFFFFF?text=CR"
-                    alt="crypto_researcher avatar"
-                  />
-                </div>
-              </div>
-              <span class="text-sm text-gray-300">crypto_researcher</span>
-            </div>
-          </td>
-          <td class="py-3 px-4 text-center hidden lg:table-cell">
-            <span class="text-gray-300 text-sm">42</span>
-          </td>
-          <td class="py-3 px-4 text-center hidden sm:table-cell">
-            <span class="text-gray-300 text-sm">156</span>
-          </td>
-          <td class="py-3 px-4 text-center">
-            <span class="text-gray-300 text-sm">1,542</span>
-          </td>
-          <td class="py-3 px-4 text-right">
-            <span class="text-gray-400 text-sm">Aug 21, 2025</span>
-          </td>
-        </tr>
-
-        <!-- Post 5 -->
-        <tr class="border-b border-gray-700/50 hover:bg-gray-700/20">
-          <td class="py-3 px-4">
-            <div>
-              <a
-                href="#"
-                class="text-white hover:text-accent transition-colors font-medium"
-                >The evolution of NFTs: From digital art to utility</a
-              >
-              <div class="flex gap-2 mt-1">
-                <span class="badge badge-xs bg-pink-600 text-white border-none"
-                  >NFTs</span
-                >
-                <span
-                  class="badge badge-xs bg-gray-800 text-gray-400 border-none"
-                  >Art</span
-                >
-              </div>
-            </div>
-          </td>
-          <td class="py-3 px-4 hidden md:table-cell">
-            <div class="flex items-center space-x-2">
-              <div class="avatar">
-                <div class="w-6 h-6 rounded-full bg-pink-600 opacity-60">
-                  <img
-                    src="https://placehold.co/24x24/db2777/FFFFFF?text=NF"
-                    alt="nft_collector avatar"
-                  />
-                </div>
-              </div>
-              <span class="text-sm text-gray-300">nft_collector</span>
-            </div>
-          </td>
-          <td class="py-3 px-4 text-center hidden lg:table-cell">
-            <span class="text-gray-300 text-sm">31</span>
-          </td>
-          <td class="py-3 px-4 text-center hidden sm:table-cell">
-            <span class="text-gray-300 text-sm">127</span>
-          </td>
-          <td class="py-3 px-4 text-center">
-            <span class="text-gray-300 text-sm">1,289</span>
-          </td>
-          <td class="py-3 px-4 text-right">
-            <span class="text-gray-400 text-sm">Aug 20, 2025</span>
-          </td>
-        </tr>
-
-        <!-- Post 6 -->
-        <tr class="border-b border-gray-700/50 hover:bg-gray-700/20">
-          <td class="py-3 px-4">
-            <div>
-              <a
-                href="#"
-                class="text-white hover:text-accent transition-colors font-medium"
-                >Bitcoin's role in institutional portfolios post-2024 halving</a
-              >
-              <div class="flex gap-2 mt-1">
-                <span
-                  class="badge badge-xs bg-yellow-600 text-white border-none"
-                  >Bitcoin</span
-                >
-                <span
-                  class="badge badge-xs bg-gray-800 text-gray-400 border-none"
-                  >Investing</span
-                >
-              </div>
-            </div>
-          </td>
-          <td class="py-3 px-4 hidden md:table-cell">
-            <div class="flex items-center space-x-2">
-              <div class="avatar">
-                <div class="w-6 h-6 rounded-full bg-yellow-600 opacity-60">
-                  <img
-                    src="https://placehold.co/24x24/ca8a04/FFFFFF?text=BT"
-                    alt="bitcoin_trader avatar"
-                  />
-                </div>
-              </div>
-              <span class="text-sm text-gray-300">bitcoin_trader</span>
-            </div>
-          </td>
-          <td class="py-3 px-4 text-center hidden lg:table-cell">
-            <span class="text-gray-300 text-sm">48</span>
-          </td>
-          <td class="py-3 px-4 text-center hidden sm:table-cell">
-            <span class="text-gray-300 text-sm">203</span>
-          </td>
-          <td class="py-3 px-4 text-center">
-            <span class="text-gray-300 text-sm">1,967</span>
-          </td>
-          <td class="py-3 px-4 text-right">
-            <span class="text-gray-400 text-sm">Aug 19, 2025</span>
-          </td>
-        </tr>
-
-        <!-- Post 7 -->
-        <tr class="border-b border-gray-700/50 hover:bg-gray-700/20">
-          <td class="py-3 px-4">
-            <div>
-              <a
-                href="#"
-                class="text-white hover:text-accent transition-colors font-medium"
-                >Layer 2 solutions: Comparing performance and adoption
-                metrics</a
-              >
-              <div class="flex gap-2 mt-1">
-                <span class="badge badge-xs bg-blue-600 text-white border-none"
-                  >Ethereum</span
-                >
-                <span
-                  class="badge badge-xs bg-gray-800 text-gray-400 border-none"
-                  >Layer 2</span
-                >
-              </div>
-            </div>
-          </td>
-          <td class="py-3 px-4 hidden md:table-cell">
-            <div class="flex items-center space-x-2">
-              <div class="avatar">
-                <div class="w-6 h-6 rounded-full bg-blue-600 opacity-60">
-                  <img
-                    src="https://placehold.co/24x24/2563eb/FFFFFF?text=L2"
-                    alt="layer2_dev avatar"
-                  />
-                </div>
-              </div>
-              <span class="text-sm text-gray-300">layer2_dev</span>
-            </div>
-          </td>
-          <td class="py-3 px-4 text-center hidden lg:table-cell">
-            <span class="text-gray-300 text-sm">39</span>
-          </td>
-          <td class="py-3 px-4 text-center hidden sm:table-cell">
-            <span class="text-gray-300 text-sm">176</span>
-          </td>
-          <td class="py-3 px-4 text-center">
-            <span class="text-gray-300 text-sm">1,654</span>
-          </td>
-          <td class="py-3 px-4 text-right">
-            <span class="text-gray-400 text-sm">Aug 18, 2025</span>
-          </td>
-        </tr>
-
-        <!-- Post 8 -->
-        <tr class="border-b border-gray-700/50 hover:bg-gray-700/20">
-          <td class="py-3 px-4">
-            <div>
-              <a
-                href="#"
-                class="text-white hover:text-accent transition-colors font-medium"
-                >Regulatory landscape for crypto in 2025: A global
-                perspective</a
-              >
-              <div class="flex gap-2 mt-1">
-                <span
-                  class="badge badge-xs bg-indigo-600 text-white border-none"
-                  >Regulation</span
-                >
-                <span
-                  class="badge badge-xs bg-gray-800 text-gray-400 border-none"
-                  >Policy</span
-                >
-              </div>
-            </div>
-          </td>
-          <td class="py-3 px-4 hidden md:table-cell">
-            <div class="flex items-center space-x-2">
-              <div class="avatar">
-                <div class="w-6 h-6 rounded-full bg-indigo-600 opacity-60">
-                  <img
-                    src="https://placehold.co/24x24/4f46e5/FFFFFF?text=CP"
-                    alt="crypto_policy avatar"
-                  />
-                </div>
-              </div>
-              <span class="text-sm text-gray-300">crypto_policy</span>
-            </div>
-          </td>
-          <td class="py-3 px-4 text-center hidden lg:table-cell">
-            <span class="text-gray-300 text-sm">52</span>
-          </td>
-          <td class="py-3 px-4 text-center hidden sm:table-cell">
-            <span class="text-gray-300 text-sm">198</span>
-          </td>
-          <td class="py-3 px-4 text-center">
-            <span class="text-gray-300 text-sm">1,832</span>
-          </td>
-          <td class="py-3 px-4 text-right">
-            <span class="text-gray-400 text-sm">Aug 17, 2025</span>
-          </td>
-        </tr>
-
-        <!-- Post 9 -->
-        <tr class="border-b border-gray-700/50 hover:bg-gray-700/20">
-          <td class="py-3 px-4">
-            <div>
-              <a
-                href="#"
-                class="text-white hover:text-accent transition-colors font-medium"
-                >DeFi yield strategies for bear markets: Risk management
-                approaches</a
-              >
-              <div class="flex gap-2 mt-1">
-                <span class="badge badge-xs bg-green-600 text-white border-none"
-                  >DeFi</span
-                >
-                <span
-                  class="badge badge-xs bg-gray-800 text-gray-400 border-none"
-                  >Yield</span
-                >
-              </div>
-            </div>
-          </td>
-          <td class="py-3 px-4 hidden md:table-cell">
-            <div class="flex items-center space-x-2">
-              <div class="avatar">
-                <div class="w-6 h-6 rounded-full bg-green-600 opacity-60">
-                  <img
-                    src="https://placehold.co/24x24/16a34a/FFFFFF?text=DF"
-                    alt="defi_farmer avatar"
-                  />
-                </div>
-              </div>
-              <span class="text-sm text-gray-300">defi_farmer</span>
-            </div>
-          </td>
-          <td class="py-3 px-4 text-center hidden lg:table-cell">
-            <span class="text-gray-300 text-sm">45</span>
-          </td>
-          <td class="py-3 px-4 text-center hidden sm:table-cell">
-            <span class="text-gray-300 text-sm">167</span>
-          </td>
-          <td class="py-3 px-4 text-center">
-            <span class="text-gray-300 text-sm">1,723</span>
-          </td>
-          <td class="py-3 px-4 text-right">
-            <span class="text-gray-400 text-sm">Aug 16, 2025</span>
-          </td>
-        </tr>
-
-        <!-- Post 10 -->
-        <tr class="hover:bg-gray-700/20">
-          <td class="py-3 px-4">
-            <div>
-              <a
-                href="#"
-                class="text-white hover:text-accent transition-colors font-medium"
-                >The rise of AI in crypto trading: Performance analysis of top
-                algorithms</a
-              >
-              <div class="flex gap-2 mt-1">
-                <span
-                  class="badge badge-xs bg-orange-600 text-white border-none"
-                  >AI</span
-                >
-                <span
-                  class="badge badge-xs bg-gray-800 text-gray-400 border-none"
-                  >Trading</span
-                >
-              </div>
-            </div>
-          </td>
-          <td class="py-3 px-4 hidden md:table-cell">
-            <div class="flex items-center space-x-2">
-              <div class="avatar">
-                <div class="w-6 h-6 rounded-full bg-orange-600 opacity-60">
-                  <img
-                    src="https://placehold.co/24x24/ea580c/FFFFFF?text=AT"
-                    alt="ai_trader avatar"
-                  />
-                </div>
-              </div>
-              <span class="text-sm text-gray-300">ai_trader</span>
-            </div>
-          </td>
-          <td class="py-3 px-4 text-center hidden lg:table-cell">
-            <span class="text-gray-300 text-sm">61</span>
-          </td>
-          <td class="py-3 px-4 text-center hidden sm:table-cell">
-            <span class="text-gray-300 text-sm">215</span>
-          </td>
-          <td class="py-3 px-4 text-center">
-            <span class="text-gray-300 text-sm">2,045</span>
-          </td>
-          <td class="py-3 px-4 text-right">
-            <span class="text-gray-400 text-sm">Aug 15, 2025</span>
+            <span class="text-gray-400 text-sm">{{
+              formatDate(post.index_created_at)
+            }}</span>
           </td>
         </tr>
       </tbody>
     </table>
   </div>
 
+  <!-- No Posts State -->
+  <div
+    *ngIf="!loading && !error && posts.length === 0"
+    class="bg-gray-800/50 rounded-lg p-8 text-center"
+  >
+    <p class="text-gray-400">No posts found matching your criteria.</p>
+    <button
+      (click)="setCategory(null); setFilter('recent'); loadPosts()"
+      class="btn btn-sm btn-accent mt-4"
+    >
+      View All Posts
+    </button>
+  </div>
+
   <!-- Pagination -->
-  <div class="flex justify-between items-center mt-6">
+  <div
+    *ngIf="!loading && !error && posts.length > 0"
+    class="flex justify-between items-center mt-6"
+  >
     <div class="text-sm text-gray-400">
-      Showing <span class="text-white">1-10</span> of
-      <span class="text-white">143</span> posts
+      Showing
+      <span class="text-white"
+        >{{ (currentPage - 1) * postsPerPage + 1 }}-{{
+          Math.min(currentPage * postsPerPage, totalPosts)
+        }}</span
+      >
+      of <span class="text-white">{{ totalPosts }}</span> posts
     </div>
 
     <div class="join">
       <button
+        (click)="changePage(currentPage - 1)"
+        [disabled]="currentPage === 1"
         class="join-item btn btn-sm bg-gray-800 border-none hover:bg-gray-700"
+        [ngClass]="{ 'opacity-50 cursor-not-allowed': currentPage === 1 }"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"
@@ -630,38 +310,26 @@
           />
         </svg>
       </button>
+
+      <ng-container *ngFor="let page of getPageNumbers()">
+        <button
+          (click)="changePage(page)"
+          class="join-item btn btn-sm border-none"
+          [ngClass]="
+            page === currentPage ? 'bg-accent' : 'bg-gray-800 hover:bg-gray-700'
+          "
+        >
+          {{ page }}
+        </button>
+      </ng-container>
+
       <button
-        class="join-item btn btn-sm bg-accent border-none hover:bg-gray-700"
-      >
-        1
-      </button>
-      <button
+        (click)="changePage(currentPage + 1)"
+        [disabled]="currentPage === getTotalPages()"
         class="join-item btn btn-sm bg-gray-800 border-none hover:bg-gray-700"
-      >
-        2
-      </button>
-      <button
-        class="join-item btn btn-sm bg-gray-800 border-none hover:bg-gray-700"
-      >
-        3
-      </button>
-      <button
-        class="join-item btn btn-sm bg-gray-800 border-none hover:bg-gray-700"
-      >
-        4
-      </button>
-      <button
-        class="join-item btn btn-sm bg-gray-800 border-none hover:bg-gray-700"
-      >
-        ...
-      </button>
-      <button
-        class="join-item btn btn-sm bg-gray-800 border-none hover:bg-gray-700"
-      >
-        15
-      </button>
-      <button
-        class="join-item btn btn-sm bg-gray-800 border-none hover:bg-gray-700"
+        [ngClass]="{
+          'opacity-50 cursor-not-allowed': currentPage === getTotalPages()
+        }"
       >
         <svg
           xmlns="http://www.w3.org/2000/svg"

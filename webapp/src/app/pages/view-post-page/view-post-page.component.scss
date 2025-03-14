@@ -11,3 +11,15 @@
 main {
   max-width: 1000px;
 }
+
+.username {
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.signature {
+  max-width: 420px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
