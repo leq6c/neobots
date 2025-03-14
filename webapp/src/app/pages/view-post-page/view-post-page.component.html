@@ -1,4 +1,3 @@
-<div class="background"></div>
 <app-navbar></app-navbar>
 
 <!-- Loading State -->
@@ -26,164 +25,84 @@
   *ngIf="!loading && !error && post"
   class="container mx-auto px-4 py-6 mt-8"
 >
-  <!-- Post Header -->
-  <div class="mb-6">
-    <div class="text-gray-500 text-xs mb-1">
-      {{ post.post_pda }}
-    </div>
-    <h1 class="text-2xl font-medium text-white mb-1">
-      {{
-        post.content.length > 100
-          ? (post.content | slice : 0 : 100) + "..."
-          : post.content
-      }}
-    </h1>
-    <div class="text-sm text-gray-500">
-      {{ formatDate(post.index_created_at) }} by
-      {{ post.post_author_username || "Anonymous" }}
-    </div>
+  <!-- Post Header - Clean Style -->
+  <div class="post-header mb-5 flex justify-center">
+    <div class="w-full max-w-2xl">
+      <div class="text-gray-500 text-2xs mb-1">
+        <span class="post-id">{{ post.post_pda }}</span>
+      </div>
 
-    <div class="flex gap-2 mt-4" *ngIf="post.tag_name">
-      <span
-        class="badge badge-sm"
-        [ngClass]="
-          post.tag_name === 'Bitcoin'
-            ? 'bg-gray-700 text-white'
-            : 'bg-gray-800 text-gray-400'
-        "
-        class="border-none"
-      >
-        {{ post.tag_name }}
-      </span>
+      <h1 class="text-3xl font-medium text-white mb-2 leading-tight">
+        {{
+          post.content.length > 100
+            ? (post.content | slice : 0 : 100) + "..."
+            : post.content
+        }}
+      </h1>
+
+      <div class="flex items-center text-xs text-gray-400 mb-2">
+        <div
+          class="w-5 h-5 rounded-full overflow-hidden mr-2"
+          [ngClass]="getRandomColor(post.post_author_username || 'Anonymous')"
+        >
+          <div
+            class="flex items-center justify-center h-full text-white text-2xs font-bold"
+          >
+            {{ getInitials(post.post_author_username || "Anonymous") }}
+          </div>
+        </div>
+        <span class="font-medium text-gray-300">{{
+          post.post_author_username || "Anonymous"
+        }}</span>
+        <span class="mx-2">·</span>
+        <span>{{ formatDate(post.index_created_at) }}</span>
+      </div>
+
+      <div class="flex gap-2 mt-1" *ngIf="post.tag_name">
+        <span
+          class="badge badge-xs"
+          [ngClass]="
+            post.tag_name === 'Bitcoin'
+              ? 'bg-gray-700 text-white'
+              : 'bg-gray-800 text-gray-400'
+          "
+          class="border-none"
+        >
+          {{ post.tag_name }}
+        </span>
+      </div>
     </div>
   </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <!-- Main Posts Column -->
-    <div class="lg:col-span-2 space-y-6">
-      <!-- Main Post Card -->
-      <div class="flex justify-center">
-        <div class="card bg-gray-900 backdrop-blur-sm shadow-xl max-w-[720px]">
-          <div class="card-body">
-            <div class="flex justify-between items-start">
-              <div class="flex items-start space-x-4 w-full">
-                <div class="avatar">
-                  <div
-                    class="w-16 h-16 rounded-full overflow-hidden"
-                    [ngClass]="
-                      getRandomColor(post.post_author_username || 'Anonymous')
-                    "
-                  >
-                    <div
-                      *ngIf="post.post_author_thumbnail"
-                      class="flex items-center justify-center h-full text-white text-xl font-bold username"
-                    >
-                      {{
-                        getInitials(post.post_author_username || "Anonymous")
-                      }}
-                    </div>
-                    <img
-                      *ngIf="post.post_author_thumbnail"
-                      [src]="post.post_author_thumbnail"
-                      [alt]="post.post_author_username + ' avatar'"
-                      class="opacity-80"
-                    />
-                  </div>
-                </div>
-                <div class="grow-1">
-                  <div class="flex flex-row justify-between">
-                    <h3 class="text-lg font-medium username">
-                      {{ post.post_author_username || "Anonymous" }}
-                    </h3>
-                    <div class="flex flex-col">
-                      <div
-                        class="badge badge-sm bg-gray-700 text-xs text-gray-300 border-none whitespace-nowrap"
-                      >
-                        {{ formatDate(post.index_created_at) }}
-                      </div>
-                      <div class="text-xs text-gray-500 mt-1 text-end h-0">
-                        Official RPC
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="mt-4 text-gray-300">
-              <p>{{ post.content }}</p>
-            </div>
-
-            <div class="mt-4 pt-4 border-t border-gray-700">
-              <div class="text-xs text-gray-500 mt-4 signature">
-                {{ post.create_transaction_signature || post.post_pda }}
-              </div>
-            </div>
+  <div class="flex justify-center">
+    <div class="w-full max-w-2xl space-y-5">
+      <!-- Main Post Card - Clean Style -->
+      <div class="post-content-wrapper">
+        <div
+          class="post-content bg-gray-900/80 backdrop-blur-sm rounded-md p-4 shadow-md"
+        >
+          <!-- Post Content -->
+          <div class="post-body prose prose-invert max-w-none">
+            <p class="text-gray-200 text-sm">{{ post.content }}</p>
           </div>
-        </div>
-      </div>
 
-      <!-- Comments -->
-      <div *ngFor="let comment of comments" class="flex justify-center">
-        <div class="card bg-gray-900 backdrop-blur-sm shadow-xl max-w-[720px]">
-          <div class="card-body">
-            <div class="flex justify-between items-start">
-              <div class="flex items-start space-x-4 w-full">
-                <div class="avatar">
-                  <div
-                    class="w-16 h-16 rounded-full overflow-hidden"
-                    [ngClass]="
-                      getRandomColor(
-                        comment.comment_author_username || 'Anonymous'
-                      )
-                    "
-                  >
-                    <div
-                      class="flex items-center justify-center h-full text-white text-xl font-bold"
-                    >
-                      {{
-                        getInitials(
-                          comment.comment_author_username || "Anonymous"
-                        )
-                      }}
-                    </div>
-                  </div>
-                </div>
-                <div class="grow-1">
-                  <div class="flex flex-row justify-between">
-                    <h3 class="text-lg font-medium username">
-                      {{ comment.comment_author_username || "Anonymous" }}
-                    </h3>
-                    <div class="flex flex-col">
-                      <div
-                        class="badge badge-sm bg-gray-700 text-xs text-gray-300 border-none whitespace-nowrap"
-                      >
-                        {{ formatDate(comment.index_created_at) }}
-                      </div>
-                      <div class="text-xs text-gray-500 mt-1 text-end h-0">
-                        Official RPC
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="mt-4 text-gray-300">
-              <p>{{ comment.content }}</p>
-            </div>
-
-            <div class="mt-4 pt-4 border-t border-gray-700">
-              <!-- Votes and Likes Section -->
-              <div class="flex items-center space-x-4 mb-2">
-                <div class="flex items-center space-x-1">
+          <!-- Post Footer -->
+          <div
+            class="post-footer mt-4 pt-3 border-t border-gray-700/50 flex items-center justify-between"
+          >
+            <div class="post-actions flex items-center space-x-4">
+              <!-- Voting -->
+              <div class="vote-buttons flex flex-col items-center">
+                <button
+                  class="vote-up p-1 text-gray-400 hover:text-white transition-colors"
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke-width="1.5"
                     stroke="currentColor"
-                    class="w-4 h-4 text-green-500"
+                    class="w-4 h-4"
                   >
                     <path
                       stroke-linecap="round"
@@ -191,18 +110,18 @@
                       d="M4.5 15.75l7.5-7.5 7.5 7.5"
                     />
                   </svg>
-                  <span class="text-xs text-gray-300">{{
-                    comment.received_upvotes || 0
-                  }}</span>
-                </div>
-                <div class="flex items-center space-x-1">
+                </button>
+                <span class="text-xs text-gray-300 my-1">0</span>
+                <button
+                  class="vote-down p-1 text-gray-400 hover:text-white transition-colors"
+                >
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
                     viewBox="0 0 24 24"
                     stroke-width="1.5"
                     stroke="currentColor"
-                    class="w-4 h-4 text-red-500"
+                    class="w-4 h-4"
                   >
                     <path
                       stroke-linecap="round"
@@ -210,228 +129,246 @@
                       d="M19.5 8.25l-7.5 7.5-7.5-7.5"
                     />
                   </svg>
-                  <span class="text-xs text-gray-300">{{
+                </button>
+              </div>
+
+              <!-- Like Button -->
+              <button
+                class="like-button flex items-center text-gray-400 hover:text-pink-500 transition-colors"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="w-4 h-4 mr-1"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
+                  />
+                </svg>
+                <span class="text-xs">0</span>
+              </button>
+
+              <!-- Comment Button -->
+              <button
+                class="comment-button flex items-center text-gray-400 hover:text-blue-400 transition-colors"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="w-4 h-4 mr-1"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 01-.923 1.785A5.969 5.969 0 006 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337z"
+                  />
+                </svg>
+                <span class="text-xs">{{ comments.length }}</span>
+              </button>
+            </div>
+
+            <div class="text-2xs text-gray-500 signature">
+              {{ post.create_transaction_signature || post.post_pda }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Comments Section Header -->
+      <div class="comments-header mb-3">
+        <h2 class="text-base font-medium text-white">
+          {{ comments.length }}
+          {{ comments.length === 1 ? "Comment" : "Comments" }}
+        </h2>
+      </div>
+
+      <!-- Comments - Clean Style -->
+      <div class="comments-list space-y-4">
+        <div *ngFor="let comment of comments" class="comment-item">
+          <div
+            class="comment bg-gray-900/60 backdrop-blur-sm rounded-md shadow-sm overflow-hidden"
+          >
+            <!-- Comment Header -->
+            <div class="comment-header flex items-center p-3 bg-gray-800/50">
+              <div class="flex items-center flex-1">
+                <div
+                  class="w-6 h-6 rounded-full overflow-hidden mr-2"
+                  [ngClass]="
+                    getRandomColor(
+                      comment.comment_author_username || 'Anonymous'
+                    )
+                  "
+                >
+                  <div
+                    class="flex items-center justify-center h-full text-white text-2xs font-bold"
+                  >
+                    {{
+                      getInitials(
+                        comment.comment_author_username || "Anonymous"
+                      )
+                    }}
+                  </div>
+                </div>
+
+                <div>
+                  <h3 class="text-sm font-medium text-gray-200 username">
+                    {{ comment.comment_author_username || "Anonymous" }}
+                  </h3>
+                  <div class="text-2xs text-gray-400">
+                    {{ formatDate(comment.index_created_at) }}
+                  </div>
+                </div>
+              </div>
+
+              <div class="karma-display flex items-center">
+                <span class="text-2xs text-gray-400 mr-1">Karma:</span>
+                <span class="text-2xs font-medium text-gray-300">{{
+                  comment.karmas || 0
+                }}</span>
+              </div>
+            </div>
+
+            <!-- Comment Content -->
+            <div class="comment-content p-3">
+              <div class="prose prose-invert max-w-none">
+                <p class="text-gray-300 text-sm">{{ comment.content }}</p>
+              </div>
+            </div>
+
+            <!-- Comment Footer -->
+            <div
+              class="comment-footer px-3 py-2 border-t border-gray-800/50 flex items-center"
+            >
+              <!-- Vote Buttons -->
+              <div class="vote-buttons flex items-center space-x-3">
+                <div class="flex items-center">
+                  <button
+                    class="p-1 text-gray-400 hover:text-green-500 transition-colors"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="w-3 h-3"
+                      [class.text-green-500]="
+                        comment.received_upvotes && comment.received_upvotes > 0
+                      "
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M4.5 15.75l7.5-7.5 7.5 7.5"
+                      />
+                    </svg>
+                  </button>
+                  <span class="text-2xs text-gray-300 ml-1">{{
+                    comment.received_upvotes || 0
+                  }}</span>
+                </div>
+
+                <div class="flex items-center">
+                  <button
+                    class="p-1 text-gray-400 hover:text-red-500 transition-colors"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="w-3 h-3"
+                      [class.text-red-500]="
+                        comment.received_downvotes &&
+                        comment.received_downvotes > 0
+                      "
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M19.5 8.25l-7.5 7.5-7.5-7.5"
+                      />
+                    </svg>
+                  </button>
+                  <span class="text-2xs text-gray-300 ml-1">{{
                     comment.received_downvotes || 0
                   }}</span>
                 </div>
-                <div class="flex items-center space-x-1">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke-width="1.5"
-                    stroke="currentColor"
-                    class="w-4 h-4 text-pink-500"
+
+                <div class="flex items-center">
+                  <button
+                    class="p-1 text-gray-400 hover:text-pink-500 transition-colors"
                   >
-                    <path
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
-                    />
-                  </svg>
-                  <span class="text-xs text-gray-300">{{
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="w-3 h-3"
+                      [class.text-pink-500]="
+                        comment.received_likes && comment.received_likes > 0
+                      "
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"
+                      />
+                    </svg>
+                  </button>
+                  <span class="text-2xs text-gray-300 ml-1">{{
                     comment.received_likes || 0
                   }}</span>
                 </div>
-                <div class="flex items-center space-x-1 ml-auto">
-                  <span class="text-xs text-gray-400">Karma:</span>
-                  <span class="text-xs text-gray-300">{{
-                    comment.karmas || 0
-                  }}</span>
-                </div>
               </div>
-              <div class="text-xs text-gray-500 mt-2 signature">
+
+              <!-- Reply Button -->
+              <button
+                class="ml-auto text-2xs text-gray-400 hover:text-blue-400 transition-colors flex items-center"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="w-3 h-3 mr-1"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 01.865-.501 48.172 48.172 0 003.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"
+                  />
+                </svg>
+                Reply
+              </button>
+
+              <!-- Transaction Signature -->
+              <div class="text-2xs text-gray-500 ml-3 signature">
                 {{ comment.create_transaction_signature }}
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <!-- No Comments Message -->
-      <div *ngIf="comments.length === 0" class="flex justify-center">
-        <div class="card bg-gray-900 backdrop-blur-sm shadow-xl max-w-[720px]">
-          <div class="card-body text-center text-gray-400">
-            <p>No comments yet.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Sidebar -->
-    <div class="lg:col-span-1 ml-4 hidden lg:block">
-      <div class="card bg-gray-800 backdrop-blur-sm shadow-xl">
-        <div class="card-body p-4">
-          <div class="flex justify-between items-center mb-2">
-            <h3 class="text-sm font-light opacity-60">Latest Posts</h3>
-            <button
-              class="btn btn-circle btn-xs bg-gray-700 border-none hover:bg-gray-600"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="size-3"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="m19.5 8.25-7.5 7.5-7.5-7.5"
-                />
-              </svg>
-            </button>
-          </div>
-
-          <!-- Latest Posts List -->
-          <div class="space-y-4">
-            <!-- Post 1 -->
-            <div class="flex gap-3">
-              <div>
-                <div
-                  class="w-6 h-6 rounded-md bg-teal-500 flex items-center justify-center text-white font-bold text-center mt-1"
-                >
-                  W
-                </div>
-              </div>
-              <div class="flex-1">
-                <h4 class="text-xs font-medium text-gray-300">
-                  So building a pc for streaming and gaming
-                </h4>
-                <div class="text-[10px] text-gray-500 mt-1">
-                  Why_Me • Yesterday at 7:05 PM
-                </div>
-                <div class="text-[10px] text-gray-500">Desktop Hardware</div>
-              </div>
-            </div>
-
-            <div class="flex gap-3">
-              <div>
-                <div
-                  class="w-6 h-6 rounded-md bg-teal-500 flex items-center justify-center text-white font-bold text-center mt-1"
-                >
-                  W
-                </div>
-              </div>
-              <div class="flex-1">
-                <h4 class="text-xs font-medium text-gray-300">
-                  So building a pc for streaming and gaming
-                </h4>
-                <div class="text-[10px] text-gray-500 mt-1">
-                  Why_Me • Yesterday at 7:05 PM
-                </div>
-                <div class="text-[10px] text-gray-500">Desktop Hardware</div>
-              </div>
-            </div>
-
-            <div class="flex gap-3">
-              <div>
-                <div
-                  class="w-6 h-6 rounded-md bg-teal-500 flex items-center justify-center text-white font-bold text-center mt-1"
-                >
-                  W
-                </div>
-              </div>
-              <div class="flex-1">
-                <h4 class="text-xs font-medium text-gray-300">
-                  So building a pc for streaming and gaming
-                </h4>
-                <div class="text-[10px] text-gray-500 mt-1">
-                  Why_Me • Yesterday at 7:05 PM
-                </div>
-                <div class="text-[10px] text-gray-500">Desktop Hardware</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Second Latest Posts Section -->
-      <div class="card bg-gray-800 backdrop-blur-sm shadow-xl mt-4">
-        <div class="card-body p-4">
-          <div class="flex justify-between items-center mb-2">
-            <h3 class="text-sm font-light opacity-60">Latest Posts</h3>
-            <button
-              class="btn btn-circle btn-xs bg-gray-700 border-none hover:bg-gray-600"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke-width="1.5"
-                stroke="currentColor"
-                class="size-3"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  d="m19.5 8.25-7.5 7.5-7.5-7.5"
-                />
-              </svg>
-            </button>
-          </div>
-
-          <!-- Latest Posts List -->
-          <div class="space-y-4">
-            <!-- Post 1 -->
-            <div class="flex gap-3">
-              <div>
-                <div
-                  class="w-6 h-6 rounded-md bg-teal-500 flex items-center justify-center text-white font-bold text-center mt-1"
-                >
-                  W
-                </div>
-              </div>
-              <div class="flex-1">
-                <h4 class="text-xs font-medium text-gray-300">
-                  So building a pc for streaming and gaming
-                </h4>
-                <div class="text-[10px] text-gray-500 mt-1">
-                  Why_Me • Yesterday at 7:05 PM
-                </div>
-                <div class="text-[10px] text-gray-500">Desktop Hardware</div>
-              </div>
-            </div>
-
-            <div class="flex gap-3">
-              <div>
-                <div
-                  class="w-6 h-6 rounded-md bg-teal-500 flex items-center justify-center text-white font-bold text-center mt-1"
-                >
-                  W
-                </div>
-              </div>
-              <div class="flex-1">
-                <h4 class="text-xs font-medium text-gray-300">
-                  So building a pc for streaming and gaming
-                </h4>
-                <div class="text-[10px] text-gray-500 mt-1">
-                  Why_Me • Yesterday at 7:05 PM
-                </div>
-                <div class="text-[10px] text-gray-500">Desktop Hardware</div>
-              </div>
-            </div>
-
-            <div class="flex gap-3">
-              <div>
-                <div
-                  class="w-6 h-6 rounded-md bg-teal-500 flex items-center justify-center text-white font-bold text-center mt-1"
-                >
-                  W
-                </div>
-              </div>
-              <div class="flex-1">
-                <h4 class="text-xs font-medium text-gray-300">
-                  So building a pc for streaming and gaming
-                </h4>
-                <div class="text-[10px] text-gray-500 mt-1">
-                  Why_Me • Yesterday at 7:05 PM
-                </div>
-                <div class="text-[10px] text-gray-500">Desktop Hardware</div>
-              </div>
-            </div>
-          </div>
+        <!-- No Comments Message -->
+        <div
+          *ngIf="comments.length === 0"
+          class="no-comments bg-gray-900/60 backdrop-blur-sm rounded-md p-4 text-center"
+        >
+          <p class="text-gray-400 text-xs">
+            No comments yet. Be the first to share your thoughts!
+          </p>
         </div>
       </div>
     </div>
