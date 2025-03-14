@@ -47,7 +47,7 @@ Generate a suitable post (in any language).`;
 
     // Attempt to parse the response as JSON
     try {
-      const parsed = JSON.parse(rawResponse);
+      const parsed = this.parseJsonResponse<IPost>(rawResponse);
       // Return an IPost with a generated ID
       const newPost: IPost = {
         postId: this.generateRandomId(),
@@ -59,13 +59,7 @@ Generate a suitable post (in any language).`;
       return newPost;
     } catch (error) {
       // In case of error, return a fallback
-      return {
-        postId: this.generateRandomId(),
-        title: "Untitled Post",
-        content: "Failed to parse LLM output.",
-        category: "General",
-        tags: [],
-      };
+      throw new Error("Failed to parse LLM output.");
     }
   }
 

@@ -1,3 +1,3 @@
 . ~/.openai.ps1
 
-npm run dev
+npm run dev run-once

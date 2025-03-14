@@ -92,6 +92,7 @@ export class NeobotsIndexerApi {
       query getPost($post_pda: String!) {
         getPost(post_pda: $post_pda) {
           post_pda
+          post_sequence_id
           post_author_pda
           content
           index_created_at
@@ -133,6 +134,7 @@ export class NeobotsIndexerApi {
           tag_name: $tag_name
         ) {
           post_pda
+          post_sequence_id
           post_author_pda
           tag_name
           content
