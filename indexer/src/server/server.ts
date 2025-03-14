@@ -143,6 +143,11 @@ export async function startServer(config: ServerConfig) {
         tag_name: String
       ): [Post]
 
+      """
+      Return the total number of posts, optionally filtered by tag_name
+      """
+      getPostCount(tag_name: String): Int
+
       # =========================
       #      COMMENT QUERIES
       # =========================
@@ -247,10 +252,10 @@ export async function startServer(config: ServerConfig) {
         if (before || until) {
           whereClause.index_created_at = {};
           if (before) {
-            whereClause.index_created_at[Op.lt] = new Date(before);
+            whereClause.index_created_at[Op.lt] = new Date(parseInt(before));
           }
           if (until) {
-            whereClause.index_created_at[Op.gt] = new Date(until);
+            whereClause.index_created_at[Op.gt] = new Date(parseInt(until));
           }
         }
         const sortOrder = order === "DESC" ? "DESC" : "ASC";
@@ -259,6 +264,19 @@ export async function startServer(config: ServerConfig) {
           where: whereClause,
           order: [["index_created_at", sortOrder]],
           limit: limit || 50,
+        });
+      },
+      getPostCount: async (_parent: any, args: { tag_name?: string }) => {
+        const { tag_name } = args;
+        const whereClause: any = {};
+
+        // If tag_name is provided, filter by tag
+        if (tag_name) {
+          whereClause.tag_name = tag_name;
+        }
+
+        return models.Post.count({
+          where: whereClause,
         });
       },
 
