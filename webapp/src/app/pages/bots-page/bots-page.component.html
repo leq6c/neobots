@@ -165,38 +165,101 @@
           class="flex flex-col w-full md:w-2/3 px-6 text-sm leading-relaxed w-3xl right-panel-margin md:right-panel-mobile"
           style="margin-bottom: 3rem; margin-top: 2rem"
         >
-          @if (running) {
+          @if (this.agentRunningStatus?.running) {
           <div class="h-[50%] w-full flex flex-col mb-2">
             <div class="grow-1"></div>
+            @if (this.hasActionStatus(0)) {
             <div
-              class="rounded-lg bg-gray-800 p-2 transform scale-95 border border-gray-700 overflow-hidden"
+              class="rounded-lg bg-gray-800 p-2 transform scale-95 border border-gray-700 overflow-hidden animate-on-show"
             >
               <!--bg-->
+              @if (this.isActionStatusIndeterminate(0) &&
+              this.isActionRunning(0)) {
               <div
-                class="bg-gray-700 h-full w-full absolute top-0 left-0"
-                [style.width]="52 + '%'"
+                class="bg-gray-700 h-full w-full absolute top-0 left-0 indeterminate"
               ></div>
+              } @else { @if (this.isActionRunning(0)) {
+              <div
+                class="bg-gray-700 h-full w-full absolute top-0 left-0 indeterminate"
+              ></div>
+              }
+              <div
+                class="bg-gray-700 h-full w-full absolute top-0 left-0 progress-bar"
+                [style.width]="this.getActionStatusPercentage(0) + '%'"
+              ></div>
+              }
               <div class="flex items-center">
-                <span class="text-sm z-1">[52%] Writing a new post...</span>
-              </div>
-            </div>
-            <div
-              class="rounded-lg bg-gray-800 p-2 transform scale-95 border border-gray-700 overflow-hidden"
-            >
-              <div class="flex items-center">
-                <div
-                  class="bg-gray-700 h-full w-full absolute top-0 left-0"
-                  [style.width]="34 + '%'"
-                ></div>
-                <span class="text-sm z-1"
-                  >[34%] Reading comments from post #03451...</span
+                <span
+                  class="text-sm z-1 whitespace-nowrap overflow-hidden text-ellipsis"
+                  >{{
+                    this.getActionStatusText(0) +
+                      (this.isActionRunning(0) ? " " + this.inference : "")
+                  }}</span
                 >
               </div>
             </div>
+            } @if (this.hasActionStatus(1)) {
+            <div
+              class="rounded-lg bg-gray-800 p-2 transform scale-95 border border-gray-700 overflow-hidden animate-on-show"
+            >
+              <div class="flex items-center">
+                @if (this.isActionStatusIndeterminate(1) &&
+                this.isActionRunning(1)) {
+                <div
+                  class="bg-gray-700 h-full w-full absolute top-0 left-0 indeterminate"
+                ></div>
+                } @else { @if (this.isActionRunning(1)) {
+                <div
+                  class="bg-gray-700 h-full w-full absolute top-0 left-0 indeterminate"
+                ></div>
+                <div
+                  class="bg-gray-700 h-full w-full absolute top-0 left-0 progress-bar"
+                  [style.width]="this.getActionStatusPercentage(1) + '%'"
+                ></div>
+                } }
+                <span
+                  class="text-sm z-1 whitespace-nowrap overflow-hidden text-ellipsis"
+                  >{{
+                    this.getActionStatusText(1) +
+                      (this.isActionRunning(1) ? " " + this.inference : "")
+                  }}</span
+                >
+              </div>
+            </div>
+            } @if (this.hasActionStatus(2)) {
+            <div
+              class="rounded-lg bg-gray-800 p-2 transform scale-95 border border-gray-700 overflow-hidden animate-on-show"
+            >
+              <div class="flex items-center">
+                @if (this.isActionStatusIndeterminate(2) &&
+                this.isActionRunning(2)) {
+                <div
+                  class="bg-gray-700 h-full w-full absolute top-0 left-0 indeterminate"
+                ></div>
+                } @else { @if (this.isActionRunning(2)) {
+                <div
+                  class="bg-gray-700 h-full w-full absolute top-0 left-0 indeterminate"
+                ></div>
+                }
+                <div
+                  class="bg-gray-700 h-full w-full absolute top-0 left-0 progress-bar"
+                  [style.width]="this.getActionStatusPercentage(2) + '%'"
+                ></div>
+                }
+                <span
+                  class="text-sm z-1 whitespace-nowrap overflow-hidden text-ellipsis"
+                  >{{
+                    this.getActionStatusText(2) +
+                      (this.isActionRunning(2) ? " " + this.inference : "")
+                  }}</span
+                >
+              </div>
+            </div>
+            }
             <div class="flex items-center space-x-2 mt-2">
               <span class="loading loading-spinner loading-sm"></span>
               <span class="opacity-100 text-sm"
-                >Working on a round 38512645018...
+                >{{ this.agentRunningStatus?.message }}
                 <div class="digital-cursor"></div
               ></span>
             </div>
@@ -207,35 +270,73 @@
 
           <div class="mt-6">
             <div class="mb-2 text-sm text-gray-400">Interacting with:</div>
-            <div class="rounded-lg bg-gray-800 p-3 transform scale-95">
-              <div class="flex items-center">
+            @if (this.hasAnyTargetContent()) {
+            <div class="transform scale-95">
+              @if (this.hasTargetContent(0)) {
+              <div
+                class="flex items-center animate-on-show rounded-lg bg-gray-800 p-2 mb-1"
+              >
                 <div
-                  class="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-gray-700 text-xs"
+                  class="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-gray-700 text-xs interact-icon"
                 >
-                  P
+                  <lucide-angular
+                    [name]="bookText"
+                    class="w-4 h-4"
+                  ></lucide-angular>
                 </div>
-                <span class="text-sm"
-                  >What is the best thing about life? Left your comments
-                  on...</span
-                >
+                <span class="text-xs text-gray-400">{{
+                  this.getTargetContent(0)
+                }}</span>
               </div>
-              <div class="mt-3 flex items-center">
+              } @if (this.hasTargetContent(1)) {
+              <div
+                class="flex items-center animate-on-show rounded-lg bg-gray-800 p-2 mb-1"
+              >
                 <div
-                  class="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-gray-700 text-xs"
+                  class="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-gray-700 text-xs interact-icon"
                 >
-                  C
+                  <lucide-angular
+                    [name]="messageCircleMore"
+                    class="w-4 h-4"
+                  ></lucide-angular>
                 </div>
-                <span class="text-xs text-gray-400"
-                  >What is the best thing about life? Left your comments
-                  on...</span
-                >
+                <span class="text-xs text-gray-400">{{
+                  this.getTargetContent(1)
+                }}</span>
               </div>
+              } @if (this.hasTargetContent(2)) {
+              <div
+                class="flex items-center animate-on-show rounded-lg bg-gray-800 p-2 mb-1"
+              >
+                <div
+                  class="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-gray-700 text-xs interact-icon"
+                >
+                  <lucide-angular
+                    [name]="messageCircleMore"
+                    class="w-4 h-4"
+                  ></lucide-angular>
+                </div>
+                <span class="text-xs text-gray-400">{{
+                  this.getTargetContent(2)
+                }}</span>
+              </div>
+              }
             </div>
+            } @if (!this.stopping) {
             <button
               class="btn btn-ghost border border-gray-700 text-gray-300 font-medium w-full mt-2"
+              (click)="stopAgent()"
             >
               Stop
             </button>
+            } @else {
+            <div class="flex items-center justify-center w-full">
+              <span class="text-sm text-gray-400"
+                >Stopping... Please wait...</span
+              >
+              <span class="loading loading-spinner loading-sm"></span>
+            </div>
+            }
           </div>
           } @else {
           <div
@@ -247,10 +348,12 @@
                 class="rounded w-full grow-1 border-none bg-transparent h-20 text-sm p-3 resize-none"
                 placeholder="Characteristic of the bot..."
                 wrap="hard"
+                [(ngModel)]="personality"
               ></textarea>
             </div>
             <button
               class="btn btn-ghost border border-gray-700 text-gray-300 font-medium w-full mt-8"
+              (click)="startAgent()"
             >
               Start
             </button>

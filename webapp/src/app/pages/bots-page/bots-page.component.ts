@@ -7,6 +7,20 @@ import { NftService } from '../../service/nft.service';
 import { WalletService } from '../../service/wallet.service';
 import { ProgramService } from '../../service/program.service';
 import { PublicKey } from '@solana/web3.js';
+import { AgentService } from '../../service/agent.service';
+import {
+  AgentInference,
+  AgentStatusResponse,
+  AgentStatusUpdate,
+  NeobotsAgentWebSocketCallbacks,
+} from '../../service/lib/NeobotsAgentClient';
+import { FormsModule } from '@angular/forms';
+import { SampleRunningStatus } from './SampleRunningStatus';
+import {
+  BookText,
+  LucideAngularModule,
+  MessageCircleMore,
+} from 'lucide-angular';
 
 export interface IReceivedPoint {
   comment: number;
@@ -26,13 +40,17 @@ export interface IActionPoint {
     BtnCreateBotComponent,
     RingComponent,
     BarComponent,
+    LucideAngularModule,
+    FormsModule,
   ],
   templateUrl: './bots-page.component.html',
   styleUrl: './bots-page.component.scss',
 })
 export class BotsPageComponent {
+  bookText = BookText;
+  messageCircleMore = MessageCircleMore;
+
   nfts?: { name: string; uri: string; publicKey: string }[];
-  running: boolean = true;
   defaultActionPoints: IActionPoint = {
     postActionPoints: 5,
     commentActionPoints: 5,
@@ -47,11 +65,23 @@ export class BotsPageComponent {
     comment: 0,
     reaction: 0,
   };
+  agentConfiguredStatus?: AgentStatusResponse;
+  agentRunningStatus?: AgentStatusUpdate;
+
+  loaded: boolean = false;
+  selectedNft?: { name: string; uri: string; publicKey: string };
+  personality: string = '';
+
+  inference: string = '';
+
+  stopping: boolean = false;
+  agentRunningStatusWhileStopping: AgentStatusUpdate | undefined;
 
   constructor(
     private nftService: NftService,
     private walletService: WalletService,
-    private programService: ProgramService
+    private programService: ProgramService,
+    private agentService: AgentService
   ) {
     this.walletService.callOrWhenReady(async () => {
       this.nfts = await this.nftService.getOwnedNfts();
@@ -67,14 +97,71 @@ export class BotsPageComponent {
         ),
       };
 
+      this.selectedNft = this.nfts![0];
+
       this.actionPoints = await this.getActionPoint(
-        new PublicKey(this.nfts![0].publicKey)
+        new PublicKey(this.selectedNft!.publicKey)
       );
 
       this.receivedPoints = await this.getReceivedPoints(
-        new PublicKey(this.nfts![0].publicKey)
+        new PublicKey(this.selectedNft!.publicKey)
       );
+
+      this.agentConfiguredStatus = await this.agentService.checkAgentStatus(
+        this.selectedNft!.publicKey
+      );
+
+      this.personality = this.agentConfiguredStatus?.personality || '';
+
+      this.agentService.subscribeToAgent(this.selectedNft!.publicKey, {
+        onStatus: (status) => {
+          if (this.stopping) {
+            this.agentRunningStatusWhileStopping = status;
+            return;
+          }
+          this.onAgentStatus(status);
+        },
+        onInference: (inference) => {
+          this.onAgentInference(inference);
+        },
+      });
+
+      this.loaded = true;
     });
+  }
+
+  addTest() {
+    if (this.agentRunningStatus?.actions.length == 1) {
+      this.agentRunningStatus?.actions.push({
+        id: '4b9ef437-904b-47bd-a8a2-f74e7203e796',
+        type: 'createPost',
+        status: 'closed',
+        current: 0,
+        total: 0,
+        message: 'ahahahah',
+      });
+    } else {
+      this.agentRunningStatus?.actions.splice(0, 1);
+    }
+  }
+
+  onAgentStatus(status: AgentStatusUpdate) {
+    if (
+      status.actions.length >= 2 &&
+      (!status.actions[0].targetContent || !status.actions[1].targetContent)
+    ) {
+      console.log('missing');
+    }
+    this.agentRunningStatus = status;
+    console.log(status);
+  }
+
+  onAgentInference(inference: AgentInference) {
+    this.inference += inference.inference;
+    if (this.inference.length > 30) {
+      // get last 30 characters
+      this.inference = this.inference.slice(-30);
+    }
   }
 
   async getActionPoint(nftMint: PublicKey): Promise<IActionPoint> {
@@ -94,5 +181,133 @@ export class BotsPageComponent {
       comment: Number(user.receivedCommentCount),
       reaction: Number(user.receivedReactionCount),
     };
+  }
+
+  async startAgent() {
+    if (!this.selectedNft) {
+      return;
+    }
+
+    await this.agentService.configureAgent(
+      this.selectedNft!.publicKey,
+      this.personality
+    );
+
+    await this.agentService.startAgent(this.selectedNft.publicKey);
+  }
+
+  async stopAgent() {
+    if (!this.selectedNft) {
+      return;
+    }
+
+    this.stopping = true;
+    await this.agentService.stopAgent(this.selectedNft.publicKey);
+    setTimeout(() => {
+      this.stopping = false;
+      if (this.agentRunningStatusWhileStopping) {
+        this.agentRunningStatus = this.agentRunningStatusWhileStopping;
+        this.agentRunningStatusWhileStopping = undefined;
+      }
+    }, 10 * 1000);
+  }
+
+  isActionRunning(idx: number) {
+    const action = this.agentRunningStatus?.actions[idx];
+    if (!action) {
+      return false;
+    }
+    return action.status == 'running';
+  }
+
+  hasActionStatus(idx: number) {
+    const action = this.agentRunningStatus?.actions[idx];
+    if (!action) {
+      return false;
+    }
+    return true;
+  }
+
+  getActionStatusPercentage(idx: number) {
+    const action = this.agentRunningStatus?.actions[idx];
+    if (!action) {
+      return 0;
+    }
+
+    if (action.total && action.current) {
+      return Math.round((action.current! / action.total!) * 100);
+    } else {
+      return 0;
+    }
+  }
+
+  isActionStatusIndeterminate(idx: number) {
+    const action = this.agentRunningStatus?.actions[idx];
+    if (!action) {
+      return false;
+    }
+    return action.total == undefined || action.total == 0;
+  }
+
+  getActionStatusText(idx: number) {
+    const action = this.agentRunningStatus?.actions[idx];
+    if (!action) {
+      return '';
+    }
+    let message = action.message;
+    if (!message) {
+      message = 'Loading...';
+    }
+
+    if (action.status === 'closed' || action.status === 'success') {
+      message = '✅ ' + message;
+    }
+
+    let percentage = 0;
+
+    if (action.status === 'closed' || action.status === 'success') {
+      return message;
+    }
+
+    if (action.total && action.current) {
+      percentage = Math.round((action.current! / action.total!) * 100);
+      return `[${percentage}%] ${message}`;
+    } else {
+      return `[...] ${message}`;
+    }
+  }
+
+  hasAnyTargetContent() {
+    if (!this.agentRunningStatus) {
+      return false;
+    }
+    for (let i = 0; i < this.agentRunningStatus?.actions.length; i++) {
+      if (this.hasTargetContent(i)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  hasTargetContent(idx: number) {
+    const action = this.agentRunningStatus?.actions[idx];
+    if (!action) {
+      return false;
+    }
+    if (!action.targetContent) {
+      return false;
+    }
+    if (action.targetContent?.trim() == '') {
+      return false;
+    }
+    return true;
+  }
+
+  getTargetContent(idx: number) {
+    const action = this.agentRunningStatus?.actions[idx];
+    if (!action) {
+      return '';
+    }
+    return action.targetContent;
   }
 }

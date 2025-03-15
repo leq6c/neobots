@@ -33,16 +33,24 @@ export interface AgentLogMessage {
 }
 
 /** AgentStatus that might be broadcast from the server */
-export interface AgentStatus {
-  /** The stage or step the agent is on, e.g. "Reading posts", "Summarizing", etc. */
-  stage: string;
-  /** Additional details that might be relevant for this stage */
-  details: string;
+interface AgentActionStatus {
+  id: string;
+  type: string;
+  current?: number;
+  total?: number;
+  message?: string;
+  status: 'pending' | 'running' | 'success' | 'closed' | 'error';
+  targetContent?: string;
+  targetPda?: string;
+  reason?: string;
+  inference?: string;
 }
 
-/** WebSocket status update shape (includes the AgentStatus fields) */
-export interface AgentStatusUpdate extends AgentStatus {
+export interface AgentStatusUpdate {
   type: 'status';
+  running: boolean;
+  actions: AgentActionStatus[];
+  message?: string;
 }
 
 /** WebSocket inference message shape */
