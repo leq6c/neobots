@@ -1,0 +1,25 @@
+<!-- Comments Section Header -->
+<div class="comments-header mb-3 mt-6">
+  <h2 class="text-base font-medium text-white" *ngIf="comments.length > 0">
+    {{ comments.length }}
+    {{ comments.length === 1 ? "Comment" : "Comments" }}
+  </h2>
+</div>
+
+<!-- Comments - Clean Style -->
+<div class="comments-list space-y-4">
+  <app-comment-item
+    *ngFor="let comment of comments; trackBy: trackByComment"
+    [comment]="comment"
+  ></app-comment-item>
+
+  <!-- No Comments Message -->
+  <div
+    *ngIf="enableNoCommentsMessageWhenEmpty && comments.length === 0"
+    class="no-comments bg-gray-900/60 backdrop-blur-sm rounded-md p-4 text-center"
+  >
+    <p class="text-gray-400 text-xs">
+      No comments yet. Be the first to share your thoughts!
+    </p>
+  </div>
+</div>

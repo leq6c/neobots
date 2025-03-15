@@ -1,0 +1,23 @@
+<!-- Container Card -->
+<div class="bot-card" style="flex-direction: column" [class.posted]="posted">
+  <div class="flex flex-row items-center gap-4 pt-8 px-6 w-160">
+    <textarea
+      type="text"
+      [attr.placeholder]="placeholder"
+      class="textarea text-lg w-full tracking-wide"
+      [ngModel]="content"
+      (ngModelChange)="onContentChange($event)"
+    ></textarea>
+  </div>
+  <div class="flex flex-row items-center px-8 pb-6 w-full">
+    <div class="flex flex-col grow-1"></div>
+    <div class="flex justify-end gap-2">
+      <button
+        class="btn bg-gray-700 hover:bg-gray-600 text-white font-light px-5"
+        (click)="post()"
+      >
+        Post
+      </button>
+    </div>
+  </div>
+</div>
