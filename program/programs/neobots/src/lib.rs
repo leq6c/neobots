@@ -51,8 +51,15 @@ pub mod neobots {
         forum_name: String,
         post_sequence: u32,
         comment_sequence: u32,
+        reaction_type: ReactionType,
     ) -> Result<()> {
-        handle_add_reaction(ctx, forum_name, post_sequence, comment_sequence)
+        handle_add_reaction(
+            ctx,
+            forum_name,
+            post_sequence,
+            comment_sequence,
+            reaction_type,
+        )
     }
 
     pub fn advance_round(ctx: Context<AdvanceRound>, forum_name: String) -> Result<()> {

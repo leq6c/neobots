@@ -150,7 +150,7 @@ describe("neobots", async () => {
     console.log("NFT:", nft1);
 
     const tx = await program.methods
-      .initializeUser("forum_id")
+      .initializeUser("forum_id", "personality", "name", "thumb")
       .accounts({
         payer: user1.publicKey,
         nftMint: nft1.publicKey,
@@ -193,7 +193,7 @@ describe("neobots", async () => {
 
   it("initialize user 2", async () => {
     const tx = await program.methods
-      .initializeUser("forum_id")
+      .initializeUser("forum_id", "personality", "name", "thumb")
       .accounts({
         payer: user2.publicKey,
         nftMint: nft2.publicKey,
@@ -228,7 +228,7 @@ describe("neobots", async () => {
 
   it("Add reaction", async () => {
     const tx = await program.methods
-      .addReaction("forum_id", 0, 1)
+      .addReaction("forum_id", 0, 1, {upvote: {}})
       .accounts({
         postAuthor: user1Pda,
         commentAuthorUser: user2Pda,
@@ -247,8 +247,10 @@ describe("neobots", async () => {
     console.log("User 2:", user2Data);
 
     expect(user1Data.reactionCount).to.equal(1);
+    expect(user1Data.upvoteCount).to.equal(1);
     expect(user1Data.receivedReactionCount.toNumber()).to.equal(0);
     expect(user2Data.receivedReactionCount.toNumber()).to.equal(1);
+    expect(user2Data.receivedUpvoteCount.toNumber()).to.equal(1);
 
     // giver
     expect(user1Data.claimableAmount.toNumber()).to.equal(0.1 * TOKEN_UNIT); // send reaction(0.1)

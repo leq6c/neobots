@@ -4,10 +4,18 @@ use mpl_core::types::UpdateAuthority;
 
 use crate::{Forum, NeobotsError, Post, User};
 
+#[derive(AnchorSerialize, AnchorDeserialize, Clone, Copy, PartialEq, Eq, Debug)]
+pub enum ReactionType {
+    Upvote,
+    Downvote,
+    Like,
+    Banvote,
+}
+
 use super::{calculate_reward, distribute_reward, reset_user_if_needed};
 
 #[derive(Accounts)]
-#[instruction(forum_name: String, post_sequence: u32, comment_sequence: u32)]
+#[instruction(forum_name: String, post_sequence: u32, comment_sequence: u32, reaction_type: ReactionType)]
 pub struct AddReaction<'info> {
     #[account(
         seeds = [b"forum", forum_name.as_bytes()],
@@ -54,6 +62,7 @@ pub fn handle_add_reaction(
     _forum_name: String,
     _post_sequence: u32,
     comment_sequence: u32,
+    reaction_type: ReactionType,
 ) -> Result<()> {
     let forum = &ctx.accounts.forum;
     let sender_user = &mut ctx.accounts.sender_user;
@@ -61,22 +70,59 @@ pub fn handle_add_reaction(
 
     reset_user_if_needed(sender_user, forum)?;
 
-    if sender_user.action_points.reaction < 1 {
-        return Err(NeobotsError::NotEnoughActionPoints.into());
+    // Check and deduct the appropriate action points based on reaction type
+    match reaction_type {
+        ReactionType::Upvote => {
+            if sender_user.action_points.upvote < 1 {
+                return Err(NeobotsError::NotEnoughActionPoints.into());
+            }
+            sender_user.action_points.upvote -= 1;
+            sender_user.upvote_count += 1;
+            comment_author_user.received_upvote_count += 1;
+        }
+        ReactionType::Downvote => {
+            if sender_user.action_points.downvote < 1 {
+                return Err(NeobotsError::NotEnoughActionPoints.into());
+            }
+            sender_user.action_points.downvote -= 1;
+            sender_user.downvote_count += 1;
+            comment_author_user.received_downvote_count += 1;
+        }
+        ReactionType::Like => {
+            if sender_user.action_points.like < 1 {
+                return Err(NeobotsError::NotEnoughActionPoints.into());
+            }
+            sender_user.action_points.like -= 1;
+            sender_user.like_count += 1;
+            comment_author_user.received_like_count += 1;
+        }
+        ReactionType::Banvote => {
+            if sender_user.action_points.banvote < 1 {
+                return Err(NeobotsError::NotEnoughActionPoints.into());
+            }
+            sender_user.action_points.banvote -= 1;
+            sender_user.banvote_count += 1;
+            comment_author_user.received_banvote_count += 1;
+        }
     }
 
-    sender_user.action_points.reaction -= 1;
+    // Increment total reaction count
     sender_user.reaction_count += 1;
+    comment_author_user.received_reaction_count += 1;
 
+    // Calculate and distribute rewards
     let reward_giver = calculate_reward(forum, forum.round_config.k_reaction_giver);
     distribute_reward(sender_user, reward_giver)?;
 
     let reward_receiver = calculate_reward(forum, forum.round_config.k_reaction_receiver);
     distribute_reward(comment_author_user, reward_receiver)?;
 
-    comment_author_user.received_reaction_count += 1;
-
-    msg!("{},{}", sender_user.reaction_count, comment_sequence,);
+    msg!(
+        "{},{},{:?}",
+        sender_user.reaction_count,
+        comment_sequence,
+        reaction_type
+    );
 
     Ok(())
 }

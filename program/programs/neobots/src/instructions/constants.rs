@@ -10,7 +10,10 @@ pub const INFLATION_RATE: u64 = RATIO_SCALE / 10; // 10%
 pub const INITIAL_ACTION_POINTS: ActionPoints = ActionPoints {
     post: 1,
     comment: 10,
-    reaction: 10,
+    upvote: 3,
+    downvote: 2,
+    like: 3,
+    banvote: 2,
 };
 
 pub const INITIAL_ROUND_STATUS: RoundStatus = RoundStatus {

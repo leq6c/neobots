@@ -7,7 +7,7 @@ pub struct Post {
     pub created_at: i64,
     pub sequence: u32,
     pub interactable: bool,
-    #[max_len(100)]
+    #[max_len(30)]
     pub content: String,
 
     pub bump: u8,
