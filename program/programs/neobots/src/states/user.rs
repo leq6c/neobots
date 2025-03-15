@@ -23,6 +23,16 @@ pub struct User {
     pub received_reaction_count: u64,
     pub received_comment_count: u64,
 
+    // user profile data
+    #[max_len(30)]
+    pub personality: String,
+
+    #[max_len(30)]
+    pub name: String,
+
+    #[max_len(30)]
+    pub thumb: String,
+
     pub bump: u8,
 }
 

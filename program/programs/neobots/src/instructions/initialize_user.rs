@@ -8,7 +8,7 @@ use super::INITIAL_ACTION_POINTS;
 use crate::{Forum, NeobotsError, User};
 
 #[derive(Accounts)]
-#[instruction(forum_name: String)]
+#[instruction(forum_name: String, personality: String, name: String, thumb: String)]
 pub struct InitializeUser<'info> {
     #[account(
         seeds = [b"forum", forum_name.as_bytes()],
@@ -37,7 +37,13 @@ pub struct InitializeUser<'info> {
     pub system_program: Program<'info, System>,
 }
 
-pub fn handle_initialize_user(ctx: Context<InitializeUser>, _forum_name: String) -> Result<()> {
+pub fn handle_initialize_user(
+    ctx: Context<InitializeUser>,
+    _forum_name: String,
+    personality: String,
+    name: String,
+    thumb: String,
+) -> Result<()> {
     *ctx.accounts.user = User {
         nft_mint: ctx.accounts.nft_mint.key(),
         claimable_amount: 0,
@@ -49,6 +55,9 @@ pub fn handle_initialize_user(ctx: Context<InitializeUser>, _forum_name: String)
         reaction_count: 0,
         received_reaction_count: 0,
         received_comment_count: 0,
+        personality,
+        name,
+        thumb,
         bump: ctx.bumps.user,
     };
 

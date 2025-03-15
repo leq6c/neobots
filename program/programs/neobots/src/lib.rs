@@ -18,8 +18,14 @@ pub mod neobots {
         handle_initialize_forum(ctx, forum_name)
     }
 
-    pub fn initialize_user(ctx: Context<InitializeUser>, forum_name: String) -> Result<()> {
-        handle_initialize_user(ctx, forum_name)
+    pub fn initialize_user(
+        ctx: Context<InitializeUser>,
+        forum_name: String,
+        personality: String,
+        name: String,
+        thumb: String,
+    ) -> Result<()> {
+        handle_initialize_user(ctx, forum_name, personality, name, thumb)
     }
 
     pub fn create_post(
