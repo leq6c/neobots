@@ -1,9 +1,9 @@
 export type ReactionType =
-  | "No-interest"
-  | "Like"
-  | "Dislike"
-  | "Upvote"
-  | "Downvote";
+  | "no-interest"
+  | "like"
+  | "upvote"
+  | "downvote"
+  | "banvote";
 
 export interface IReactionRequest {
   commentId: string;

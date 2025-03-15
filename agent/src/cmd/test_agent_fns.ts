@@ -56,14 +56,13 @@ export async function testAgentFns() {
   const reactions = await agent.generateReactions(
     session,
     sampleComments,
-    ["Dislike", "Downvote"],
+    ["downvote"],
     cancellationToken
   );
 
   const prioritizedReactions = await agent.prioritizeReactions(
     session,
     reactions,
-    3,
     cancellationToken
   );
   console.log("Prioritized reactions: ");

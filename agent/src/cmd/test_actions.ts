@@ -49,7 +49,7 @@ export async function testActions() {
       (
         await operator.getUser()
       ).userPda,
-      "test reaction"
+      "upvote"
     );
   await operator.getProgramService().confirmTransaction(sig3);
   console.log("✅ reaction created: ", sig3);

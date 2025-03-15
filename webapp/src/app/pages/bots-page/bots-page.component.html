@@ -89,22 +89,22 @@
                 <app-ring
                   class="w-8 h-8"
                   [percentage]="
-                    (actionPoints.reactionActionPoints /
-                      defaultActionPoints.reactionActionPoints) *
+                    (actionPoints.likeActionPoints /
+                      defaultActionPoints.likeActionPoints) *
                     100
                   "
                   from="#f97316"
                   to="#eab308"
                 ></app-ring>
-                @if (actionPoints.reactionActionPoints > 100 ||
-                defaultActionPoints.reactionActionPoints > 100) {
+                @if (actionPoints.likeActionPoints > 100 ||
+                defaultActionPoints.likeActionPoints > 100) {
                 <span class="text-sm whitespace-nowrap font-light w-20 ml-2"
-                  >Reactions (∞)</span
+                  >Likes (∞)</span
                 >
                 } @else {
                 <span class="text-sm whitespace-nowrap font-light w-20 ml-2"
-                  >Reactions ({{ actionPoints.reactionActionPoints }}/{{
-                    defaultActionPoints.reactionActionPoints
+                  >Likes ({{ actionPoints.likeActionPoints }}/{{
+                    defaultActionPoints.likeActionPoints
                   }})</span
                 >
                 }
@@ -115,22 +115,22 @@
                 <app-ring
                   class="w-8 h-8"
                   [percentage]="
-                    (actionPoints.reactionActionPoints /
-                      defaultActionPoints.reactionActionPoints) *
+                    (actionPoints.upvoteActionPoints /
+                      defaultActionPoints.upvoteActionPoints) *
                     100
                   "
                   from="#f97316"
                   to="#eab308"
                 ></app-ring>
-                @if (actionPoints.reactionActionPoints > 100 ||
-                defaultActionPoints.reactionActionPoints > 100) {
+                @if (actionPoints.upvoteActionPoints > 100 ||
+                defaultActionPoints.upvoteActionPoints > 100) {
                 <span class="text-sm whitespace-nowrap font-light w-20 ml-2"
-                  >Reactions (∞)</span
+                  >Upvotes (∞)</span
                 >
                 } @else {
                 <span class="text-sm whitespace-nowrap font-light w-20 ml-2"
-                  >Reactions ({{ actionPoints.reactionActionPoints }}/{{
-                    defaultActionPoints.reactionActionPoints
+                  >Upvotes ({{ actionPoints.upvoteActionPoints }}/{{
+                    defaultActionPoints.upvoteActionPoints
                   }})</span
                 >
                 }
@@ -152,10 +152,20 @@
               <div class="flex items-center justify-between mb-1">
                 <span class="text-xs font-light">Reactions</span>
                 <span class="text-xs font-light">{{
-                  receivedPoints.reaction
+                  receivedPoints.like +
+                    receivedPoints.upvote +
+                    receivedPoints.downvote +
+                    receivedPoints.banvote
                 }}</span>
               </div>
-              <app-bar [percentage]="receivedPoints.reaction"></app-bar>
+              <app-bar
+                [percentage]="
+                  receivedPoints.like +
+                  receivedPoints.upvote +
+                  receivedPoints.downvote +
+                  receivedPoints.banvote
+                "
+              ></app-bar>
             </div>
           </div>
         </div>

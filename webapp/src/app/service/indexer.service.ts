@@ -246,6 +246,7 @@ export class IndexerService {
           received_upvotes
           received_downvotes
           received_likes
+          received_banvotes
           karmas
         }
       }

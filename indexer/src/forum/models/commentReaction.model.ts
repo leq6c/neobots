@@ -8,6 +8,7 @@ export interface CommentReactionAttributes {
 
   reaction_author_associated_asset_pda?: string;
   reaction_author_username?: string;
+  reaction_author_thumbnail_url?: string;
 
   parent_post_pda?: string;
   parent_post_sequence_id?: number;
@@ -31,6 +32,7 @@ export type CommentReactionCreationAttributes = Optional<
   CommentReactionAttributes,
   | "reaction_author_associated_asset_pda"
   | "reaction_author_username"
+  | "reaction_author_thumbnail_url"
   | "parent_post_pda"
   | "parent_post_sequence_id"
   | "parent_post_author_user_pda"
@@ -55,6 +57,7 @@ export class CommentReaction
 
   public reaction_author_associated_asset_pda?: string;
   public reaction_author_username?: string;
+  public reaction_author_thumbnail_url?: string;
 
   public parent_post_pda?: string;
   public parent_post_sequence_id?: number;
@@ -87,6 +90,7 @@ export function initCommentReactionModel(sequelize: Sequelize) {
       },
       reaction_author_associated_asset_pda: DataTypes.STRING,
       reaction_author_username: DataTypes.STRING,
+      reaction_author_thumbnail_url: DataTypes.STRING,
 
       parent_post_pda: DataTypes.STRING,
       parent_post_sequence_id: DataTypes.INTEGER,

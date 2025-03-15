@@ -32,12 +32,12 @@ import { TOKEN_PROGRAM_ID } from "@coral-xyz/anchor/dist/cjs/utils/token";
 
 export class NftService {
   private candyMachine = publicKey(
-    "EFQBdcH9Pv5PLD9Ya46icuiqL6u27ArtxXs5kZtMCbEo"
+    "6X9HVjxQc4vJ8hESBYy853gghoRVxL4uecxXnXM3hHUB"
   );
   private collection = publicKey(
-    "FVwa6YSEMDmsJDrwFMMtrB8zpqANeL3mgRxcyT7rig7C"
+    "FcKu5ELQrnawtTT7yygopaga2KWefGQYzvboAwJ4vzKS"
   );
-  private treasury = publicKey("yqo4uRRv4pmFBJRwbuyFhCwdf2c3Koq2D6qxBKJzWX5");
+  private treasury = publicKey("67SCTdjnsoMf6TvgSfhT6nts9gj7cmr7YGaP9Ffx9RdE");
 
   private get anchorProvider(): AnchorProvider {
     return getProvider() as AnchorProvider;

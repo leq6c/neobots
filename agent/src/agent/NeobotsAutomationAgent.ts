@@ -1,6 +1,6 @@
 import { PublicKey } from "@solana/web3.js";
 import { NeobotsAgent } from "./NeobotsAgent";
-import { NeobotsOperator } from "./NeobotsOperator";
+import { IActionPoint, NeobotsOperator } from "./NeobotsOperator";
 import { NeobotsIndexerApi } from "../api/NeobotsIndexerApi";
 import { IComment } from "../model/comment.model";
 import { IReaction } from "../model/reaction.model";
@@ -72,7 +72,11 @@ export class NeobotsAutomationAgent {
       /**
        * 5) If we have Reaction Points, do a "reaction" flow
        */
-      const totalReactionPoints = ap.reactionActionPoints; // or subdivide into like/downvote/upvote if you want
+      const totalReactionPoints =
+        ap.upvoteActionPoints +
+        ap.banvoteActionPoints +
+        ap.downvoteActionPoints +
+        ap.likeActionPoints; // or subdivide into like/downvote/upvote if you want
       if (totalReactionPoints > 0) {
         await this.reactionFlow(ap);
       }
@@ -269,7 +273,7 @@ export class NeobotsAutomationAgent {
    *  5) LLM prioritizes top-K (based on leftover reaction points)
    *  6) post on chain
    */
-  private async reactionFlow(ap: any) {
+  private async reactionFlow(ap: IActionPoint) {
     const action = this.statusManager.initializeAction("reactionFlow");
 
     await action.startSessionAsync(async (session) => {
@@ -300,7 +304,13 @@ export class NeobotsAutomationAgent {
       for (const choice of selected) {
         idx++;
         session.setProgress(idx, selected.length);
-        if (ap.reactionActionPoints <= 0) {
+        const totalReactionPoints =
+          ap.upvoteActionPoints +
+          ap.banvoteActionPoints +
+          ap.downvoteActionPoints +
+          ap.likeActionPoints; // or subdivide into like/downvote/upvote if you want
+
+        if (totalReactionPoints <= 0) {
           session.setMessage(
             "No reaction points left, stopping reaction flow."
           );
@@ -352,7 +362,7 @@ export class NeobotsAutomationAgent {
 
         // 4) LLM suggests a reaction for each
         session.setMessage("Writing reactions... 💬");
-        const preferred = ["Like", "Dislike", "Upvote", "Downvote"];
+        const preferred = ["like", "upvote", "downvote", "banvote"];
         let rawReactions = await this.agent.generateReactions(
           session,
           reactionRequests,
@@ -374,7 +384,6 @@ export class NeobotsAutomationAgent {
         rawReactions = await this.agent.prioritizeReactions(
           session,
           rawReactions,
-          ap.reactionActionPoints,
           this.getCancellationToken()
         );
 
@@ -398,8 +407,25 @@ export class NeobotsAutomationAgent {
         for (const r of rawReactions) {
           rawReactionsIdx++;
           session.setProgress(rawReactionsIdx, rawReactions.length);
-          if (ap.reactionActionPoints <= 0) break;
-          if (r.reactionType === "No-interest") continue;
+          if (r.reactionType === "no-interest") continue;
+
+          // check action points
+          const reactionType = r.reactionType;
+          if (reactionType === "upvote" && ap.upvoteActionPoints <= 0) {
+            continue;
+          } else if (
+            reactionType === "downvote" &&
+            ap.downvoteActionPoints <= 0
+          ) {
+            continue;
+          } else if (reactionType === "like" && ap.likeActionPoints <= 0) {
+            continue;
+          } else if (
+            reactionType === "banvote" &&
+            ap.banvoteActionPoints <= 0
+          ) {
+            continue;
+          }
 
           console.log(
             `Reacting to comment ${r.targetCommentId} with ${r.reactionType}`
@@ -422,16 +448,26 @@ export class NeobotsAutomationAgent {
 
           session.setMessage("Sending reaction to chain... 🔗");
 
-          const sig = await this.operator.getProgramService().addReaction(
-            user.nftMint,
-            fullPost.post_sequence_id,
-            seqId,
-            new PublicKey(fullPost.post_author_pda),
-            r.reactionType // or pass it in "content"
-          );
+          const sig = await this.operator
+            .getProgramService()
+            .addReaction(
+              user.nftMint,
+              fullPost.post_sequence_id,
+              seqId,
+              new PublicKey(fullPost.post_author_pda),
+              r.reactionType as "upvote" | "downvote" | "like" | "banvote"
+            );
           session.setMessage("Reaction sent! sig:" + sig);
           // consume 1 reaction point
-          ap.reactionActionPoints -= 1;
+          if (r.reactionType === "upvote") {
+            ap.upvoteActionPoints -= 1;
+          } else if (r.reactionType === "downvote") {
+            ap.downvoteActionPoints -= 1;
+          } else if (r.reactionType === "like") {
+            ap.likeActionPoints -= 1;
+          } else if (r.reactionType === "banvote") {
+            ap.banvoteActionPoints -= 1;
+          }
         }
       }
     });

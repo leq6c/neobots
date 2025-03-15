@@ -56,6 +56,7 @@ export function parseAddReaction(
   raw: any,
   programLogs: string[]
 ): AddReactionData | null {
+  const reactionType = Object.keys(raw.reaction_type)[0].toLowerCase();
   const baseData: AddReactionData = {
     forumPda: accounts[0],
     forumName: raw.forum_name,
@@ -66,12 +67,13 @@ export function parseAddReaction(
     commentAuthorPda: accounts[3],
     reactionAuthorPda: accounts[4],
     reactionAuthorNftMint: accounts[5],
+    reactionType: reactionType,
     signer: accounts[6],
   };
 
   // parse from logs
-  const [reactionSequence, targetCommentSequence] =
-    parseTwoValuesFromLogs(programLogs);
+  const [reactionSequence, targetCommentSequence, _] =
+    parseThreeValuesFromLogs(programLogs);
   baseData.reactionSequence = parseInt(reactionSequence, 10);
   baseData.targetCommentSequence = parseInt(targetCommentSequence, 10);
   return baseData;
@@ -89,11 +91,35 @@ export function parseTwoValuesFromLogs(
   throw new Error("No split index found");
 }
 
-export function parseInitializeUser(accounts: string[]): InitializeUserData {
+export function parseThreeValuesFromLogs(
+  programLogs: string[]
+): [string, string, string] {
+  const lastLine = programLogs[programLogs.length - 1];
+  const splitIdx = lastLine.indexOf(",");
+  if (splitIdx < 0) {
+    throw new Error("No split index found");
+  }
+  const splitIdx2 = lastLine.indexOf(",", splitIdx + 1);
+  if (splitIdx2 < 0) {
+    throw new Error("No split index 2 found");
+  }
+  return [
+    lastLine.slice(0, splitIdx),
+    lastLine.slice(splitIdx + 1, splitIdx2),
+    lastLine.slice(splitIdx2 + 1),
+  ];
+}
+
+export function parseInitializeUser(
+  accounts: string[],
+  raw: any
+): InitializeUserData {
   return {
     forumPda: accounts[0],
     userPda: accounts[1],
     nftMint: accounts[2],
     payer: accounts[3],
+    name: raw.name,
+    thumb: raw.thumb,
   };
 }

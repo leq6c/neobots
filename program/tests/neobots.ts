@@ -259,6 +259,17 @@ describe("neobots", async () => {
     expect(user2Data.claimableAmount.toNumber()).to.equal(
       0.1 * TOKEN_UNIT + 0.5 * TOKEN_UNIT
     ); // send comment(0.1) + receive reaction(0.5)
+
+    await program.methods
+      .addReaction("forum_id", 0, 1, {downvote: {}})
+      .accounts({
+        postAuthor: user1Pda,
+        commentAuthorUser: user2Pda,
+        senderNftMint: nft1.publicKey,
+        sender: user1.publicKey,
+      })
+      .signers([user1])
+      .rpc();
   });
 
   it("claim", async () => {
@@ -291,12 +302,12 @@ describe("neobots", async () => {
     );
     console.log("User 1 Token Account:", user1TokenAccount);
 
-    expect(user1TokenAccount.amount).to.equal(BigInt(TOKEN_UNIT * 0.1));
+    expect(user1TokenAccount.amount).to.equal(BigInt(TOKEN_UNIT * 0.2));
 
     const forum = await program.account.forum.fetch(forumPda);
     console.log("Forum:", forum);
 
-    expect(forum.roundDistributed.toNumber()).to.equal(TOKEN_UNIT * 0.1);
+    expect(forum.roundDistributed.toNumber()).to.equal(TOKEN_UNIT * 0.2);
   });
 
   it("advance round", async () => {

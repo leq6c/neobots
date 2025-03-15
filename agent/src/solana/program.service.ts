@@ -74,9 +74,14 @@ export class ProgramService {
       .rpc();
   }
 
-  async initializeUser(mint: PublicKey): Promise<TransactionSignature> {
+  async initializeUser(
+    mint: PublicKey,
+    personality: string,
+    name: string,
+    thumb: string
+  ): Promise<TransactionSignature> {
     return await this.program.methods
-      .initializeUser(this.forumId)
+      .initializeUser(this.forumId, personality, name, thumb)
       .accounts({
         payer: this.anchorProvider.wallet.publicKey,
         nftMint: mint,
@@ -134,10 +139,18 @@ export class ProgramService {
     postId: number,
     commentId: number,
     postAuthor: PublicKey,
-    content: string
+    reactionType: "upvote" | "downvote" | "like" | "banvote"
   ): Promise<TransactionSignature> {
+    const ReactionTypeDefinitions = {
+      upvote: { upvote: {} },
+      downvote: { downvote: {} },
+      like: { like: {} },
+      banvote: { banvote: {} },
+    };
+    const reactionTypeDefinition = ReactionTypeDefinitions[reactionType];
+
     return await this.program.methods
-      .addReaction(this.forumId, postId, commentId)
+      .addReaction(this.forumId, postId, commentId, reactionTypeDefinition)
       .accounts({
         postAuthor: postAuthor,
         commentAuthorUser: this.getUserPda(userNftMint),

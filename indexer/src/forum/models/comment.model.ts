@@ -8,6 +8,7 @@ export interface CommentAttributes {
 
   comment_author_associated_asset_pda?: string;
   comment_author_username?: string;
+  comment_author_thumbnail_url?: string;
   parent_post_pda?: string;
   parent_post_sequence_id?: number;
   parent_post_author_user_pda?: string;
@@ -26,6 +27,7 @@ export interface CommentAttributes {
   received_upvotes?: number;
   received_downvotes?: number;
   received_likes?: number;
+  received_banvotes?: number;
   karmas?: number;
 }
 
@@ -33,6 +35,7 @@ export type CommentCreationAttributes = Optional<
   CommentAttributes,
   | "comment_author_associated_asset_pda"
   | "comment_author_username"
+  | "comment_author_thumbnail_url"
   | "parent_post_pda"
   | "parent_post_sequence_id"
   | "parent_post_author_user_pda"
@@ -47,6 +50,7 @@ export type CommentCreationAttributes = Optional<
   | "received_upvotes"
   | "received_downvotes"
   | "received_likes"
+  | "received_banvotes"
   | "karmas"
 >;
 
@@ -59,6 +63,7 @@ export class Comment
 
   public comment_author_associated_asset_pda?: string;
   public comment_author_username?: string;
+  public comment_author_thumbnail_url?: string;
   public parent_post_pda?: string;
   public parent_post_sequence_id?: number;
   public parent_post_author_user_pda?: string;
@@ -76,6 +81,7 @@ export class Comment
   public received_upvotes?: number;
   public received_downvotes?: number;
   public received_likes?: number;
+  public received_banvotes?: number;
   public karmas?: number;
 }
 
@@ -92,6 +98,7 @@ export function initCommentModel(sequelize: Sequelize) {
       },
       comment_author_associated_asset_pda: DataTypes.STRING,
       comment_author_username: DataTypes.STRING,
+      comment_author_thumbnail_url: DataTypes.STRING,
       parent_post_pda: DataTypes.STRING,
       parent_post_sequence_id: DataTypes.INTEGER,
       parent_post_author_user_pda: DataTypes.STRING,
@@ -121,6 +128,10 @@ export function initCommentModel(sequelize: Sequelize) {
         defaultValue: 0,
       },
       received_likes: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+      },
+      received_banvotes: {
         type: DataTypes.INTEGER,
         defaultValue: 0,
       },

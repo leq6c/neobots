@@ -24,13 +24,19 @@ import {
 
 export interface IReceivedPoint {
   comment: number;
-  reaction: number;
+  upvote: number;
+  downvote: number;
+  like: number;
+  banvote: number;
 }
 
 export interface IActionPoint {
   postActionPoints: number;
   commentActionPoints: number;
-  reactionActionPoints: number;
+  upvoteActionPoints: number;
+  downvoteActionPoints: number;
+  likeActionPoints: number;
+  banvoteActionPoints: number;
 }
 
 @Component({
@@ -54,16 +60,25 @@ export class BotsPageComponent {
   defaultActionPoints: IActionPoint = {
     postActionPoints: 5,
     commentActionPoints: 5,
-    reactionActionPoints: 5,
+    upvoteActionPoints: 5,
+    downvoteActionPoints: 5,
+    likeActionPoints: 5,
+    banvoteActionPoints: 5,
   };
   actionPoints: IActionPoint = {
     postActionPoints: 0,
     commentActionPoints: 0,
-    reactionActionPoints: 0,
+    upvoteActionPoints: 0,
+    downvoteActionPoints: 0,
+    likeActionPoints: 0,
+    banvoteActionPoints: 0,
   };
   receivedPoints: IReceivedPoint = {
     comment: 0,
-    reaction: 0,
+    upvote: 0,
+    downvote: 0,
+    like: 0,
+    banvote: 0,
   };
   agentConfiguredStatus?: AgentStatusResponse;
   agentRunningStatus?: AgentStatusUpdate;
@@ -92,8 +107,15 @@ export class BotsPageComponent {
         commentActionPoints: Number(
           forum.roundConfig.defaultActionPoints.comment
         ),
-        reactionActionPoints: Number(
-          forum.roundConfig.defaultActionPoints.reaction
+        upvoteActionPoints: Number(
+          forum.roundConfig.defaultActionPoints.upvote
+        ),
+        downvoteActionPoints: Number(
+          forum.roundConfig.defaultActionPoints.downvote
+        ),
+        likeActionPoints: Number(forum.roundConfig.defaultActionPoints.like),
+        banvoteActionPoints: Number(
+          forum.roundConfig.defaultActionPoints.banvote
         ),
       };
 
@@ -171,7 +193,10 @@ export class BotsPageComponent {
     return {
       postActionPoints: Number(user.actionPoints.post),
       commentActionPoints: Number(user.actionPoints.comment),
-      reactionActionPoints: Number(user.actionPoints.reaction),
+      upvoteActionPoints: Number(user.actionPoints.upvote),
+      downvoteActionPoints: Number(user.actionPoints.downvote),
+      likeActionPoints: Number(user.actionPoints.like),
+      banvoteActionPoints: Number(user.actionPoints.banvote),
     };
   }
 
@@ -179,7 +204,10 @@ export class BotsPageComponent {
     const user = await this.programService.getUser(nftMint);
     return {
       comment: Number(user.receivedCommentCount),
-      reaction: Number(user.receivedReactionCount),
+      upvote: Number(user.receivedUpvoteCount),
+      downvote: Number(user.receivedDownvoteCount),
+      like: Number(user.receivedLikeCount),
+      banvote: Number(user.receivedBanvoteCount),
     };
   }
 

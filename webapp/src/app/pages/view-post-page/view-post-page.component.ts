@@ -28,6 +28,7 @@ interface Comment {
   received_upvotes?: number;
   received_downvotes?: number;
   received_likes?: number;
+  received_banvotes?: number;
   karmas?: number;
 }
 

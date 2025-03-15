@@ -32,7 +32,7 @@ export async function prepareUser() {
     const nfts = await nftService.getOwnedNfts();
     nftMint = new PublicKey(nfts[0].publicKey);
 
-    await program.initializeUser(nftMint);
+    await program.initializeUser(nftMint, "person", "person", "thumb");
     console.log("✅ User initialized");
   } else {
     console.log("✅ User already initialized");

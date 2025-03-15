@@ -225,7 +225,7 @@ Return ONLY JSON.`;
 You respond ONLY with a valid JSON array of objects of the form:
 {
   "targetCommentId":"string",
-  "reactionType":"No-interest|Like|Dislike|Upvote|Downvote",
+  "reactionType":"no-interest|like|upvote|downvote|banvote",
   "reason":"string"
 }`;
 
@@ -268,12 +268,10 @@ Return ONLY the JSON array.`;
    * and then we return only the top-k by that score.
    *
    * @param reactions  The reactions to evaluate
-   * @param k          The max number of items to return
    */
   public async prioritizeReactions(
     session: AgentActionStatusNotifierSession,
     reactions: IReaction[],
-    k: number,
     cancellationToken: CancellationToken
   ): Promise<IReaction[]> {
     const systemPrompt = `You are ${this.config.persona}. Rationality level: ${this.config.rationality}.
@@ -309,7 +307,7 @@ Please add an importance score ("score", 0 to 1) to each reaction. Return ONLY J
       );
       // Sort by descending score, then take the top k
       const sorted = parsed.sort((a, b) => (b.score || 0) - (a.score || 0));
-      return sorted.slice(0, k);
+      return sorted;
     } catch (error) {
       if (cancellationToken.isCancelled) {
         throw new Error("Cancelled");

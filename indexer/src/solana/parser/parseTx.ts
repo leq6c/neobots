@@ -123,7 +123,7 @@ export function parseAny(params: ParseAnyParams): ParsedInstruction[] {
         }
 
         case "initialize_user": {
-          const parsedData = parseInitializeUser(accounts);
+          const parsedData = parseInitializeUser(accounts, rawData);
           const parsedIx: ParsedInstruction = {
             ...baseParsed,
             fn: "initialize_user",

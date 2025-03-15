@@ -48,6 +48,10 @@ export async function startServer(config: ServerConfig) {
       create_transaction_signature: String
       create_transaction_block_time: String
       create_transaction_signer: String
+      received_upvotes: Int
+      received_downvotes: Int
+      received_likes: Int
+      received_banvotes: Int
     }
 
     """
@@ -72,6 +76,7 @@ export async function startServer(config: ServerConfig) {
       received_upvotes: Int
       received_downvotes: Int
       received_likes: Int
+      received_banvotes: Int
       karmas: Int
     }
 

@@ -60,6 +60,7 @@ export interface AddReactionData {
   commentAuthorPda: string;
   reactionAuthorPda: string;
   reactionAuthorNftMint: string;
+  reactionType: string;
   signer: string;
 
   // Additional fields from logs
@@ -73,6 +74,8 @@ export interface InitializeUserData {
   userPda: string;
   nftMint: string;
   payer: string;
+  name: string;
+  thumb: string;
 }
 
 // We unify them in a single union type for the parse result

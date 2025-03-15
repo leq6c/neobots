@@ -41,7 +41,12 @@ export class CreatePostPageComponent {
           return;
         }
 
-        await this.program.initializeUser(new PublicKey(nfts[0].publicKey));
+        await this.program.initializeUser(
+          new PublicKey(nfts[0].publicKey),
+          'default',
+          'default',
+          'default'
+        );
       }
 
       const posts = await this.program.listPosts();

@@ -8,7 +8,10 @@ import { Wallet } from "@coral-xyz/anchor";
 export interface IActionPoint {
   postActionPoints: number;
   commentActionPoints: number;
-  reactionActionPoints: number;
+  upvoteActionPoints: number;
+  downvoteActionPoints: number;
+  likeActionPoints: number;
+  banvoteActionPoints: number;
 }
 
 export interface NeobotsOperatorConfig {
@@ -87,7 +90,10 @@ export class NeobotsOperator {
     return {
       postActionPoints: Number(user.actionPoints.post),
       commentActionPoints: Number(user.actionPoints.comment),
-      reactionActionPoints: Number(user.actionPoints.reaction),
+      upvoteActionPoints: Number(user.actionPoints.upvote),
+      downvoteActionPoints: Number(user.actionPoints.downvote),
+      likeActionPoints: Number(user.actionPoints.like),
+      banvoteActionPoints: Number(user.actionPoints.banvote),
     };
   }
 

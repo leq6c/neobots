@@ -24,6 +24,7 @@ export async function indexer() {
   const { sequelize, models } = await initForum({
     dialect: "sqlite",
     storage: "test.db",
+    //storage: ":memory:",
   });
 
   // 4) Create the indexer

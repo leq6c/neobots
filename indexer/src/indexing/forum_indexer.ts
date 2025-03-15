@@ -11,6 +11,7 @@ import type {
 import { ForumModels } from "../forum/init"; // or wherever your models are exported
 import neobotsIdl from "../../../program/target/idl/neobots.json"; // Adjust to your actual IDL path
 import { NeobotsOffChainApi } from "../api/NeobotsOffChainApi";
+import { Post } from "../forum/models/post.model";
 
 interface ForumIndexerConfig {
   connection: Connection;
@@ -290,6 +291,8 @@ export class ForumIndexer {
       create_transaction_signer: data.payer,
       index_created_at: new Date(),
       index_updated_at: new Date(),
+      username: data.name,
+      thumbnail_url: data.thumb,
     });
     console.log(`Indexed user: ${data.userPda}`);
   }
@@ -299,7 +302,7 @@ export class ForumIndexer {
    */
   private async indexPost(instr: any) {
     // instr.data is type CreatePostData
-    const { Post } = this.models;
+    const { Post, User } = this.models;
     const { data } = instr;
 
     let content = data.content;
@@ -308,12 +311,21 @@ export class ForumIndexer {
       content = await this.offChainApi.get(content);
     }
 
+    const user = await User.findOne({
+      where: { user_pda: data.postAuthorPda },
+    });
+    const username = user?.username ?? "unknown";
+    const thumbnail_url = user?.thumbnail_url ?? "unknown";
+
     await Post.upsert({
       post_pda: data.postPda,
       post_sequence_id: data.postSequence,
       post_author_pda: data.postAuthorPda,
       post_author_associated_asset_pda: data.nftMint,
-      post_author_username: data.signer, // or store data.forumName, or userName
+
+      post_author_username: username,
+      post_author_thumbnail_url: thumbnail_url,
+
       tag_name: data.tagName,
       // tag_pda: ??? If you want to store data.postTagPda
       content: content,
@@ -325,6 +337,11 @@ export class ForumIndexer {
       create_transaction_signature: instr.signature,
       create_transaction_block_time: instr.blockTime,
       create_transaction_signer: data.signer,
+
+      received_upvotes: 0,
+      received_downvotes: 0,
+      received_likes: 0,
+      received_banvotes: 0,
     });
     console.log(`Indexed post: ${data.postPda}`);
   }
@@ -334,7 +351,7 @@ export class ForumIndexer {
    */
   private async indexComment(instr: any) {
     // instr.data is type AddCommentData
-    const { Comment } = this.models;
+    const { Comment, User } = this.models;
     const { data } = instr;
 
     // In your schema, the PK is (comment_author_sequence_id, comment_author_user_pda)
@@ -350,11 +367,19 @@ export class ForumIndexer {
       content = await this.offChainApi.get(content);
     }
 
+    const user = await User.findOne({
+      where: { user_pda: data.commentAuthorPda },
+    });
+    const username = user?.username ?? "unknown";
+    const thumbnail_url = user?.thumbnail_url ?? "unknown";
+
     await Comment.upsert({
       comment_author_sequence_id: data.commentSequence,
       comment_author_user_pda: data.commentAuthorPda,
       comment_author_associated_asset_pda: data.commentAuthorNftMint,
-      comment_author_username: data.signer, // or data.forumName?
+
+      comment_author_username: username,
+      comment_author_thumbnail_url: thumbnail_url,
 
       parent_post_pda: data.targetPostPda,
       parent_post_author_user_pda: data.targetPostAuthorPda,
@@ -372,6 +397,17 @@ export class ForumIndexer {
       create_transaction_signer: data.signer,
       // received_upvotes, downvotes, etc. default to 0
     });
+
+    const post = await Post.findOne({
+      where: { post_pda: data.targetPostPda },
+    });
+    if (post) {
+      await post.update({
+        received_comments: (post.received_comments ?? 0) + 1,
+        index_updated_at: new Date(),
+      });
+    }
+
     console.log(
       `Indexed comment: #${data.commentSequence} from user: ${data.commentAuthorPda}`
     );
@@ -382,7 +418,7 @@ export class ForumIndexer {
    */
   private async indexReaction(instr: any) {
     // instr.data is type AddReactionData
-    const { CommentReaction, Comment } = this.models;
+    const { CommentReaction, Comment, User } = this.models;
     const { data } = instr;
 
     if (data.reactionSequence == null) {
@@ -390,12 +426,19 @@ export class ForumIndexer {
       return;
     }
 
+    const user = await User.findOne({
+      where: { user_pda: data.reactionAuthorPda },
+    });
+    const username = user?.username ?? "unknown";
+    const thumbnail_url = user?.thumbnail_url ?? "unknown";
+
     // 1) Insert the reaction
     await CommentReaction.upsert({
       reaction_author_sequence_id: data.reactionSequence,
       reaction_author_user_pda: data.reactionAuthorPda,
       reaction_author_associated_asset_pda: data.reactionAuthorNftMint,
-      reaction_author_username: data.signer,
+      reaction_author_username: username,
+      reaction_author_thumbnail_url: thumbnail_url,
 
       parent_post_pda: data.targetPostPda,
       parent_post_author_user_pda: data.targetPostAuthorPda,
@@ -404,7 +447,7 @@ export class ForumIndexer {
       parent_comment_sequence_id: data.targetCommentSequence, // from logs
       parent_comment_author_user_pda: data.commentAuthorPda,
 
-      reaction_type: "upvote", // or parse from data, if you have it
+      reaction_type: data.reactionType, // or parse from data, if you have it
       content: "", // for emojis or extra text
 
       index_created_at: new Date(),
@@ -428,13 +471,56 @@ export class ForumIndexer {
       };
 
       const comment = await Comment.findOne({ where: commentKey });
-      if (comment) {
+      const post = await Post.findOne({
+        where: { post_pda: data.targetPostPda },
+      });
+      if (comment && post) {
         // For example, increment upvotes:
-        const newUpvotes = (comment.received_upvotes ?? 0) + 1;
-        await comment.update({
-          received_upvotes: newUpvotes,
-          index_updated_at: new Date(),
-        });
+        if (data.reactionType === "upvote") {
+          const commentNewUpvotes = (comment.received_upvotes ?? 0) + 1;
+          await comment.update({
+            received_upvotes: commentNewUpvotes,
+            index_updated_at: new Date(),
+          });
+          const postNewUpvotes = (post.received_upvotes ?? 0) + 1;
+          await post.update({
+            received_upvotes: postNewUpvotes,
+            index_updated_at: new Date(),
+          });
+        } else if (data.reactionType === "downvote") {
+          const commentNewDownvotes = (comment.received_downvotes ?? 0) + 1;
+          await comment.update({
+            received_downvotes: commentNewDownvotes,
+            index_updated_at: new Date(),
+          });
+          const postNewDownvotes = (post.received_downvotes ?? 0) + 1;
+          await post.update({
+            received_downvotes: postNewDownvotes,
+            index_updated_at: new Date(),
+          });
+        } else if (data.reactionType === "banvote") {
+          const commentNewBanvotes = (comment.received_banvotes ?? 0) + 1;
+          await comment.update({
+            received_banvotes: commentNewBanvotes,
+            index_updated_at: new Date(),
+          });
+          const postNewBanvotes = (post.received_banvotes ?? 0) + 1;
+          await post.update({
+            received_banvotes: postNewBanvotes,
+            index_updated_at: new Date(),
+          });
+        } else if (data.reactionType === "like") {
+          const commentNewLikes = (comment.received_likes ?? 0) + 1;
+          await comment.update({
+            received_likes: commentNewLikes,
+            index_updated_at: new Date(),
+          });
+          const postNewLikes = (post.received_likes ?? 0) + 1;
+          await post.update({
+            received_likes: postNewLikes,
+            index_updated_at: new Date(),
+          });
+        }
         console.log(
           `Incremented upvotes for comment #${data.targetCommentSequence}`
         );
