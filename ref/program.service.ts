@@ -19,6 +19,7 @@ import {
 } from "@solana/web3.js";
 import { SYSTEM_PROGRAM_ID } from "@coral-xyz/anchor/dist/cjs/native/system";
 import { parseAny } from "./parser/parseTx";
+import { CreatePostData, ParsedInstruction } from "./parser/parser.types";
 
 export class ProgramService {
   private readonly forumId = "forum_id";
@@ -38,12 +39,12 @@ export class ProgramService {
     }
   }
 
-  async waitForChanges(callback: () => void) {
+  waitForChanges(callback: () => void, target: PublicKey = this.programId) {
     let once = false;
     let subscriptionId: number;
 
     subscriptionId = this.anchorProvider.connection.onLogs(
-      this.programId,
+      target,
       () => {
         if (once) return;
         once = true;
@@ -203,6 +204,17 @@ export class ProgramService {
     return await this.program.account.user.fetch(this.getUserPda(nftMint));
   }
 
+  async getPostWithSignature(
+    sig: TransactionSignature
+  ): Promise<CreatePostData | undefined> {
+    const tx = await this.anchorProvider.connection.getParsedTransaction(sig, {
+      maxSupportedTransactionVersion: 0,
+      commitment: "confirmed",
+    });
+    const parsed = this.parseAny(tx!);
+    return parsed.find((p) => p.fn === "create_post")?.data;
+  }
+
   async getPost(userNftMint: PublicKey, postId: number): Promise<any> {
     const postCountBN = new BN(postId);
     const postCountLE = postCountBN.toArrayLike(Buffer, "le", 4);
@@ -261,7 +273,7 @@ export class ProgramService {
     return [];
   }
 
-  parseAny(tx: ParsedTransactionWithMeta): any[] {
+  parseAny(tx: ParsedTransactionWithMeta): ParsedInstruction[] {
     return parseAny({
       tx,
       programId: this.programId,

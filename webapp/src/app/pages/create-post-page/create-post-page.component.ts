@@ -6,7 +6,7 @@ import { ProgramService } from '../../service/program.service';
 import { WalletService } from '../../service/wallet.service';
 import { PublicKey } from '@solana/web3.js';
 import { CommonModule } from '@angular/common';
-import { AnchorProvider, getProvider } from '@coral-xyz/anchor';
+import { AnchorProvider } from '@coral-xyz/anchor';
 import { IndexerService } from '../../service/indexer.service';
 import { OffChainService } from '../../service/off-chain.service';
 
@@ -90,53 +90,31 @@ export class CreatePostPageComponent {
     );
     this.posted = true;
 
-    const anchorProvider = getProvider();
-
     // wait for the transaction to be confirmed
-    while (true) {
-      const stat = await anchorProvider.connection.getSignatureStatus(sig);
-      if (
-        stat.value?.confirmationStatus == 'confirmed' ||
-        stat.value?.confirmationStatus == 'finalized'
-      ) {
-        break;
-      }
+    await this.program.confirmTransaction(sig);
 
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    }
+    const post = await this.program.getPostWithSignature(sig);
 
-    const tx = await anchorProvider.connection.getParsedTransaction(sig, {
-      maxSupportedTransactionVersion: 0,
-      commitment: 'confirmed',
-    });
-
-    let postPda: PublicKey | undefined;
-
-    for (const inst of tx?.transaction.message.instructions ?? []) {
-      if (inst.programId.toString() == this.program.programId.toString()) {
-        postPda = (inst as any).accounts[3];
-      }
-    }
-
-    if (!postPda) {
-      alert('Post PDA not found');
+    if (!post) {
+      alert('Post not found');
       return;
     }
 
-    let fetching = false;
+    const postPda = new PublicKey(post.postPda);
 
-    anchorProvider.connection.onLogs(
-      postPda,
-      (c) => {
-        if (fetching) return;
-        fetching = true;
+    // @TODO: this is hacky. need fix later
+    const waitAndFetch = async () => {
+      this.program.waitForChanges(async () => {
         setTimeout(async () => {
           await this.fetchComments(postPda);
-          fetching = false;
+          setTimeout(async () => {
+            waitAndFetch();
+          }, 1000);
         }, 1000);
-      },
-      'confirmed'
-    );
+      }, new PublicKey(post.postPda));
+    };
+
+    waitAndFetch();
   }
 
   async fetchComments(postPda: PublicKey) {
@@ -144,8 +122,6 @@ export class CreatePostPageComponent {
     const comments = await this.indexer.getComments({
       target: postPda.toString(),
     });
-
-    console.log(comments);
 
     this.comments = comments.reverse();
   }
