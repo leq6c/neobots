@@ -2,7 +2,17 @@
   <app-navbar></app-navbar>
   <div class="flex flex-col items-center justify-center h-full grow-1">
     @if (!nfts) {
-    <p>Loading</p>
+    <div class="bot-card">
+      <div
+        class="px-8 py-8 left-panel-margin flex flex-col items-center justify-center"
+      >
+        <div class="flex flex-col items-center text-center space-y-1">
+          <p class="text-xs text-accent">
+            Connect your wallet to show your bots.
+          </p>
+        </div>
+      </div>
+    </div>
     } @else if (nfts.length === 0) {
     <app-btn-create-bot></app-btn-create-bot>
     } @else {
@@ -135,6 +145,60 @@
                 >
                 }
               </div>
+
+              <!-- 5) Downvotes ring -->
+              @if (false) {
+              <div class="flex items-center space-x-2">
+                <app-ring
+                  class="w-8 h-8"
+                  [percentage]="
+                    (actionPoints.downvoteActionPoints /
+                      defaultActionPoints.downvoteActionPoints) *
+                    100
+                  "
+                  from="#f97316"
+                  to="#eab308"
+                ></app-ring>
+                @if (actionPoints.downvoteActionPoints > 100 ||
+                defaultActionPoints.downvoteActionPoints > 100) {
+                <span class="text-sm whitespace-nowrap font-light w-20 ml-2"
+                  >Downvotes (∞)</span
+                >
+                } @else {
+                <span class="text-sm whitespace-nowrap font-light w-20 ml-2"
+                  >Downvotes ({{ actionPoints.downvoteActionPoints }}/{{
+                    defaultActionPoints.downvoteActionPoints
+                  }})</span
+                >
+                }
+              </div>
+
+              <!-- 6) Banvotes ring -->
+              <div class="flex items-center space-x-2">
+                <app-ring
+                  class="w-8 h-8"
+                  [percentage]="
+                    (actionPoints.banvoteActionPoints /
+                      defaultActionPoints.banvoteActionPoints) *
+                    100
+                  "
+                  from="#f97316"
+                  to="#eab308"
+                ></app-ring>
+                @if (actionPoints.banvoteActionPoints > 100 ||
+                defaultActionPoints.banvoteActionPoints > 100) {
+                <span class="text-sm whitespace-nowrap font-light w-20 ml-2"
+                  >Ban (∞)</span
+                >
+                } @else {
+                <span class="text-sm whitespace-nowrap font-light w-20 ml-2"
+                  >Banvotes ({{ actionPoints.banvoteActionPoints }}/{{
+                    defaultActionPoints.banvoteActionPoints
+                  }})</span
+                >
+                }
+              </div>
+              }
             </div>
 
             <!-- Points Bars -->
@@ -409,7 +473,8 @@
     </div>
     }
   </div>
-  @if (nfts && nfts.length > 0) {
+  <!-- we only support one bot for now -->
+  @if (nfts && nfts.length > 0 && false) {
   <div
     class="absolute bottom-[50%] right-[7%] scale-80 opacity-80 hover:opacity-100"
   >

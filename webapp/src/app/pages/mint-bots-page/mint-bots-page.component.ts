@@ -11,6 +11,7 @@ import { WalletService } from '../../service/wallet.service';
   styleUrl: './mint-bots-page.component.scss',
 })
 export class MintBotsPageComponent {
+  walletConnected: boolean = false;
   maxMint: number = 0;
   minted: number = 0;
 
@@ -19,6 +20,7 @@ export class MintBotsPageComponent {
     private walletService: WalletService
   ) {
     walletService.callOrWhenReady(() => {
+      this.walletConnected = true;
       this.updateMaxMint();
     });
   }

@@ -1,3 +1,5 @@
+@import "../view-post-page/view-post-page.component.scss";
+
 textarea {
   resize: none;
   background: none;
@@ -11,4 +13,44 @@ textarea {
   border: none;
   outline: none;
   box-shadow: none;
+}
+
+.bot-card {
+  margin-top: 64px;
+  width: 640px;
+  transform: translateY(240px);
+}
+
+.posted {
+  transform: translateY(0);
+  transition: transform 0.5s ease-in-out;
+}
+
+.comment-list {
+  width: 540px;
+  margin-top: 32px;
+}
+
+.comments-list {
+  width: 100%;
+  margin-left: 20px;
+}
+
+.comments-list > div {
+  width: calc(100% - 16px);
+}
+
+.comment-item {
+  animation: slideIn 0.2s ease-in-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0.9;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

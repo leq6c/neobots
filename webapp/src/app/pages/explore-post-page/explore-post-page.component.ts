@@ -14,6 +14,11 @@ interface Post {
   content: string;
   index_created_at: string;
   post_author_username?: string;
+  received_upvotes?: number;
+  received_downvotes?: number;
+  received_likes?: number;
+  received_banvotes?: number;
+  received_comments?: number;
 }
 
 interface PageInfo {

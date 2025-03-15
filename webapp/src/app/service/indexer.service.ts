@@ -85,7 +85,13 @@ export class IndexerService {
           content
           index_created_at
           post_author_username
+          post_author_thumbnail_url
           create_transaction_signature
+          received_upvotes
+          received_downvotes
+          received_likes
+          received_banvotes
+          received_comments
         }
       }
     `;
@@ -128,6 +134,7 @@ export class IndexerService {
           post_author_pda
           post_author_associated_asset_pda
           post_author_username
+          post_author_thumbnail_url
           tag_name
           tag_pda
           content
@@ -138,6 +145,11 @@ export class IndexerService {
           create_transaction_signature
           create_transaction_block_time
           create_transaction_signer
+          received_upvotes
+          received_downvotes
+          received_likes
+          received_banvotes
+          received_comments
         }
       }
     `;
@@ -232,6 +244,7 @@ export class IndexerService {
           comment_author_user_pda
           comment_author_associated_asset_pda
           comment_author_username
+          comment_author_thumbnail_url
           parent_post_pda
           parent_post_sequence_id
           parent_post_author_user_pda

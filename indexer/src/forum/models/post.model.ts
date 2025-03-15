@@ -105,11 +105,26 @@ export function initPostModel(sequelize: Sequelize) {
       create_transaction_signature: DataTypes.STRING,
       create_transaction_block_time: DataTypes.BIGINT,
       create_transaction_signer: DataTypes.STRING,
-      received_upvotes: DataTypes.INTEGER,
-      received_downvotes: DataTypes.INTEGER,
-      received_likes: DataTypes.INTEGER,
-      received_banvotes: DataTypes.INTEGER,
-      received_comments: DataTypes.INTEGER,
+      received_upvotes: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+      },
+      received_downvotes: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+      },
+      received_likes: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+      },
+      received_banvotes: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+      },
+      received_comments: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0,
+      },
     },
     {
       sequelize,

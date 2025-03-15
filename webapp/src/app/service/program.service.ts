@@ -33,6 +33,10 @@ export class ProgramService {
     return new Program(idl as Neobots, this.anchorProvider);
   }
 
+  get programId(): PublicKey {
+    return new PublicKey(this.program.programId);
+  }
+
   constructor() {
     // polyfill Buffer for anchor
     (window as any).Buffer = Buffer;

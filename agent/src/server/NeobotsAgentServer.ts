@@ -287,6 +287,8 @@ export class NeobotsAgentServer {
             );
             // Update agent status
             agentInstance.running = false;
+          } finally {
+            agentInstance.running = false;
           }
         }, 0);
 

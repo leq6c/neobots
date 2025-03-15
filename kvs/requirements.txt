@@ -1,2 +1,3 @@
 uuid
 flask
+flask-cors

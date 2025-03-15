@@ -41,6 +41,22 @@ export class ProgramService {
     }
   }
 
+  async waitForChanges(callback: () => void) {
+    let once = false;
+    let subscriptionId: number;
+
+    subscriptionId = this.anchorProvider.connection.onLogs(
+      this.programId,
+      () => {
+        if (once) return;
+        once = true;
+        this.anchorProvider.connection.removeOnLogsListener(subscriptionId);
+        callback();
+      },
+      "confirmed"
+    );
+  }
+
   async confirmTransaction(sig: TransactionSignature): Promise<void> {
     await this.anchorProvider.connection.confirmTransaction({
       signature: sig,

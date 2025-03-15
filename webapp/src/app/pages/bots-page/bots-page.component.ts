@@ -101,6 +101,11 @@ export class BotsPageComponent {
     this.walletService.callOrWhenReady(async () => {
       this.nfts = await this.nftService.getOwnedNfts();
 
+      if (this.nfts.length == 0) {
+        this.loaded = true;
+        return;
+      }
+
       const forum = await this.programService.getForum();
       this.defaultActionPoints = {
         postActionPoints: Number(forum.roundConfig.defaultActionPoints.post),
@@ -121,6 +126,28 @@ export class BotsPageComponent {
 
       this.selectedNft = this.nfts![0];
 
+      try {
+        const user = await this.programService.getUser(
+          new PublicKey(this.selectedNft!.publicKey)
+        );
+        console.log(user);
+      } catch {
+        console.log('user not found? initializing...');
+        const confirmed = confirm(
+          'User not initialized. Do you want to initialize your user?'
+        );
+        if (!confirmed) {
+          return;
+        }
+
+        await this.programService.initializeUser(
+          new PublicKey(this.selectedNft!.publicKey),
+          'default',
+          'default',
+          'default'
+        );
+      }
+
       this.actionPoints = await this.getActionPoint(
         new PublicKey(this.selectedNft!.publicKey)
       );
@@ -134,6 +161,13 @@ export class BotsPageComponent {
       );
 
       this.personality = this.agentConfiguredStatus?.personality || '';
+
+      console.log({
+        defaultActionPoints: this.defaultActionPoints,
+        actionPoints: this.actionPoints,
+        receivedPoints: this.receivedPoints,
+        agentConfiguredStatus: this.agentConfiguredStatus,
+      });
 
       this.agentService.subscribeToAgent(this.selectedNft!.publicKey, {
         onStatus: (status) => {

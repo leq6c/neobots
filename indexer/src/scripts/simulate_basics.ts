@@ -75,7 +75,12 @@ async function main() {
   try {
     await program.getUser(new PublicKey(user1Nfts[0].publicKey));
   } catch (e) {
-    await program.initializeUser(new PublicKey(user1Nfts[0].publicKey));
+    await program.initializeUser(
+      new PublicKey(user1Nfts[0].publicKey),
+      "user1",
+      "https://via.placeholder.com/150",
+      "https://via.placeholder.com/150"
+    );
     console.log("✅ Initialized User");
     await new Promise((resolve) => setTimeout(resolve, 15_000));
   }

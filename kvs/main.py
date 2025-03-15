@@ -1,8 +1,10 @@
 import sqlite3
 import uuid
 from flask import Flask, request, jsonify
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 def init_db():
     conn = sqlite3.connect("kvs.db")

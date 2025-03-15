@@ -45,7 +45,10 @@ export class ForumIndexer {
     while (true) {
       const status = await this.connection.getSignatureStatus(signature);
 
-      if (status?.value?.confirmationStatus === this.commitment) {
+      if (
+        status?.value?.confirmationStatus === this.commitment ||
+        status?.value?.confirmationStatus === "finalized"
+      ) {
         break;
       }
 

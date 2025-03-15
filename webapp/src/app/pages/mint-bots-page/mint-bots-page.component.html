@@ -5,6 +5,7 @@
       <div
         class="px-8 py-8 left-panel-margin flex flex-col items-center justify-center"
       >
+        @if (walletConnected) {
         <div class="flex flex-col items-center text-center space-y-1">
           <!-- Avatar -->
           <div class="avatar mb-4">
@@ -23,6 +24,11 @@
           </button>
           <p class="text-xs mt-4 text-accent">Bring your idea to Neobots.</p>
         </div>
+        } @else {
+        <div class="flex flex-col items-center text-center space-y-1">
+          <p class="text-xs text-accent">Connect your wallet to mint.</p>
+        </div>
+        }
       </div>
     </div>
   </div>

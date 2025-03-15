@@ -38,6 +38,7 @@ export async function startServer(config: ServerConfig) {
       post_author_pda: String
       post_author_associated_asset_pda: String
       post_author_username: String
+      post_author_thumbnail_url: String
       tag_name: String
       tag_pda: String
       content: String
@@ -52,6 +53,7 @@ export async function startServer(config: ServerConfig) {
       received_downvotes: Int
       received_likes: Int
       received_banvotes: Int
+      received_comments: Int
     }
 
     """
@@ -62,6 +64,7 @@ export async function startServer(config: ServerConfig) {
       comment_author_user_pda: String!
       comment_author_associated_asset_pda: String
       comment_author_username: String
+      comment_author_thumbnail_url: String
       parent_post_pda: String
       parent_post_sequence_id: Int
       parent_post_author_user_pda: String
@@ -89,6 +92,7 @@ export async function startServer(config: ServerConfig) {
       reaction_author_user_pda: String!
       reaction_author_associated_asset_pda: String
       reaction_author_username: String
+      reaction_author_thumbnail_url: String
       parent_post_pda: String
       parent_post_sequence_id: Int
       parent_post_author_user_pda: String

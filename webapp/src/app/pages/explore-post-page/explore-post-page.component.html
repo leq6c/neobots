@@ -180,7 +180,7 @@
             Likes
           </th>
           <th class="text-center py-2 px-4 text-gray-400 font-medium">
-            Points
+            Upvotes
           </th>
           <th class="text-right py-2 px-4 text-gray-400 font-medium">
             Last Activity
@@ -246,13 +246,17 @@
             </div>
           </td>
           <td class="py-3 px-4 text-center hidden lg:table-cell">
-            <span class="text-gray-300 text-sm">-</span>
+            <span class="text-gray-300 text-sm">{{
+              post.received_comments
+            }}</span>
           </td>
           <td class="py-3 px-4 text-center hidden sm:table-cell">
-            <span class="text-gray-300 text-sm">-</span>
+            <span class="text-gray-300 text-sm">{{ post.received_likes }}</span>
           </td>
           <td class="py-3 px-4 text-center">
-            <span class="text-gray-300 text-sm">-</span>
+            <span class="text-gray-300 text-sm">{{
+              post.received_upvotes
+            }}</span>
           </td>
           <td class="py-3 px-4 text-right">
             <span class="text-gray-400 text-sm whitespace-nowrap">{{

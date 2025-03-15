@@ -5,29 +5,46 @@ import { FormsModule } from '@angular/forms';
 import { ProgramService } from '../../service/program.service';
 import { WalletService } from '../../service/wallet.service';
 import { PublicKey } from '@solana/web3.js';
+import { CommonModule } from '@angular/common';
+import { NeobotsOffChainApi } from '../../service/lib/NeobotsOffchainApi';
+import { AnchorProvider, getProvider } from '@coral-xyz/anchor';
+import { IndexerService } from '../../service/indexer.service';
+
+interface Comment {
+  comment_author_sequence_id: number;
+  comment_author_user_pda: string;
+  comment_author_username: string;
+  comment_author_thumbnail_url?: string;
+  content: string;
+  index_created_at: string;
+  create_transaction_signature: string;
+  received_upvotes?: number;
+  received_downvotes?: number;
+  received_likes?: number;
+  received_banvotes?: number;
+  karmas?: number;
+}
 
 @Component({
   selector: 'app-create-post-page',
-  imports: [NavbarComponent, FormsModule],
+  imports: [NavbarComponent, FormsModule, CommonModule],
   templateUrl: './create-post-page.component.html',
   styleUrl: './create-post-page.component.scss',
 })
 export class CreatePostPageComponent {
   placeholder: string = 'Write to unleash your idea to Neobots.';
   content: string = '';
+  posted: boolean = false;
+  comments: Comment[] = [];
 
   constructor(
     private walletService: WalletService,
     private nftService: NftService,
-    private program: ProgramService
+    private program: ProgramService,
+    private indexer: IndexerService
   ) {
     this.walletService.callOrWhenReady(async () => {
-      console.log('retrieving forum');
-      const forum = await this.program.getForum();
-      console.log(forum);
-
       const nfts = await this.nftService.getOwnedNfts();
-      console.log(nfts);
 
       try {
         const user = await this.program.getUser(
@@ -54,15 +71,137 @@ export class CreatePostPageComponent {
     });
   }
 
+  trackByComment(index: number, comment: Comment) {
+    return (
+      comment.comment_author_user_pda.toString() +
+      comment.comment_author_sequence_id.toString()
+    );
+  }
+
   async post() {
+    if (this.posted) return;
+
     const nft = (await this.nftService.getOwnedNfts())[0]!;
-    console.log('OWNER:', nft.publicKey);
-    await this.program.createPost(
+    const sig = await this.program.createPost(
       new PublicKey(nft.publicKey),
-      this.content,
+      await this.putOffchainData(this.content),
       'default'
     );
-    const post = await this.program.getPost(new PublicKey(nft.publicKey), 1);
-    console.log(post);
+    this.posted = true;
+
+    const anchorProvider = getProvider();
+
+    // wait for the transaction to be confirmed
+    while (true) {
+      const stat = await anchorProvider.connection.getSignatureStatus(sig);
+      if (
+        stat.value?.confirmationStatus == 'confirmed' ||
+        stat.value?.confirmationStatus == 'finalized'
+      ) {
+        break;
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+
+    const tx = await anchorProvider.connection.getParsedTransaction(sig, {
+      maxSupportedTransactionVersion: 0,
+      commitment: 'confirmed',
+    });
+
+    let postPda: PublicKey | undefined;
+
+    for (const inst of tx?.transaction.message.instructions ?? []) {
+      if (inst.programId.toString() == this.program.programId.toString()) {
+        postPda = (inst as any).accounts[3];
+      }
+    }
+
+    if (!postPda) {
+      alert('Post PDA not found');
+      return;
+    }
+
+    let fetching = false;
+
+    anchorProvider.connection.onLogs(
+      postPda,
+      (c) => {
+        if (fetching) return;
+        fetching = true;
+        setTimeout(async () => {
+          await this.fetchComments(postPda);
+          fetching = false;
+        }, 1000);
+      },
+      'confirmed'
+    );
+  }
+
+  async fetchComments(postPda: PublicKey) {
+    console.log('fetching comments');
+    const comments = await this.indexer.getComments({
+      target: postPda.toString(),
+    });
+
+    console.log(comments);
+
+    this.comments = comments.reverse();
+  }
+
+  async getOffchainData(key: string): Promise<string> {
+    const offchain = new NeobotsOffChainApi('http://localhost:5000');
+    const data = await offchain.get(key);
+    return data;
+  }
+
+  async putOffchainData(data: string): Promise<string> {
+    const offchain = new NeobotsOffChainApi('http://localhost:5000');
+    const key = await offchain.put(data);
+    return key;
+  }
+
+  formatDate(dateString: string): string {
+    try {
+      const date = new Date(parseInt(dateString));
+      return date.toLocaleDateString('en-US', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      });
+    } catch (e) {
+      console.error('Error parsing date:', e);
+      return 'Invalid date';
+    }
+  }
+
+  getInitials(username: string): string {
+    if (!username) return 'AN';
+    return username
+      .split(' ')
+      .map((name) => name.charAt(0).toUpperCase())
+      .join('')
+      .substring(0, 2);
+  }
+
+  getRandomColor(seed: string): string {
+    const colors = [
+      'bg-blue-600',
+      'bg-purple-600',
+      'bg-green-600',
+      'bg-pink-600',
+      'bg-yellow-600',
+      'bg-indigo-600',
+      'bg-orange-600',
+    ];
+
+    // Simple hash function to get consistent color for the same string
+    const hash = seed.split('').reduce((acc, char) => {
+      return acc + char.charCodeAt(0);
+    }, 0);
+
+    return colors[hash % colors.length];
   }
 }
