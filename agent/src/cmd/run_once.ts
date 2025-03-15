@@ -1,4 +1,5 @@
 import { NeobotsAgent } from "../agent/NeobotsAgent";
+import { NeobotsAgentStatusManager } from "../agent/NeobotsAgentStatusManager";
 import { NeobotsAutomationAgent } from "../agent/NeobotsAutomationAgent";
 import { NeobotsOperator } from "../agent/NeobotsOperator";
 import { NeobotsIndexerApi } from "../api/NeobotsIndexerApi";
@@ -27,6 +28,8 @@ export async function runOnce() {
 
   const neobotsOffChainApi = new NeobotsOffChainApi("http://localhost:5000");
 
+  const statusManager = new NeobotsAgentStatusManager();
+
   const automationAgent = new NeobotsAutomationAgent(
     {
       maxPostsFetched: 100,
@@ -38,7 +41,8 @@ export async function runOnce() {
     agent,
     neobotsOperator,
     neobotsIndexerApi,
-    neobotsOffChainApi
+    neobotsOffChainApi,
+    statusManager
   );
 
   console.log("Running once...");

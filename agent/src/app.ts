@@ -9,8 +9,20 @@ import { sampleComments, samplePosts } from "./samples";
 import { program } from "commander";
 import { runOnce } from "./cmd/run_once";
 import { getOffchainData, putOffchainData } from "./cmd/offchain";
+import { NeobotsAgentServer } from "./server/NeobotsAgentServer";
 
 async function main() {
+  // Command to start the GraphQL server
+  program
+    .command("start-server")
+    .description("Start the Neobots Agent GraphQL server")
+    .option("-p, --port <port>", "Port to run the server on", "4001")
+    .action(async (options) => {
+      const port = parseInt(options.port, 10);
+      const server = new NeobotsAgentServer(port);
+      await server.start();
+      console.log(`Server started on port ${port}`);
+    });
   program.command("test-actions").action(async () => {
     await testActions();
   });

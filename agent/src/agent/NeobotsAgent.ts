@@ -5,6 +5,10 @@ import { IFilteredPostResult } from "../model/post.model";
 import { IComment } from "../model/comment.model";
 import { IReactionRequest } from "../model/reaction.model";
 import { IReaction } from "../model/reaction.model";
+import {
+  AgentActionStatusNotifier,
+  AgentActionStatusNotifierSession,
+} from "./NeobotsAgentStatusManager";
 
 export interface IConfig {
   persona: string;
@@ -26,12 +30,14 @@ export class NeobotsAgent {
    * Creates a new post. The LLM determines the title, content, category, and tags
    * based on the agent's persona/rationality.
    */
-  public async createPost(): Promise<IPost> {
-    const systemPrompt = `You are ${this.config.persona}. Rationality level: ${this.config.rationality}.
+  public async createPost(action: AgentActionStatusNotifier): Promise<IPost> {
+    return await action.startSessionAsync(async (session) => {
+      session.setProgressIndeterminate();
+      const systemPrompt = `You are ${this.config.persona}. Rationality level: ${this.config.rationality}.
 You respond ONLY with a valid JSON object of the form:
 {"title":"...", "content":"...", "category":"...", "tags":["..."]}`;
 
-    const userPrompt = `# Create a new post
+      const userPrompt = `# Create a new post
 You are going to create a new forum post. The post must have:
 - title
 - content
@@ -40,27 +46,32 @@ You are going to create a new forum post. The post must have:
 
 Generate a suitable post (in any language).`;
 
-    const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
+      const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
 
-    // Call the LLM
-    const rawResponse = await this.llm.infer(fullPrompt, 2048);
+      // Call the LLM
+      session.setMessage("Writing a new post...");
+      const rawResponse = await this.llm.infer(fullPrompt, 2048, (chunk) => {
+        session.setInferenceChunk(chunk);
+      });
 
-    // Attempt to parse the response as JSON
-    try {
-      const parsed = this.parseJsonResponse<IPost>(rawResponse);
-      // Return an IPost with a generated ID
-      const newPost: IPost = {
-        postId: this.generateRandomId(),
-        title: parsed.title || "",
-        content: parsed.content || "",
-        category: parsed.category || "",
-        tags: parsed.tags || [],
-      };
-      return newPost;
-    } catch (error) {
-      // In case of error, return a fallback
-      throw new Error("Failed to parse LLM output.");
-    }
+      // Attempt to parse the response as JSON
+      try {
+        const parsed = this.parseJsonResponse<IPost>(rawResponse);
+        // Return an IPost with a generated ID
+        const newPost: IPost = {
+          postId: this.generateRandomId(),
+          title: parsed.title || "",
+          content: parsed.content || "",
+          category: parsed.category || "",
+          tags: parsed.tags || [],
+        };
+        return newPost;
+      } catch (error) {
+        // In case of error, return a fallback
+        session.setMessage("Failed to parse LLM output.", "error");
+        throw new Error("Failed to parse LLM output.");
+      }
+    });
   }
 
   /**
@@ -72,6 +83,7 @@ Generate a suitable post (in any language).`;
    * @param maxResults  Maximum number of posts to select
    */
   public async selectPostsToRead(
+    session: AgentActionStatusNotifierSession,
     posts: IPostSummary[],
     maxResults: number
   ): Promise<IFilteredPostResult[]> {
@@ -92,7 +104,9 @@ Please narrow it down to a maximum of ${maxResults} posts, returning both the re
 Return ONLY the JSON array.`;
 
     const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
-    const rawResponse = await this.llm.infer(fullPrompt, 2048);
+    const rawResponse = await this.llm.infer(fullPrompt, 2048, (chunk) => {
+      session.setInferenceChunk(chunk);
+    });
 
     try {
       const parsed = this.parseJsonResponse<IFilteredPostResult[]>(rawResponse);
@@ -112,6 +126,7 @@ Return ONLY the JSON array.`;
    * @param existingComments List of existing comments
    */
   public async createComment(
+    session: AgentActionStatusNotifierSession,
     post: IPost,
     existingComments: IComment[]
   ): Promise<IComment> {
@@ -135,7 +150,9 @@ Please generate the next comment.
 Return ONLY JSON.`;
 
     const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
-    const rawResponse = await this.llm.infer(fullPrompt, 2048);
+    const rawResponse = await this.llm.infer(fullPrompt, 2048, (chunk) => {
+      session.setInferenceChunk(chunk);
+    });
 
     try {
       const parsed = this.parseJsonResponse<IComment>(rawResponse);
@@ -163,6 +180,7 @@ Return ONLY JSON.`;
    * @param comments The comments to react to
    */
   public async generateReactions(
+    session: AgentActionStatusNotifierSession,
     comments: IReactionRequest[],
     preferredReactions: string[]
   ): Promise<IReaction[]> {
@@ -185,7 +203,9 @@ ${JSON.stringify(comments, null, 2)}
 Return ONLY the JSON array.`;
 
     const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
-    const rawResponse = await this.llm.infer(fullPrompt, 2048);
+    const rawResponse = await this.llm.infer(fullPrompt, 2048, (chunk) => {
+      session.setInferenceChunk(chunk);
+    });
 
     try {
       const parsed = this.parseJsonResponse<IReaction[]>(rawResponse);
@@ -203,6 +223,7 @@ Return ONLY the JSON array.`;
    * @param k          The max number of items to return
    */
   public async prioritizeReactions(
+    session: AgentActionStatusNotifierSession,
     reactions: IReaction[],
     k: number
   ): Promise<IReaction[]> {
@@ -222,7 +243,9 @@ ${JSON.stringify(reactions, null, 2)}
 Please add an importance score ("score", 0 to 1) to each reaction. Return ONLY JSON.`;
 
     const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
-    const rawResponse = await this.llm.infer(fullPrompt, 2048);
+    const rawResponse = await this.llm.infer(fullPrompt, 2048, (chunk) => {
+      session.setInferenceChunk(chunk);
+    });
 
     try {
       // We assume the LLM returns the same array with each object extended by a score property

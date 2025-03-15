@@ -11,5 +11,9 @@ export interface ILlmInference {
    *  - Takes a prompt and maxTokens
    *  - Returns the generated response (as a string)
    */
-  infer(prompt: string, maxTokens: number): Promise<string>;
+  infer(
+    prompt: string,
+    maxTokens: number,
+    streamCallback: (chunk: string) => void
+  ): Promise<string>;
 }

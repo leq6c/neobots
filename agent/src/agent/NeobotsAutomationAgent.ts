@@ -5,6 +5,7 @@ import { NeobotsIndexerApi } from "../api/NeobotsIndexerApi";
 import { IComment } from "../model/comment.model";
 import { IReaction } from "../model/reaction.model";
 import { NeobotsOffChainApi } from "../api/NeobotsOffchainApi";
+import { NeobotsAgentStatusManager } from "./NeobotsAgentStatusManager";
 
 interface AutomationConfig {
   maxPostsFetched: number; // e.g. 100
@@ -27,61 +28,102 @@ export class NeobotsAutomationAgent {
     private agent: NeobotsAgent,
     private operator: NeobotsOperator,
     private indexer: NeobotsIndexerApi,
-    private storage: NeobotsOffChainApi
+    private storage: NeobotsOffChainApi,
+    private statusManager: NeobotsAgentStatusManager
   ) {}
 
   public async runOnce(): Promise<void> {
-    // 1) Ensure we have selected a user (Agent identity)
-    await this.ensureUserSelected();
+    const forum = await this.operator.getProgramService().getForum();
+    console.log("Forum: ", forum);
+    this.statusManager.setMessage(
+      `Working on a round ${Number(forum.roundStatus.roundNumber)}...`,
+      true
+    );
 
-    // 2) Check current action points
-    const ap = await this.operator.getActionPoint();
-    console.log("Current ActionPoints: ", ap);
+    try {
+      // 1) Ensure we have selected a user (Agent identity)
+      await this.ensureUserSelected();
 
-    /**
-     * 3) Possibly create a post if we have Post Points
-     *    (You might want to always do at most 1 or 2 new posts per round.)
-     */
-    if (ap.postActionPoints > 0) {
-      await this.createPostFlow();
-      // assume we use 1 post point per post
-      ap.postActionPoints -= 1; // or more if you want to do multiple posts
+      // 2) Check current action points
+      const ap = await this.operator.getActionPoint();
+      console.log("Current ActionPoints: ", ap);
+
+      /**
+       * 3) Possibly create a post if we have Post Points
+       *    (You might want to always do at most 1 or 2 new posts per round.)
+       */
+      if (ap.postActionPoints > 0) {
+        await this.createPostFlow();
+        // assume we use 1 post point per post
+        ap.postActionPoints -= 1; // or more if you want to do multiple posts
+      }
+
+      /**
+       * 4) If we have Comment Points, do a "commenting" flow
+       */
+      if (ap.commentActionPoints > 0) {
+        await this.commentFlow(ap);
+      }
+
+      /**
+       * 5) If we have Reaction Points, do a "reaction" flow
+       */
+      const totalReactionPoints = ap.reactionActionPoints; // or subdivide into like/downvote/upvote if you want
+      if (totalReactionPoints > 0) {
+        await this.reactionFlow(ap);
+      }
+      console.log("Automation round complete.");
+    } catch (e) {
+      console.error("Error in automation round:", e);
+      throw e;
+    } finally {
+      this.statusManager.setRunning(false);
     }
-
-    /**
-     * 4) If we have Comment Points, do a "commenting" flow
-     */
-    if (ap.commentActionPoints > 0) {
-      await this.commentFlow(ap);
-    }
-
-    /**
-     * 5) If we have Reaction Points, do a "reaction" flow
-     */
-    const totalReactionPoints = ap.reactionActionPoints; // or subdivide into like/downvote/upvote if you want
-    if (totalReactionPoints > 0) {
-      await this.reactionFlow(ap);
-    }
-
-    console.log("Automation round complete.");
   }
 
   /**
    * Flow: Create a new post by passing some "news or user input" into the LLM
    */
   private async createPostFlow(): Promise<void> {
+    // this action holds the status of the action
+    // it would act as a notifier for the status of the action
+    // so if you do some operation to the action using session, it would be notified to the status manager
+    // and the status manager would tell the client to update the status of the action
+    const action = this.statusManager.initializeAction("createPost");
+
     // Possibly get some external “news” content or user prompt
     // For illustration, we’ll just pretend it’s an empty user prompt:
-    const post = await this.agent.createPost();
+    const post = await this.agent.createPost(action);
     console.log("Creating new post from LLM:", post);
 
-    const user = await this.operator.getUser();
-    const sig = await this.operator.getProgramService().createPost(
-      user.nftMint,
-      await this.storage.put(post.content),
-      post.category || "General" // store category as your on-chain "tag_name" or similar
-    );
-    console.log("Created post (sig):", sig);
+    // this `startSessionAsync` is a mechanism to notify the status manager about the status of the action
+    // you can access to `set` methods through the `session` object
+    // this forces code writer to keep the sequence of the action properly to be properly notified.
+    await action.startSessionAsync(async (session) => {
+      session.setProgressIndeterminate();
+      session.setMessage("Fetching user data...");
+      const user = await this.operator.getUser();
+
+      session.setMessage("Uploading post to the storage...", "running");
+      const contentUri = await this.storage.put(post.content);
+      session.setMessage("Post uploaded to the storage.", "success");
+
+      session.setMessage("Sending post to Chain...", "running");
+      const sig = await this.operator.getProgramService().createPost(
+        user.nftMint,
+        contentUri,
+        post.category || "General" // store category as your on-chain "tag_name" or similar
+      );
+      session.setMessage("Post sent to Chain.", "success");
+      console.log("Created post (sig):", sig);
+    });
+
+    // We set action's status to "closed" when the flow is complete
+    // But as you can see, we may also set it to "error" if something goes wrong and keep the action open
+    // This way, you can see the status of the action in the UI and take action if needed
+    // In the next round, the status would be reopened and the flow would be executed again
+    // So that it would be updated anyway
+    action.close();
   }
 
   /**
@@ -95,83 +137,116 @@ export class NeobotsAutomationAgent {
    * We'll decrement commentActionPoints as we go, so we don't exceed what's available.
    */
   private async commentFlow(ap: any) {
-    // 1) fetch the latest N=100 posts
-    const posts = await this.indexer.getPosts({
-      order: "desc",
-      limit: this.config.maxPostsFetched,
-    });
+    const action = this.statusManager.initializeAction("commentFlow");
 
-    // 2) transform to LLM-compatible shape, then let LLM filter
-    const postSummaries = posts.map((p: any) => ({
-      postId: p.post_pda,
-      title: p.content.slice(0, 80), // or anything that can stand as "title"
-    }));
-    const selected = await this.agent.selectPostsToRead(
-      postSummaries,
-      this.config.maxPostsToRead
-    );
-
-    // 3) For each chosen post, fetch comments (up to 100).
-    for (const choice of selected) {
-      if (ap.commentActionPoints <= 0) {
-        console.log("No more comment points left");
-        break;
-      }
-      console.log(`CommentFlow: reading post: ${choice.postId}`);
-
-      // fetch full post data
-      const fullPost = await this.indexer.getPost(choice.postId);
-      console.log("fullPost", fullPost);
-      if (!fullPost) {
-        continue;
-      }
-
-      const rawComments = await this.indexer.getComments({
-        target: choice.postId,
-        order: "asc", // maybe ascending so we can slice up
-        limit: 500, // fetch a big chunk, then we'll do our own slicing
+    await action.startSessionAsync(async (session) => {
+      session.setProgressIndeterminate();
+      session.setMessage("Fetching posts...");
+      // 1) fetch the latest N=100 posts
+      const posts = await this.indexer.getPosts({
+        order: "desc",
+        limit: this.config.maxPostsFetched,
       });
-      // slice it according to the logic in your note:
-      // e.g. if commentCount < 100 => use all
-      // else => first 50 (context) + last 50 (primary) + maybe top by “score” if you had it
-      const selectedComments = this.selectComments(rawComments);
 
-      // transform to IComment for LLM
-      const existingComments = selectedComments.map((c: any) => ({
-        commentId: `${c.comment_author_user_pda}:${c.comment_author_sequence_id}`,
-        postId: fullPost.post_pda,
-        content: c.content,
+      // 2) transform to LLM-compatible shape, then let LLM filter
+      const postSummaries = posts.map((p: any) => ({
+        postId: p.post_pda,
+        title: p.content.slice(0, 80), // or anything that can stand as "title"
       }));
 
-      // transform the post to something IPost for the LLM
-      const iPost = {
-        postId: fullPost.post_pda,
-        title: "some title",
-        content: fullPost.content,
-        category: fullPost.tag_name || "General",
-        tags: [fullPost.tag_name || "General"],
-      };
-
-      // 4) [LLM] create a new comment
-      const newComment = await this.agent.createComment(
-        iPost,
-        existingComments
+      session.setMessage("Selecting posts to read...");
+      const selected = await this.agent.selectPostsToRead(
+        session,
+        postSummaries,
+        this.config.maxPostsToRead
       );
-      console.log("New LLM comment:", newComment);
 
-      // 5) post on chain
-      const user = await this.operator.getUser();
-      const sig = await this.operator.getProgramService().addComment(
-        user.nftMint,
-        fullPost.post_sequence_id, // or however your chain code expects the post ID
-        new PublicKey(fullPost.post_author_pda),
-        await this.storage.put(newComment.content)
-      );
-      console.log("Added comment (sig): ", sig);
+      session.setMessage("Favorite posts selected...");
 
-      // consume 1 comment point
-      ap.commentActionPoints -= 1;
-    }
+      // 3) For each chosen post, fetch comments (up to 100).
+      session.setMessage("Reading posts...");
+      session.setProgress(0, selected.length);
+      let idx = 0;
+      for (const choice of selected) {
+        idx++;
+        session.setProgress(idx, selected.length);
+        if (ap.commentActionPoints <= 0) {
+          session.setMessage("No more comment action points left. Stopping...");
+          console.log("No more comment points left");
+          break;
+        }
+        console.log(`CommentFlow: reading post: ${choice.postId}`);
+        session.setTargetContent("", choice.postId, choice.reason);
+
+        // fetch full post data
+        session.setMessage("Reading a post... " + choice.postId);
+        const fullPost = await this.indexer.getPost(choice.postId);
+        session.setTargetContent(fullPost?.content || "", choice.postId);
+        console.log("fullPost", fullPost);
+        if (!fullPost) {
+          session.setMessage("Post not found. Skipping...");
+          continue;
+        }
+
+        session.setMessage(
+          "Reading comments from the post... " + choice.postId
+        );
+        const rawComments = await this.indexer.getComments({
+          target: choice.postId,
+          order: "asc", // maybe ascending so we can slice up
+          limit: 500, // fetch a big chunk, then we'll do our own slicing
+        });
+        // slice it according to the logic in your note:
+        // e.g. if commentCount < 100 => use all
+        // else => first 50 (context) + last 50 (primary) + maybe top by “score” if you had it
+        session.setMessage(
+          "Selecting comments from the post... " + choice.postId
+        );
+        const selectedComments = this.selectComments(rawComments);
+
+        // transform to IComment for LLM
+        const existingComments = selectedComments.map((c: any) => ({
+          commentId: `${c.comment_author_user_pda}:${c.comment_author_sequence_id}`,
+          postId: fullPost.post_pda,
+          content: c.content,
+        }));
+
+        // transform the post to something IPost for the LLM
+        const iPost = {
+          postId: fullPost.post_pda,
+          title: "some title",
+          content: fullPost.content,
+          category: fullPost.tag_name || "General",
+          tags: [fullPost.tag_name || "General"],
+        };
+
+        // 4) [LLM] create a new comment
+        session.setMessage("Writing a new comment...");
+        const newComment = await this.agent.createComment(
+          session,
+          iPost,
+          existingComments
+        );
+        session.setMessage("Comment written! Posting to chain...");
+        console.log("New LLM comment:", newComment);
+
+        // 5) post on chain
+        const user = await this.operator.getUser();
+        const sig = await this.operator.getProgramService().addComment(
+          user.nftMint,
+          fullPost.post_sequence_id, // or however your chain code expects the post ID
+          new PublicKey(fullPost.post_author_pda),
+          await this.storage.put(newComment.content)
+        );
+        session.setMessage("Comment posted! sig:" + sig);
+        console.log("Added comment (sig): ", sig);
+
+        // consume 1 comment point
+        ap.commentActionPoints -= 1;
+      }
+    });
+
+    action.close();
   }
 
   /**
@@ -184,112 +259,171 @@ export class NeobotsAutomationAgent {
    *  6) post on chain
    */
   private async reactionFlow(ap: any) {
-    // 1) fetch top N posts
-    const posts = await this.indexer.getPosts({
-      order: "desc",
-      limit: this.config.maxPostsFetched,
-    });
-    const postSummaries = posts.map((p: any) => ({
-      postId: p.post_pda,
-      title: p.content.slice(0, 80),
-    }));
-    const selected = await this.agent.selectPostsToRead(
-      postSummaries,
-      this.config.maxPostsToRead
-    );
+    const action = this.statusManager.initializeAction("reactionFlow");
 
-    for (const choice of selected) {
-      if (ap.reactionActionPoints <= 0) {
-        console.log("No reaction points left, stopping reaction flow.");
-        break;
-      }
-      console.log(`ReactionFlow: reading post: ${choice.postId}`);
-
-      // fetch full post
-      const fullPost = await this.indexer.getPost(choice.postId);
-      if (!fullPost) continue;
-
-      // fetch & slice comments
-      const rawComments = await this.indexer.getComments({
-        target: choice.postId,
-        order: "asc",
-        limit: 500,
+    await action.startSessionAsync(async (session) => {
+      session.setProgressIndeterminate();
+      session.setMessage("Fetching posts...");
+      // 1) fetch top N posts
+      const posts = await this.indexer.getPosts({
+        order: "desc",
+        limit: this.config.maxPostsFetched,
       });
-      if (rawComments.length === 0) {
-        console.log("No comments found, skipping post:", choice.postId);
-        continue;
-      }
-      const selectedComments = this.selectComments(rawComments);
-
-      // transform to ReactionRequests for LLM
-      const reactionRequests = selectedComments.map((c: any) => ({
-        commentId: `${c.comment_author_user_pda}:${c.comment_author_sequence_id}`,
-        content: c.content,
+      const postSummaries = posts.map((p: any) => ({
+        postId: p.post_pda,
+        title: p.content.slice(0, 80),
       }));
-
-      if (reactionRequests.length === 0) {
-        console.log(
-          "No reaction requests found, skipping post:",
-          choice.postId
-        );
-        continue;
-      }
-
-      // 4) LLM suggests a reaction for each
-      const preferred = ["Like", "Dislike", "Upvote", "Downvote"];
-      let rawReactions = await this.agent.generateReactions(
-        reactionRequests,
-        preferred
+      session.setMessage("Selecting posts to read...");
+      const selected = await this.agent.selectPostsToRead(
+        session,
+        postSummaries,
+        this.config.maxPostsToRead
       );
 
-      if (rawReactions.length === 0) {
-        console.log("No reactions found, skipping post:", choice.postId);
-        continue;
-      }
+      session.setMessage("Favorite posts selected...");
 
-      // 5) LLM prioritizes top-K
-      // If we have e.g. 10 reaction points left, we pick top 10 from the LLM’s scoring
-      rawReactions = await this.agent.prioritizeReactions(
-        rawReactions,
-        ap.reactionActionPoints
-      );
+      session.setProgress(0, selected.length);
+      let idx = 0;
 
-      if (rawReactions.length === 0) {
-        console.log(
-          "No reactions found after prioritization, skipping post:",
-          choice.postId
+      for (const choice of selected) {
+        idx++;
+        session.setProgress(idx, selected.length);
+        if (ap.reactionActionPoints <= 0) {
+          session.setMessage(
+            "No reaction points left, stopping reaction flow."
+          );
+          console.log("No reaction points left, stopping reaction flow.");
+          break;
+        }
+        console.log(`ReactionFlow: reading post: ${choice.postId}`);
+        session.setTargetContent("", choice.postId, choice.reason);
+        // fetch full post
+        session.setMessage("Reading a post... " + choice.postId);
+        const fullPost = await this.indexer.getPost(choice.postId);
+        session.setTargetContent(fullPost?.content || "", choice.postId);
+        if (!fullPost) continue;
+
+        // fetch & slice comments
+        session.setMessage(
+          "Reading comments from the post... " + choice.postId
         );
-        continue;
-      }
-
-      // 6) post on chain
-      const user = await this.operator.getUser();
-      for (const r of rawReactions) {
-        if (ap.reactionActionPoints <= 0) break;
-        if (r.reactionType === "No-interest") continue;
-
-        console.log(
-          `Reacting to comment ${r.targetCommentId} with ${r.reactionType}`
-        );
-        const [userPdaStr, seqIdStr] = r.targetCommentId.split(":");
-        if (!userPdaStr || !seqIdStr) {
-          console.log("Invalid targetCommentId, skipping:", r.targetCommentId);
+        const rawComments = await this.indexer.getComments({
+          target: choice.postId,
+          order: "asc",
+          limit: 500,
+        });
+        if (rawComments.length === 0) {
+          console.log("No comments found, skipping post:", choice.postId);
+          session.setMessage(
+            "No comments found, skipping post:" + choice.postId
+          );
           continue;
         }
-        const seqId = parseInt(seqIdStr, 10);
+        session.setMessage("Selecting comments from the post...");
+        const selectedComments = this.selectComments(rawComments);
 
-        await this.operator.getProgramService().addReaction(
-          user.nftMint,
-          fullPost.post_sequence_id,
-          seqId,
-          new PublicKey(fullPost.post_author_pda),
-          r.reactionType // or pass it in "content"
+        // transform to ReactionRequests for LLM
+        const reactionRequests = selectedComments.map((c: any) => ({
+          commentId: `${c.comment_author_user_pda}:${c.comment_author_sequence_id}`,
+          content: c.content,
+        }));
+
+        if (reactionRequests.length === 0) {
+          console.log(
+            "No reaction requests found, skipping post:",
+            choice.postId
+          );
+          session.setMessage(
+            "No reaction requests found, skipping post:" + choice.postId
+          );
+          continue;
+        }
+
+        // 4) LLM suggests a reaction for each
+        session.setMessage("Writing reactions...");
+        const preferred = ["Like", "Dislike", "Upvote", "Downvote"];
+        let rawReactions = await this.agent.generateReactions(
+          session,
+          reactionRequests,
+          preferred
         );
 
-        // consume 1 reaction point
-        ap.reactionActionPoints -= 1;
+        if (rawReactions.length === 0) {
+          console.log("No reactions found, skipping post:", choice.postId);
+          session.setMessage(
+            "Hmm, nothing interesting found in this post. Skipping..."
+          );
+          continue;
+        }
+
+        session.setMessage("Prioritizing reactions...");
+        // 5) LLM prioritizes top-K
+        // If we have e.g. 10 reaction points left, we pick top 10 from the LLM’s scoring
+        rawReactions = await this.agent.prioritizeReactions(
+          session,
+          rawReactions,
+          ap.reactionActionPoints
+        );
+
+        if (rawReactions.length === 0) {
+          console.log(
+            "No reactions found after prioritization, skipping post:",
+            choice.postId
+          );
+          session.setMessage(
+            "Hmm, nothing interesting found in this post. Skipping..." +
+              choice.postId
+          );
+          continue;
+        }
+
+        let rawReactionsIdx = 0;
+        session.setProgress(rawReactionsIdx, rawReactions.length);
+
+        // 6) post on chain
+        const user = await this.operator.getUser();
+        for (const r of rawReactions) {
+          rawReactionsIdx++;
+          session.setProgress(rawReactionsIdx, rawReactions.length);
+          if (ap.reactionActionPoints <= 0) break;
+          if (r.reactionType === "No-interest") continue;
+
+          console.log(
+            `Reacting to comment ${r.targetCommentId} with ${r.reactionType}`
+          );
+          session.setMessage(
+            `Reacting to comment ${r.targetCommentId} with ${r.reactionType}`
+          );
+          const [userPdaStr, seqIdStr] = r.targetCommentId.split(":");
+          if (!userPdaStr || !seqIdStr) {
+            console.log(
+              "Invalid targetCommentId, skipping:",
+              r.targetCommentId
+            );
+            session.setMessage(
+              "Invalid targetCommentId, skipping:" + r.targetCommentId
+            );
+            continue;
+          }
+          const seqId = parseInt(seqIdStr, 10);
+
+          session.setMessage("Sending reaction to chain...");
+
+          const sig = await this.operator.getProgramService().addReaction(
+            user.nftMint,
+            fullPost.post_sequence_id,
+            seqId,
+            new PublicKey(fullPost.post_author_pda),
+            r.reactionType // or pass it in "content"
+          );
+          session.setMessage("Reaction sent! sig:" + sig);
+          // consume 1 reaction point
+          ap.reactionActionPoints -= 1;
+        }
       }
-    }
+    });
+
+    action.close();
   }
 
   /**

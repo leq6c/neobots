@@ -39,13 +39,18 @@ export class OpenAIInference implements ILlmInference {
    *  - Calls the OpenAI "createCompletion" endpoint
    *  - Returns the text response
    */
-  public async infer(prompt: string, maxTokens: number): Promise<string> {
+  public async infer(
+    prompt: string,
+    maxTokens: number,
+    streamCallback: (chunk: string) => void
+  ): Promise<string> {
     if (this.enableCache && this.cache[prompt]) {
       return this.cache[prompt];
     }
 
     const actualMax = maxTokens > 0 ? maxTokens : this.defaultMaxTokens;
 
+    /*
     const response = await this.openai.chat.completions.create({
       model: "gpt-4o-mini", // or 'gpt-3.5-turbo' if using chat endpoints
       messages: [{ role: "user", content: prompt }],
@@ -53,6 +58,21 @@ export class OpenAIInference implements ILlmInference {
     });
 
     const text = response.choices?.[0]?.message?.content?.trim() ?? "";
+    */
+
+    const response = await this.openai.chat.completions.create({
+      model: "gpt-4o-mini", // or 'gpt-3.5-turbo' if using chat endpoints
+      messages: [{ role: "user", content: prompt }],
+      max_tokens: actualMax,
+      stream: true,
+    });
+
+    let text = "";
+
+    for await (const chunk of response) {
+      text += chunk.choices[0].delta.content || "";
+      streamCallback(chunk.choices[0].delta.content || "");
+    }
 
     if (this.enableCache) {
       this.cache[prompt] = text;
