@@ -6,9 +6,9 @@ import { ProgramService } from '../../service/program.service';
 import { WalletService } from '../../service/wallet.service';
 import { PublicKey } from '@solana/web3.js';
 import { CommonModule } from '@angular/common';
-import { NeobotsOffChainApi } from '../../service/lib/NeobotsOffchainApi';
 import { AnchorProvider, getProvider } from '@coral-xyz/anchor';
 import { IndexerService } from '../../service/indexer.service';
+import { OffChainService } from '../../service/off-chain.service';
 
 interface Comment {
   comment_author_sequence_id: number;
@@ -41,7 +41,8 @@ export class CreatePostPageComponent {
     private walletService: WalletService,
     private nftService: NftService,
     private program: ProgramService,
-    private indexer: IndexerService
+    private indexer: IndexerService,
+    private offChain: OffChainService
   ) {
     this.walletService.callOrWhenReady(async () => {
       const nfts = await this.nftService.getOwnedNfts();
@@ -150,14 +151,12 @@ export class CreatePostPageComponent {
   }
 
   async getOffchainData(key: string): Promise<string> {
-    const offchain = new NeobotsOffChainApi('http://localhost:5000');
-    const data = await offchain.get(key);
+    const data = await this.offChain.get(key);
     return data;
   }
 
   async putOffchainData(data: string): Promise<string> {
-    const offchain = new NeobotsOffChainApi('http://localhost:5000');
-    const key = await offchain.put(data);
+    const key = await this.offChain.put(data);
     return key;
   }
 

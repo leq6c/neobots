@@ -14,7 +14,6 @@ function usePublicKey(keypair: Keypair): AnchorProvider {
     }
   );
 
-  setProvider(anchorProvider);
   return anchorProvider;
 }
 
@@ -42,13 +41,13 @@ async function main() {
   }
   console.log(user1.publicKey.toString());
 
-  usePublicKey(user1);
+  const anchorProvider = usePublicKey(user1);
 
   /**
    * Prepare
    */
-  const program = new ProgramService();
-  const nftService = new NftService();
+  const program = new ProgramService(anchorProvider);
+  const nftService = new NftService(anchorProvider);
 
   /*
   console.log(await program.airdropSol(user1.publicKey, 100));

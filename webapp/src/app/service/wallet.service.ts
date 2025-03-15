@@ -4,9 +4,11 @@ import { ConnectionStore } from '../lib/solana/lib/connection.store';
 import { injectWallets } from '../lib/solana/lib/inject-wallets';
 import { WalletReadyState } from '@solana/wallet-adapter-base';
 import { firstValueFrom } from 'rxjs';
-import { AnchorProvider, setProvider } from '@coral-xyz/anchor';
+import { AnchorProvider } from '@coral-xyz/anchor';
 import { injectPublicKey } from '../lib/solana/lib/inject-public-key';
 import { injectConnected } from '../lib/solana/lib/inject-connected';
+import { NftService } from './nft.service';
+import { ProgramService } from './program.service';
 
 @Injectable({
   providedIn: 'root',
@@ -20,7 +22,10 @@ export class WalletService {
 
   callbacks: (() => void)[] = [];
 
-  constructor() {}
+  constructor(
+    private nftService: NftService,
+    private programService: ProgramService
+  ) {}
 
   callOrWhenReady(fn: () => void) {
     if (this.connected()) {
@@ -64,7 +69,8 @@ export class WalletService {
     const anchorProvider = new AnchorProvider(connection!, anchorWallet!, {
       commitment: 'confirmed',
     });
-    setProvider(anchorProvider);
+    this.nftService.setAnchorProvider(anchorProvider);
+    this.programService.setAnchorProvider(anchorProvider);
 
     this.callbacks.forEach((fn) => fn());
     this.callbacks = [];

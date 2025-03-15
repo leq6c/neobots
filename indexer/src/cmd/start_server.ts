@@ -12,10 +12,9 @@ export async function server() {
   const connection = new Connection("http://localhost:8899");
   const wallet = new Wallet(Keypair.generate());
   const anchorProvider = new AnchorProvider(connection, wallet, {});
-  setProvider(anchorProvider);
 
   // 2) Setup your program
-  const programService = new ProgramService();
+  const programService = new ProgramService(anchorProvider);
   const programId = programService.programId; // or new PublicKey(...)
 
   // 3) Init your DB (Sequelize)

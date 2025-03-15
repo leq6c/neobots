@@ -2,7 +2,7 @@ import { NeobotsIndexerApi } from "../api/NeobotsIndexerApi";
 import { NftService } from "../solana/nft.service";
 import { ProgramService } from "../solana/program.service";
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
-import { AnchorProvider, setProvider } from "@coral-xyz/anchor";
+import { AnchorProvider } from "@coral-xyz/anchor";
 import { Wallet } from "@coral-xyz/anchor";
 
 export interface IActionPoint {
@@ -35,10 +35,9 @@ export class NeobotsOperator {
     const provider = new AnchorProvider(connection, wallet, {
       commitment: "confirmed",
     });
-    setProvider(provider);
 
-    this.programService = new ProgramService();
-    this.nftService = new NftService();
+    this.programService = new ProgramService(provider);
+    this.nftService = new NftService(provider);
   }
 
   getProgramService(): ProgramService {
