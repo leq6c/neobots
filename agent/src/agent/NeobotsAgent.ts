@@ -9,6 +9,7 @@ import {
   AgentActionStatusNotifier,
   AgentActionStatusNotifierSession,
 } from "./NeobotsAgentStatusManager";
+import { CancellationToken } from "./CancellationToken";
 
 export interface IConfig {
   persona: string;
@@ -30,7 +31,10 @@ export class NeobotsAgent {
    * Creates a new post. The LLM determines the title, content, category, and tags
    * based on the agent's persona/rationality.
    */
-  public async createPost(action: AgentActionStatusNotifier): Promise<IPost> {
+  public async createPost(
+    action: AgentActionStatusNotifier,
+    cancellationToken: CancellationToken
+  ): Promise<IPost> {
     return await action.startSessionAsync(async (session) => {
       session.setProgressIndeterminate();
       const systemPrompt = `You are ${this.config.persona}. Rationality level: ${this.config.rationality}.
@@ -49,14 +53,22 @@ Generate a suitable post (in any language).`;
       const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
 
       // Call the LLM
-      session.setMessage("Writing a new post...");
-      const rawResponse = await this.llm.infer(fullPrompt, 2048, (chunk) => {
-        session.setInferenceChunk(chunk);
-      });
+      session.setMessage("Writing a new post... 📝");
+      const rawResponse = await this.llm.infer(
+        fullPrompt,
+        2048,
+        (chunk) => {
+          session.setInferenceChunk(chunk);
+        },
+        cancellationToken
+      );
 
       // Attempt to parse the response as JSON
       try {
-        const parsed = this.parseJsonResponse<IPost>(rawResponse);
+        const parsed = this.parseJsonResponse<IPost>(
+          rawResponse,
+          cancellationToken
+        );
         // Return an IPost with a generated ID
         const newPost: IPost = {
           postId: this.generateRandomId(),
@@ -85,7 +97,8 @@ Generate a suitable post (in any language).`;
   public async selectPostsToRead(
     session: AgentActionStatusNotifierSession,
     posts: IPostSummary[],
-    maxResults: number
+    maxResults: number,
+    cancellationToken: CancellationToken
   ): Promise<IFilteredPostResult[]> {
     const systemPrompt = `You are ${this.config.persona}. Rationality level: ${this.config.rationality}.
 You respond ONLY with a valid JSON array of objects. 
@@ -104,15 +117,26 @@ Please narrow it down to a maximum of ${maxResults} posts, returning both the re
 Return ONLY the JSON array.`;
 
     const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
-    const rawResponse = await this.llm.infer(fullPrompt, 2048, (chunk) => {
-      session.setInferenceChunk(chunk);
-    });
+    const rawResponse = await this.llm.infer(
+      fullPrompt,
+      2048,
+      (chunk) => {
+        session.setInferenceChunk(chunk);
+      },
+      cancellationToken
+    );
 
     try {
-      const parsed = this.parseJsonResponse<IFilteredPostResult[]>(rawResponse);
+      const parsed = this.parseJsonResponse<IFilteredPostResult[]>(
+        rawResponse,
+        cancellationToken
+      );
       // If the response contains more items than allowed, slice it
       return parsed.slice(0, maxResults);
     } catch (error) {
+      if (cancellationToken.isCancelled) {
+        throw new Error("Cancelled");
+      }
       console.error(error);
       return [];
     }
@@ -128,7 +152,8 @@ Return ONLY the JSON array.`;
   public async createComment(
     session: AgentActionStatusNotifierSession,
     post: IPost,
-    existingComments: IComment[]
+    existingComments: IComment[],
+    cancellationToken: CancellationToken
   ): Promise<IComment> {
     const systemPrompt = `You are ${this.config.persona}. Rationality level: ${this.config.rationality}.
 You respond ONLY with a JSON object matching:
@@ -150,12 +175,20 @@ Please generate the next comment.
 Return ONLY JSON.`;
 
     const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
-    const rawResponse = await this.llm.infer(fullPrompt, 2048, (chunk) => {
-      session.setInferenceChunk(chunk);
-    });
+    const rawResponse = await this.llm.infer(
+      fullPrompt,
+      2048,
+      (chunk) => {
+        session.setInferenceChunk(chunk);
+      },
+      cancellationToken
+    );
 
     try {
-      const parsed = this.parseJsonResponse<IComment>(rawResponse);
+      const parsed = this.parseJsonResponse<IComment>(
+        rawResponse,
+        cancellationToken
+      );
       const newComment: IComment = {
         commentId: this.generateRandomId(),
         postId: post.postId,
@@ -165,6 +198,9 @@ Return ONLY JSON.`;
       };
       return newComment;
     } catch (error) {
+      if (cancellationToken.isCancelled) {
+        throw new Error("Cancelled");
+      }
       return {
         commentId: this.generateRandomId(),
         postId: post.postId,
@@ -182,7 +218,8 @@ Return ONLY JSON.`;
   public async generateReactions(
     session: AgentActionStatusNotifierSession,
     comments: IReactionRequest[],
-    preferredReactions: string[]
+    preferredReactions: string[],
+    cancellationToken: CancellationToken
   ): Promise<IReaction[]> {
     const systemPrompt = `You are ${this.config.persona}. Rationality level: ${this.config.rationality}.
 You respond ONLY with a valid JSON array of objects of the form:
@@ -203,14 +240,25 @@ ${JSON.stringify(comments, null, 2)}
 Return ONLY the JSON array.`;
 
     const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
-    const rawResponse = await this.llm.infer(fullPrompt, 2048, (chunk) => {
-      session.setInferenceChunk(chunk);
-    });
+    const rawResponse = await this.llm.infer(
+      fullPrompt,
+      2048,
+      (chunk) => {
+        session.setInferenceChunk(chunk);
+      },
+      cancellationToken
+    );
 
     try {
-      const parsed = this.parseJsonResponse<IReaction[]>(rawResponse);
+      const parsed = this.parseJsonResponse<IReaction[]>(
+        rawResponse,
+        cancellationToken
+      );
       return parsed;
     } catch (error) {
+      if (cancellationToken.isCancelled) {
+        throw new Error("Cancelled");
+      }
       return [];
     }
   }
@@ -225,7 +273,8 @@ Return ONLY the JSON array.`;
   public async prioritizeReactions(
     session: AgentActionStatusNotifierSession,
     reactions: IReaction[],
-    k: number
+    k: number,
+    cancellationToken: CancellationToken
   ): Promise<IReaction[]> {
     const systemPrompt = `You are ${this.config.persona}. Rationality level: ${this.config.rationality}.
 You respond ONLY with a JSON array of the same length as the input. Each item must have:
@@ -243,22 +292,40 @@ ${JSON.stringify(reactions, null, 2)}
 Please add an importance score ("score", 0 to 1) to each reaction. Return ONLY JSON.`;
 
     const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
-    const rawResponse = await this.llm.infer(fullPrompt, 2048, (chunk) => {
-      session.setInferenceChunk(chunk);
-    });
+    const rawResponse = await this.llm.infer(
+      fullPrompt,
+      2048,
+      (chunk) => {
+        session.setInferenceChunk(chunk);
+      },
+      cancellationToken
+    );
 
     try {
       // We assume the LLM returns the same array with each object extended by a score property
-      const parsed = this.parseJsonResponse<IReaction[]>(rawResponse);
+      const parsed = this.parseJsonResponse<IReaction[]>(
+        rawResponse,
+        cancellationToken
+      );
       // Sort by descending score, then take the top k
       const sorted = parsed.sort((a, b) => (b.score || 0) - (a.score || 0));
       return sorted.slice(0, k);
     } catch (error) {
+      if (cancellationToken.isCancelled) {
+        throw new Error("Cancelled");
+      }
       return [];
     }
   }
 
-  private parseJsonResponse<T>(response: string): T {
+  private parseJsonResponse<T>(
+    response: string,
+    cancellationToken: CancellationToken
+  ): T {
+    if (cancellationToken.isCancelled) {
+      throw new Error("Cancelled");
+    }
+    console.log("Parsing JSON response: ", response);
     const try_fns = [
       () => JSON.parse(response) as T,
       () =>

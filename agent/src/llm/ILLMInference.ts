@@ -5,6 +5,8 @@
  * so we can swap out providers (OpenAI, Gemini, Claude, etc.)
  **************************************************************/
 
+import { CancellationToken } from "../agent/CancellationToken";
+
 export interface ILlmInference {
   /**
    * infer
@@ -14,6 +16,7 @@ export interface ILlmInference {
   infer(
     prompt: string,
     maxTokens: number,
-    streamCallback: (chunk: string) => void
+    streamCallback: (chunk: string) => void,
+    cancellationToken: CancellationToken
   ): Promise<string>;
 }

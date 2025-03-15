@@ -15,12 +15,15 @@ import {
   AgentStatus,
   NeobotsAgentStatusManager,
 } from "../agent/NeobotsAgentStatusManager";
+import { CancellationToken } from "../agent/CancellationToken";
 
 // Store active agents
 interface AgentInstance {
   nftMint: string;
   agent: NeobotsAgent;
   automationAgent: NeobotsAutomationAgent;
+  statusManager: NeobotsAgentStatusManager;
+  cancellationToken: CancellationToken;
   running: boolean;
   personality: string;
 }
@@ -47,6 +50,7 @@ export class NeobotsAgentServer {
    */
   private subscribers: Map<string, Set<WebSocket>> = new Map();
   private publishedLogs: Map<string, LogMessage[]> = new Map();
+  private agentStatus: Map<string, AgentStatus> = new Map();
 
   constructor(private port: number = 4001) {
     this.app = express();
@@ -161,6 +165,7 @@ export class NeobotsAgentServer {
         }
 
         // Create a new agent with the specified personality
+        const cancellationToken = new CancellationToken();
         const openai = new OpenAIInference(process.env.OPENAI_API_KEY ?? "");
         const agent = new NeobotsAgent(
           { persona: personality, rationality: "100%" },
@@ -176,15 +181,17 @@ export class NeobotsAgentServer {
         const neobotsOffChainApi = new NeobotsOffChainApi(
           "http://localhost:5000"
         );
-        const neobotsAgentStatusManager = new NeobotsAgentStatusManager();
+        const neobotsAgentStatusManager = new NeobotsAgentStatusManager(
+          cancellationToken
+        );
 
         const automationAgent = new NeobotsAutomationAgent(
           {
-            maxPostsFetched: 100,
-            maxPostsToRead: 100,
-            maxCommentsContext: 50,
-            maxCommentsTail: 50,
-            maxReactionsPerRound: 20,
+            maxPostsFetched: 10,
+            maxPostsToRead: 10,
+            maxCommentsContext: 10,
+            maxCommentsTail: 10,
+            maxReactionsPerRound: 3,
           },
           agent,
           neobotsOperator,
@@ -198,6 +205,8 @@ export class NeobotsAgentServer {
           nftMint,
           agent,
           automationAgent,
+          statusManager: neobotsAgentStatusManager,
+          cancellationToken,
           running: false,
           personality,
         });
@@ -268,6 +277,7 @@ export class NeobotsAgentServer {
         // Run the agent in a separate thread to not block
         setTimeout(async () => {
           try {
+            agentInstance.statusManager.reset();
             await agentInstance.automationAgent.runOnce();
             this.publishLog(nftMint, `Agent completed run cycle`);
           } catch (error: any) {
@@ -331,9 +341,12 @@ export class NeobotsAgentServer {
           });
         }
 
+        this.agentStatus.delete(nftMint);
+
         // Stop the agent
         agentInstance.running = false;
         this.agents.set(nftMint, agentInstance);
+        agentInstance.cancellationToken.cancel();
 
         this.publishLog(nftMint, `Agent stopped`);
 
@@ -388,6 +401,8 @@ export class NeobotsAgentServer {
           );
           // Send cached logs
           this.sendCachedLogs(nftMint, socket);
+          // Send cached status
+          this.sendCachedStatus(nftMint, socket);
         } else if (type === "unsubscribe" && nftMint) {
           this.removeSubscriber(nftMint, socket);
           // Optionally send ack
@@ -449,6 +464,7 @@ export class NeobotsAgentServer {
   }
 
   private publishStatus(nftMint: string, status: AgentStatus): void {
+    this.agentStatus.set(nftMint, status);
     const payload = JSON.stringify({
       type: "status",
       ...status,
@@ -495,6 +511,13 @@ export class NeobotsAgentServer {
         })
       );
     }
+  }
+
+  private sendCachedStatus(nftMint: string, socket: WebSocket): void {
+    const status = this.agentStatus.get(nftMint);
+    if (!status) return;
+
+    socket.send(JSON.stringify({ type: "status", ...status }));
   }
 
   /**

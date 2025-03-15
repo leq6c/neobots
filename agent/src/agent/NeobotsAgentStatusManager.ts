@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
+import { CancellationToken } from "./CancellationToken";
 
 interface AgentActionStatus {
   id: string;
@@ -52,11 +53,17 @@ export class AgentActionStatusNotifier {
   }
 
   __internal_setStatus(status: AgentActionStatus): void {
+    if (this.statusManager.cancellationToken.isCancelled) {
+      throw new Error("Termination requested");
+    }
     this.status = status;
     this.statusManager.updateAction(this);
   }
 
   __internal_setInference(inference: string): void {
+    if (this.statusManager.cancellationToken.isCancelled) {
+      throw new Error("Termination requested");
+    }
     this.statusManager.updateInference(inference);
   }
 }
@@ -100,6 +107,7 @@ export class AgentActionStatusNotifierSession {
     message: string,
     status?: "pending" | "running" | "success" | "error"
   ): void {
+    console.log("Setting message: ", message);
     const stat = this.notifier.getStatus();
     stat.message = message;
     if (status) {
@@ -130,6 +138,11 @@ export class NeobotsAgentStatusManager {
   message?: string;
   callbacks: ((status: AgentStatus) => void)[] = [];
   inferenceCallbacks: ((inference: string) => void)[] = [];
+  cancellationToken: CancellationToken;
+
+  constructor(cancellationToken?: CancellationToken) {
+    this.cancellationToken = cancellationToken ?? new CancellationToken();
+  }
 
   public getStatus(): AgentStatus {
     return {
@@ -164,6 +177,14 @@ export class NeobotsAgentStatusManager {
     return op;
   }
 
+  reset(): void {
+    this.cancellationToken.reset();
+    this.actions = [];
+    this.message = undefined;
+    this.running = false;
+    this.notify();
+  }
+
   updateAction(action: AgentActionStatusNotifier): void {
     const index = this.actions.indexOf(action);
     if (index !== -1) {
@@ -192,14 +213,13 @@ export class NeobotsAgentStatusManager {
 
   updateInference(inference: string): void {
     // disabled for now
-    /*
     try {
       for (const callback of this.inferenceCallbacks) {
         callback(inference);
       }
     } catch (e) {
       console.error("Error in inference callback: ", e);
-    }*/
+    }
   }
 
   notify() {

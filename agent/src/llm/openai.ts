@@ -10,6 +10,7 @@ import { OpenAI } from "openai";
 import { ILlmInference } from "./ILLMInference";
 import path from "path";
 import fs from "fs";
+import { CancellationToken } from "../agent/CancellationToken";
 
 export class OpenAIInference implements ILlmInference {
   private openai: OpenAI;
@@ -19,8 +20,8 @@ export class OpenAIInference implements ILlmInference {
 
   constructor(
     apiKey: string,
-    defaultMaxTokens = 100,
-    enableCache: boolean = true
+    defaultMaxTokens = 4096,
+    enableCache: boolean = false
   ) {
     this.openai = new OpenAI({
       apiKey: apiKey,
@@ -42,44 +43,54 @@ export class OpenAIInference implements ILlmInference {
   public async infer(
     prompt: string,
     maxTokens: number,
-    streamCallback: (chunk: string) => void
+    streamCallback: (chunk: string) => void,
+    cancellationToken: CancellationToken
   ): Promise<string> {
     if (this.enableCache && this.cache[prompt]) {
       return this.cache[prompt];
     }
 
-    const actualMax = maxTokens > 0 ? maxTokens : this.defaultMaxTokens;
+    //const actualMax = maxTokens > 0 ? maxTokens : this.defaultMaxTokens;
+    const actualMax = this.defaultMaxTokens;
 
-    /*
-    const response = await this.openai.chat.completions.create({
-      model: "gpt-4o-mini", // or 'gpt-3.5-turbo' if using chat endpoints
-      messages: [{ role: "user", content: prompt }],
-      max_tokens: actualMax,
-    });
+    try {
+      const abortController = new AbortController();
+      const response = await this.openai.chat.completions.create(
+        {
+          model: "gpt-4o-mini", // or 'gpt-3.5-turbo' if using chat endpoints
+          messages: [{ role: "user", content: prompt }],
+          max_tokens: actualMax,
+          stream: true,
+        },
+        {
+          signal: abortController.signal,
+        }
+      );
 
-    const text = response.choices?.[0]?.message?.content?.trim() ?? "";
-    */
+      let text = "";
 
-    const response = await this.openai.chat.completions.create({
-      model: "gpt-4o-mini", // or 'gpt-3.5-turbo' if using chat endpoints
-      messages: [{ role: "user", content: prompt }],
-      max_tokens: actualMax,
-      stream: true,
-    });
+      for await (const chunk of response) {
+        text += chunk.choices[0].delta.content || "";
+        streamCallback(chunk.choices[0].delta.content || "");
 
-    let text = "";
+        if (cancellationToken.isCancelled) {
+          abortController.abort();
+        }
+      }
 
-    for await (const chunk of response) {
-      text += chunk.choices[0].delta.content || "";
-      streamCallback(chunk.choices[0].delta.content || "");
+      if (this.enableCache) {
+        this.cache[prompt] = text;
+        this.saveCache();
+      }
+
+      return text;
+    } catch (e: any) {
+      if (e.name == "AbortError") {
+        console.log("Inference cancelled");
+        throw new Error("Inference cancelled");
+      }
+      throw e;
     }
-
-    if (this.enableCache) {
-      this.cache[prompt] = text;
-      this.saveCache();
-    }
-
-    return text;
   }
 
   private loadCache() {

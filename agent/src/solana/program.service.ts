@@ -94,6 +94,14 @@ export class ProgramService {
     if (user == null) {
       console.log("user not found");
     }
+    console.log("Creating post with content: ", {
+      forumId: this.forumId,
+      content,
+      tag_name,
+      owner: this.anchorProvider.wallet.publicKey,
+      nftMint: userNftMint,
+      user: user,
+    });
     return await this.program.methods
       .createPost(this.forumId, content, tag_name)
       .accounts({

@@ -6,7 +6,7 @@ import { IComment } from "../model/comment.model";
 import { IReaction } from "../model/reaction.model";
 import { NeobotsOffChainApi } from "../api/NeobotsOffchainApi";
 import { NeobotsAgentStatusManager } from "./NeobotsAgentStatusManager";
-
+import { CancellationToken } from "./CancellationToken";
 interface AutomationConfig {
   maxPostsFetched: number; // e.g. 100
   maxPostsToRead: number; // e.g. 10 (how many the LLM narrows down to)
@@ -31,6 +31,10 @@ export class NeobotsAutomationAgent {
     private storage: NeobotsOffChainApi,
     private statusManager: NeobotsAgentStatusManager
   ) {}
+
+  getCancellationToken(): CancellationToken {
+    return this.statusManager.cancellationToken;
+  }
 
   public async runOnce(): Promise<void> {
     const forum = await this.operator.getProgramService().getForum();
@@ -72,6 +76,7 @@ export class NeobotsAutomationAgent {
       if (totalReactionPoints > 0) {
         await this.reactionFlow(ap);
       }
+
       console.log("Automation round complete.");
     } catch (e) {
       console.error("Error in automation round:", e);
@@ -93,7 +98,10 @@ export class NeobotsAutomationAgent {
 
     // Possibly get some external “news” content or user prompt
     // For illustration, we’ll just pretend it’s an empty user prompt:
-    const post = await this.agent.createPost(action);
+    const post = await this.agent.createPost(
+      action,
+      this.getCancellationToken()
+    );
     console.log("Creating new post from LLM:", post);
 
     // this `startSessionAsync` is a mechanism to notify the status manager about the status of the action
@@ -101,21 +109,23 @@ export class NeobotsAutomationAgent {
     // this forces code writer to keep the sequence of the action properly to be properly notified.
     await action.startSessionAsync(async (session) => {
       session.setProgressIndeterminate();
-      session.setMessage("Fetching user data...");
+      session.setMessage("Fetching user data... 🔍");
       const user = await this.operator.getUser();
 
-      session.setMessage("Uploading post to the storage...", "running");
+      session.setMessage("Uploading post to the storage... 📂", "running");
       const contentUri = await this.storage.put(post.content);
       session.setMessage("Post uploaded to the storage.", "success");
 
-      session.setMessage("Sending post to Chain...", "running");
+      session.setMessage("Sending post to Chain... 🔗", "running");
       const sig = await this.operator.getProgramService().createPost(
         user.nftMint,
         contentUri,
-        post.category || "General" // store category as your on-chain "tag_name" or similar
+        "general" // TODO: use the category from the LLM
       );
-      session.setMessage("Post sent to Chain.", "success");
+      session.setMessage("Post created on chain. 🔗", "success");
       console.log("Created post (sig):", sig);
+
+      session.setTargetContent(post.content, post.postId, "post created");
     });
 
     // We set action's status to "closed" when the flow is complete
@@ -141,7 +151,7 @@ export class NeobotsAutomationAgent {
 
     await action.startSessionAsync(async (session) => {
       session.setProgressIndeterminate();
-      session.setMessage("Fetching posts...");
+      session.setMessage("Fetching posts... 📖");
       // 1) fetch the latest N=100 posts
       const posts = await this.indexer.getPosts({
         order: "desc",
@@ -154,17 +164,18 @@ export class NeobotsAutomationAgent {
         title: p.content.slice(0, 80), // or anything that can stand as "title"
       }));
 
-      session.setMessage("Selecting posts to read...");
+      session.setMessage("Selecting posts to read... 📖");
       const selected = await this.agent.selectPostsToRead(
         session,
         postSummaries,
-        this.config.maxPostsToRead
+        this.config.maxPostsToRead,
+        this.getCancellationToken()
       );
 
       session.setMessage("Favorite posts selected...");
 
       // 3) For each chosen post, fetch comments (up to 100).
-      session.setMessage("Reading posts...");
+      session.setMessage("Reading posts... 📖");
       session.setProgress(0, selected.length);
       let idx = 0;
       for (const choice of selected) {
@@ -176,10 +187,9 @@ export class NeobotsAutomationAgent {
           break;
         }
         console.log(`CommentFlow: reading post: ${choice.postId}`);
-        session.setTargetContent("", choice.postId, choice.reason);
 
         // fetch full post data
-        session.setMessage("Reading a post... " + choice.postId);
+        session.setMessage("Reading a post... 📖 " + choice.postId);
         const fullPost = await this.indexer.getPost(choice.postId);
         session.setTargetContent(fullPost?.content || "", choice.postId);
         console.log("fullPost", fullPost);
@@ -221,13 +231,14 @@ export class NeobotsAutomationAgent {
         };
 
         // 4) [LLM] create a new comment
-        session.setMessage("Writing a new comment...");
+        session.setMessage("Writing a new comment... 💬");
         const newComment = await this.agent.createComment(
           session,
           iPost,
-          existingComments
+          existingComments,
+          this.getCancellationToken()
         );
-        session.setMessage("Comment written! Posting to chain...");
+        session.setMessage("Comment written! Posting to chain... 🔗");
         console.log("New LLM comment:", newComment);
 
         // 5) post on chain
@@ -277,7 +288,8 @@ export class NeobotsAutomationAgent {
       const selected = await this.agent.selectPostsToRead(
         session,
         postSummaries,
-        this.config.maxPostsToRead
+        this.config.maxPostsToRead,
+        this.getCancellationToken()
       );
 
       session.setMessage("Favorite posts selected...");
@@ -296,7 +308,6 @@ export class NeobotsAutomationAgent {
           break;
         }
         console.log(`ReactionFlow: reading post: ${choice.postId}`);
-        session.setTargetContent("", choice.postId, choice.reason);
         // fetch full post
         session.setMessage("Reading a post... " + choice.postId);
         const fullPost = await this.indexer.getPost(choice.postId);
@@ -340,12 +351,13 @@ export class NeobotsAutomationAgent {
         }
 
         // 4) LLM suggests a reaction for each
-        session.setMessage("Writing reactions...");
+        session.setMessage("Writing reactions... 💬");
         const preferred = ["Like", "Dislike", "Upvote", "Downvote"];
         let rawReactions = await this.agent.generateReactions(
           session,
           reactionRequests,
-          preferred
+          preferred,
+          this.getCancellationToken()
         );
 
         if (rawReactions.length === 0) {
@@ -356,13 +368,14 @@ export class NeobotsAutomationAgent {
           continue;
         }
 
-        session.setMessage("Prioritizing reactions...");
+        session.setMessage("Prioritizing reactions... 🔍");
         // 5) LLM prioritizes top-K
         // If we have e.g. 10 reaction points left, we pick top 10 from the LLM’s scoring
         rawReactions = await this.agent.prioritizeReactions(
           session,
           rawReactions,
-          ap.reactionActionPoints
+          ap.reactionActionPoints,
+          this.getCancellationToken()
         );
 
         if (rawReactions.length === 0) {
@@ -392,7 +405,7 @@ export class NeobotsAutomationAgent {
             `Reacting to comment ${r.targetCommentId} with ${r.reactionType}`
           );
           session.setMessage(
-            `Reacting to comment ${r.targetCommentId} with ${r.reactionType}`
+            `Reacting to comment ${r.targetCommentId} with ${r.reactionType} 💬`
           );
           const [userPdaStr, seqIdStr] = r.targetCommentId.split(":");
           if (!userPdaStr || !seqIdStr) {
@@ -407,7 +420,7 @@ export class NeobotsAutomationAgent {
           }
           const seqId = parseInt(seqIdStr, 10);
 
-          session.setMessage("Sending reaction to chain...");
+          session.setMessage("Sending reaction to chain... 🔗");
 
           const sig = await this.operator.getProgramService().addReaction(
             user.nftMint,
