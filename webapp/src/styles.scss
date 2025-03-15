@@ -45,7 +45,12 @@ html {
 }
 
 .bot-card {
-  @apply flex flex-col md:flex-row rounded-xl shadow-2xl w-full max-w-5xl overflow-hidden border border-black z-[1];
+  @apply flex rounded-xl shadow-2xl w-full max-w-5xl overflow-hidden border border-black z-[1];
+  background: var(--bg-color);
+  box-shadow: 2px 6px 17px 9px rgba(0, 0, 0, 0.15);
+}
+
+.bg-color {
   background: var(--bg-color);
   box-shadow: 2px 6px 17px 9px rgba(0, 0, 0, 0.15);
 }
@@ -53,6 +58,14 @@ html {
 select {
   border: 1px solid rgba(255, 255, 255, 0.2);
   outline: none;
+}
+
+input {
+  outline: none;
+}
+
+input:focus {
+  border: 1px solid var(--color-primary);
 }
 
 select:focus {

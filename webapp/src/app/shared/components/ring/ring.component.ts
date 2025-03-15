@@ -9,5 +9,5 @@ import { Component, Input } from '@angular/core';
 export class RingComponent {
   @Input() from: string = '';
   @Input() to: string = '';
-  @Input() percentage: string = '40';
+  @Input() percentage: number = 40;
 }

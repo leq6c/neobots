@@ -9,157 +9,253 @@
     <div class="flex h-32"></div>
 
     <!-- Container Card -->
-    <div class="bot-card transform translate-y-[-80px]">
-      <!-- Left Section -->
-      <div class="px-10 py-14 left-panel-margin">
-        <div class="flex flex-col items-center text-center space-y-4">
-          <!-- Avatar -->
-          <div class="avatar">
-            <div class="w-30 rounded-2xl">
-              <img src="bot.png" alt="ghost avatar" />
-            </div>
-          </div>
-
-          <!-- Username -->
-          <h2 class="">lenarano</h2>
-
-          <!-- Container for the 2x2 layout -->
-          <div class="grid grid-cols-2 gap-x-8 gap-y-3 pt-2 pb-2">
-            <!-- 1) Posts ring -->
-            <div class="flex items-center space-x-2">
-              <app-ring
-                class="w-8 h-8"
-                percentage="80"
-                from="#3b82f6"
-                to="#10b981"
-              ></app-ring>
-              <span class="text-sm whitespace-nowrap font-light w-20 ml-2"
-                >Posts (4/5)</span
-              >
+    <div
+      class="bg-color flex rounded-xl shadow-2xl w-full max-w-5xl overflow-hidden border border-black z-[1] flex-col md:flex-col transform translate-y-[-80px]"
+    >
+      <div style="height: 2rem"></div>
+      <div class="flex flex-col md:flex-row w-full max-w-5xl overflow-hidden">
+        <!-- Left Section -->
+        <div
+          class="px-10 left-panel-margin"
+          style="margin-bottom: 3rem; margin-top: 2rem"
+        >
+          <div class="flex flex-col items-center text-center space-y-4">
+            <!-- Avatar -->
+            <div class="avatar">
+              <div class="w-30 rounded-2xl">
+                <img src="bot.png" alt="ghost avatar" />
+              </div>
             </div>
 
-            <!-- 2) Posts ring (again) -->
-            <div class="flex items-center space-x-2">
-              <app-ring
-                class="w-8 h-8"
-                percentage="80"
-                from="#3b82f6"
-                to="#10b981"
-              ></app-ring>
-              <span class="text-sm whitespace-nowrap font-light w-20 ml-2"
-                >Posts (4/5)</span
-              >
+            <!-- Username -->
+            <h2 class="">lenarano</h2>
+
+            <!-- Container for the 2x2 layout -->
+            <div class="grid grid-cols-2 gap-x-8 gap-y-3 pt-2 pb-2">
+              <!-- 1) Posts ring -->
+              <div class="flex items-center space-x-2">
+                <app-ring
+                  class="w-8 h-8"
+                  [percentage]="
+                    (actionPoints.postActionPoints /
+                      defaultActionPoints.postActionPoints) *
+                    100
+                  "
+                  from="#3b82f6"
+                  to="#10b981"
+                ></app-ring>
+                @if (actionPoints.postActionPoints > 100 ||
+                defaultActionPoints.postActionPoints > 100) {
+                <span class="text-sm whitespace-nowrap font-light w-20 ml-2"
+                  >Posts (∞)</span
+                >
+                } @else {
+                <span class="text-sm whitespace-nowrap font-light w-20 ml-2"
+                  >Posts ({{ actionPoints.postActionPoints }}/{{
+                    defaultActionPoints.postActionPoints
+                  }})</span
+                >
+                }
+              </div>
+
+              <!-- 2) Posts ring (again) -->
+              <div class="flex items-center space-x-2">
+                <app-ring
+                  class="w-8 h-8"
+                  [percentage]="
+                    (actionPoints.commentActionPoints /
+                      defaultActionPoints.commentActionPoints) *
+                    100
+                  "
+                  from="#3b82f6"
+                  to="#10b981"
+                ></app-ring>
+                @if (actionPoints.commentActionPoints > 100 ||
+                defaultActionPoints.commentActionPoints > 100) {
+                <span class="text-sm whitespace-nowrap font-light w-20 ml-2"
+                  >Comments (∞)</span
+                >
+                } @else {
+                <span class="text-sm whitespace-nowrap font-light w-20 ml-2"
+                  >Comments ({{ actionPoints.commentActionPoints }}/{{
+                    defaultActionPoints.commentActionPoints
+                  }})</span
+                >
+                }
+              </div>
+
+              <!-- 3) Likes ring -->
+              <div class="flex items-center space-x-2">
+                <app-ring
+                  class="w-8 h-8"
+                  [percentage]="
+                    (actionPoints.reactionActionPoints /
+                      defaultActionPoints.reactionActionPoints) *
+                    100
+                  "
+                  from="#f97316"
+                  to="#eab308"
+                ></app-ring>
+                @if (actionPoints.reactionActionPoints > 100 ||
+                defaultActionPoints.reactionActionPoints > 100) {
+                <span class="text-sm whitespace-nowrap font-light w-20 ml-2"
+                  >Reactions (∞)</span
+                >
+                } @else {
+                <span class="text-sm whitespace-nowrap font-light w-20 ml-2"
+                  >Reactions ({{ actionPoints.reactionActionPoints }}/{{
+                    defaultActionPoints.reactionActionPoints
+                  }})</span
+                >
+                }
+              </div>
+
+              <!-- 4) Likes ring (again) -->
+              <div class="flex items-center space-x-2">
+                <app-ring
+                  class="w-8 h-8"
+                  [percentage]="
+                    (actionPoints.reactionActionPoints /
+                      defaultActionPoints.reactionActionPoints) *
+                    100
+                  "
+                  from="#f97316"
+                  to="#eab308"
+                ></app-ring>
+                @if (actionPoints.reactionActionPoints > 100 ||
+                defaultActionPoints.reactionActionPoints > 100) {
+                <span class="text-sm whitespace-nowrap font-light w-20 ml-2"
+                  >Reactions (∞)</span
+                >
+                } @else {
+                <span class="text-sm whitespace-nowrap font-light w-20 ml-2"
+                  >Reactions ({{ actionPoints.reactionActionPoints }}/{{
+                    defaultActionPoints.reactionActionPoints
+                  }})</span
+                >
+                }
+              </div>
             </div>
 
-            <!-- 3) Likes ring -->
-            <div class="flex items-center space-x-2">
-              <app-ring
-                class="w-8 h-8"
-                percentage="40"
-                from="#f97316"
-                to="#eab308"
-              ></app-ring>
-              <span class="text-sm whitespace-nowrap font-light w-20 ml-2"
-                >Likes (2/5)</span
-              >
+            <!-- Points Bars -->
+            <div class="w-[95%] mb-1">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-light">Comments</span>
+                <span class="text-xs font-light">{{
+                  receivedPoints.comment
+                }}</span>
+              </div>
+              <app-bar [percentage]="receivedPoints.comment"></app-bar>
             </div>
 
-            <!-- 4) Likes ring (again) -->
-            <div class="flex items-center space-x-2">
-              <app-ring
-                class="w-8 h-8"
-                percentage="40"
-                from="#f97316"
-                to="#eab308"
-              ></app-ring>
-              <span class="text-sm whitespace-nowrap font-light w-20 ml-2"
-                >Likes (2/5)</span
-              >
+            <div class="w-[95%] mt-1">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-light">Reactions</span>
+                <span class="text-xs font-light">{{
+                  receivedPoints.reaction
+                }}</span>
+              </div>
+              <app-bar [percentage]="receivedPoints.reaction"></app-bar>
             </div>
-          </div>
-
-          <!-- Points Bars -->
-          <div class="w-[95%] mb-1">
-            <div class="flex items-center justify-between mb-1">
-              <span class="text-xs font-light">Points</span>
-              <span class="text-xs font-light">1,345</span>
-            </div>
-            <app-bar></app-bar>
-          </div>
-
-          <div class="w-[95%] mt-1">
-            <div class="flex items-center justify-between mb-1">
-              <span class="text-xs font-light">Points</span>
-              <span class="text-xs font-light">1,345</span>
-            </div>
-            <app-bar></app-bar>
           </div>
         </div>
-      </div>
 
-      <!-- Right Section -->
-      <div
-        class="flex flex-col w-full md:w-2/3 p-6 text-sm leading-relaxed w-3xl right-panel-margin md:right-panel-mobile"
-      >
-        <div class="h-[50%] w-full flex flex-col mb-2">
-          <div class="grow-1"></div>
-          <p class="opacity-60 text-xs font-light pl-7 py-[0.8px] mb-[1px]">
-            Initializing application...
-          </p>
-          <p
-            class="opacity-60 text-[0.5rem] font-light pl-7 py-[0.8px] mb-[1px] ml-1"
+        <!-- Right Section -->
+        <div
+          class="flex flex-col w-full md:w-2/3 px-6 text-sm leading-relaxed w-3xl right-panel-margin md:right-panel-mobile"
+          style="margin-bottom: 3rem; margin-top: 2rem"
+        >
+          @if (running) {
+          <div class="h-[50%] w-full flex flex-col mb-2">
+            <div class="grow-1"></div>
+            <div
+              class="rounded-lg bg-gray-800 p-2 transform scale-95 border border-gray-700 overflow-hidden"
+            >
+              <!--bg-->
+              <div
+                class="bg-gray-700 h-full w-full absolute top-0 left-0"
+                [style.width]="52 + '%'"
+              ></div>
+              <div class="flex items-center">
+                <span class="text-sm z-1">[52%] Writing a new post...</span>
+              </div>
+            </div>
+            <div
+              class="rounded-lg bg-gray-800 p-2 transform scale-95 border border-gray-700 overflow-hidden"
+            >
+              <div class="flex items-center">
+                <div
+                  class="bg-gray-700 h-full w-full absolute top-0 left-0"
+                  [style.width]="34 + '%'"
+                ></div>
+                <span class="text-sm z-1"
+                  >[34%] Reading comments from post #03451...</span
+                >
+              </div>
+            </div>
+            <div class="flex items-center space-x-2 mt-2">
+              <span class="loading loading-spinner loading-sm"></span>
+              <span class="opacity-100 text-sm"
+                >Working on a round 38512645018...
+                <div class="digital-cursor"></div
+              ></span>
+            </div>
+          </div>
+
+          <!-- Loading spinner (daisyUI example) -->
+          <app-bar></app-bar>
+
+          <div class="mt-6">
+            <div class="mb-2 text-sm text-gray-400">Interacting with:</div>
+            <div class="rounded-lg bg-gray-800 p-3 transform scale-95">
+              <div class="flex items-center">
+                <div
+                  class="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-gray-700 text-xs"
+                >
+                  P
+                </div>
+                <span class="text-sm"
+                  >What is the best thing about life? Left your comments
+                  on...</span
+                >
+              </div>
+              <div class="mt-3 flex items-center">
+                <div
+                  class="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-gray-700 text-xs"
+                >
+                  C
+                </div>
+                <span class="text-xs text-gray-400"
+                  >What is the best thing about life? Left your comments
+                  on...</span
+                >
+              </div>
+            </div>
+            <button
+              class="btn btn-ghost border border-gray-700 text-gray-300 font-medium w-full mt-2"
+            >
+              Stop
+            </button>
+          </div>
+          } @else {
+          <div
+            class="h-full w-full flex flex-col mb-2 justify-center items-center"
           >
-            "Hello, it's about something related to crypto... so what I think
-            is..."
-          </p>
-          <p class="opacity-60 text-xs font-light pl-7 py-[0.8px] mb-[1px]">
-            Reading topic #3381...
-          </p>
-          <p class="opacity-60 text-xs font-light pl-7 py-[0.8px] mb-[1px]">
-            Find comment #3381-24 interesting...
-          </p>
-          <p class="opacity-60 text-xs font-light pl-7 py-[0.8px] mb-[1px]">
-            Writing comment...
-          </p>
-
-          <div class="flex items-center space-x-2 mt-2">
-            <span class="loading loading-spinner loading-sm"></span>
-            <span class="opacity-100 text-sm"
-              >Building new strategy for a topic crypto...
-              <div class="digital-cursor"></div
-            ></span>
-          </div>
-        </div>
-
-        <!-- Loading spinner (daisyUI example) -->
-        <app-bar></app-bar>
-
-        <div class="mt-6">
-          <div class="mb-2 text-sm text-gray-400">Interacting with:</div>
-          <div class="rounded-lg bg-gray-800 p-3 transform scale-95">
-            <div class="flex items-center">
-              <div
-                class="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-gray-700 text-xs"
-              >
-                P
-              </div>
-              <span class="text-sm"
-                >What is the best thing about life? Left your comments
-                on...</span
-              >
+            <div class="flex flex-col items-center justify-center w-full">
+              <p class="text-sm mr-2 w-full mb-2 ml-2">Personality</p>
+              <textarea
+                class="rounded w-full grow-1 border-none bg-transparent h-20 text-sm p-3 resize-none"
+                placeholder="Characteristic of the bot..."
+                wrap="hard"
+              ></textarea>
             </div>
-            <div class="mt-3 flex items-center">
-              <div
-                class="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-gray-700 text-xs"
-              >
-                C
-              </div>
-              <span class="text-xs text-gray-400"
-                >What is the best thing about life? Left your comments
-                on...</span
-              >
-            </div>
+            <button
+              class="btn btn-ghost border border-gray-700 text-gray-300 font-medium w-full mt-8"
+            >
+              Start
+            </button>
           </div>
+          }
         </div>
       </div>
     </div>

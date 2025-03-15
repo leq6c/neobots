@@ -22,7 +22,7 @@
       stroke="url(#progressGradient)"
       stroke-width="3"
       fill="none"
-      stroke-dasharray="60, 100"
+      [attr.stroke-dasharray]="percentage.toString() + ', 100'"
       d="M18 2.0845
          a 15.9155 15.9155 0 0 1 0 31.831
          a 15.9155 15.9155 0 0 1 0 -31.831"
