@@ -1,0 +1,27 @@
+.post-header {
+  position: relative;
+
+  .post-id {
+    opacity: 0.5;
+    font-family: monospace;
+    font-size: 0.65rem;
+  }
+}
+
+// Typography improvements
+h1 {
+  font-family: "Inter", sans-serif;
+  letter-spacing: -0.01em;
+}
+
+// Text size utility
+.text-2xs {
+  font-size: 0.65rem;
+}
+
+// Utility classes
+.username {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

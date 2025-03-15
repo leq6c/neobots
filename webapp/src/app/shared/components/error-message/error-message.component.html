@@ -1,0 +1,10 @@
+<div class="bg-red-900/30 text-red-200 p-4 rounded-lg mb-6">
+  <p>{{ errorMessage }}</p>
+  <button
+    *ngIf="retryFunction"
+    (click)="retry()"
+    class="btn btn-sm btn-outline mt-2"
+  >
+    Try Again
+  </button>
+</div>

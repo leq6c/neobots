@@ -1,0 +1,15 @@
+// Comment styling
+.comments-list {
+  .no-comments {
+    transition: transform 0.1s ease;
+
+    &:hover {
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+  }
+}
+
+// Text size utility
+.text-2xs {
+  font-size: 0.65rem;
+}

@@ -5,44 +5,14 @@ import { BarComponent } from '../../shared/components/bar/bar.component';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { IndexerService } from '../../service/indexer.service';
-
-interface Post {
-  post_pda: string;
-  post_sequence_id: number;
-  post_author_pda: string;
-  content: string;
-  index_created_at: string;
-  create_transaction_signature?: string;
-  tag_name?: string;
-  post_author_username: string;
-  post_author_thumbnail?: string;
-  received_upvotes?: number;
-  received_downvotes?: number;
-  received_likes?: number;
-  received_banvotes?: number;
-  received_comments?: number;
-}
-
-interface Comment {
-  comment_author_sequence_id: number;
-  comment_author_user_pda: string;
-  comment_author_username: string;
-  comment_author_thumbnail_url?: string;
-  content: string;
-  index_created_at: string;
-  create_transaction_signature: string;
-  received_upvotes?: number;
-  received_downvotes?: number;
-  received_likes?: number;
-  received_banvotes?: number;
-  karmas?: number;
-}
-
-interface User {
-  user_pda: string;
-  username: string;
-  thumbnail_url?: string;
-}
+import { Post, Comment } from '../../shared/models/post.model';
+import { LoadingComponent } from '../../shared/components/loading/loading.component';
+import { ErrorMessageComponent } from '../../shared/components/error-message/error-message.component';
+import { PostHeaderComponent } from './post-header/post-header.component';
+import { PostContentComponent } from './post-content/post-content.component';
+import { CommentListComponent } from './comment-list/comment-list.component';
+import { CommentItemComponent } from './comment-item/comment-item.component';
+import { FormatService } from '../../shared/services/format.service';
 
 @Component({
   selector: 'app-view-post-page',
@@ -53,6 +23,11 @@ interface User {
     FooterComponent,
     CommonModule,
     RouterLink,
+    LoadingComponent,
+    ErrorMessageComponent,
+    PostHeaderComponent,
+    PostContentComponent,
+    CommentListComponent,
   ],
   templateUrl: './view-post-page.component.html',
   styleUrl: './view-post-page.component.scss',
@@ -66,7 +41,8 @@ export class ViewPostPageComponent {
 
   constructor(
     private route: ActivatedRoute,
-    private indexerService: IndexerService
+    private indexerService: IndexerService,
+    private formatService: FormatService
   ) {
     this.route.paramMap.subscribe(async (params) => {
       this.postId = params.get('id');
@@ -105,49 +81,5 @@ export class ViewPostPageComponent {
       this.error = 'Failed to load post data. Please try again later.';
       this.loading = false;
     }
-  }
-
-  formatDate(dateString: string): string {
-    try {
-      const date = new Date(parseInt(dateString));
-      return date.toLocaleDateString('en-US', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      });
-    } catch (e) {
-      console.error('Error parsing date:', e);
-      return 'Invalid date';
-    }
-  }
-
-  getInitials(username: string): string {
-    if (!username) return 'AN';
-    return username
-      .split(' ')
-      .map((name) => name.charAt(0).toUpperCase())
-      .join('')
-      .substring(0, 2);
-  }
-
-  getRandomColor(seed: string): string {
-    const colors = [
-      'bg-blue-600',
-      'bg-purple-600',
-      'bg-green-600',
-      'bg-pink-600',
-      'bg-yellow-600',
-      'bg-indigo-600',
-      'bg-orange-600',
-    ];
-
-    // Simple hash function to get consistent color for the same string
-    const hash = seed.split('').reduce((acc, char) => {
-      return acc + char.charCodeAt(0);
-    }, 0);
-
-    return colors[hash % colors.length];
   }
 }

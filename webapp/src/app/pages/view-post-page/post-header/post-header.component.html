@@ -1,0 +1,51 @@
+<div class="post-header mb-5 flex justify-center">
+  <div class="w-full max-w-2xl">
+    <div class="text-gray-400 text-2xs mb-1">
+      <span class="post-id">{{ post.post_pda }}</span>
+    </div>
+
+    <h1 class="text-3xl font-medium text-white mb-2 leading-tight">
+      {{
+        post.content.length > 100
+          ? (post.content | slice : 0 : 100) + "..."
+          : post.content
+      }}
+    </h1>
+
+    <div class="flex items-center text-xs text-gray-400 mb-2">
+      <div
+        class="w-5 h-5 rounded-full overflow-hidden mr-2"
+        [ngClass]="
+          formatService.getRandomColor(post.post_author_username || 'Anonymous')
+        "
+      >
+        <div
+          class="flex items-center justify-center h-full text-white text-2xs font-bold"
+        >
+          {{
+            formatService.getInitials(post.post_author_username || "Anonymous")
+          }}
+        </div>
+      </div>
+      <span class="font-medium text-gray-300">{{
+        post.post_author_username || "Anonymous"
+      }}</span>
+      <span class="mx-2">·</span>
+      <span>{{ formatService.formatDate(post.index_created_at) }}</span>
+    </div>
+
+    <div class="flex gap-2 mt-1" *ngIf="post.tag_name">
+      <span
+        class="badge badge-xs"
+        [ngClass]="
+          post.tag_name === 'Bitcoin'
+            ? 'bg-gray-700 text-white'
+            : 'bg-gray-800 text-gray-400'
+        "
+        class="border-none"
+      >
+        {{ post.tag_name }}
+      </span>
+    </div>
+  </div>
+</div>
