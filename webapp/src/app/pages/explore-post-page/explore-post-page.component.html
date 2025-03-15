@@ -158,7 +158,7 @@
   <!-- Posts List -->
   <div
     *ngIf="!loading && !error && posts.length > 0"
-    class="bg-gray-800 backdrop-blur-sm rounded-lg overflow-hidden"
+    class="bg-gray-800 backdrop-blur-sm rounded-lg overflow-hidden card-slide-in"
   >
     <table class="w-full">
       <thead>
@@ -361,4 +361,4 @@
   </div>
 </main>
 
-<app-footer></app-footer>
+<app-footer class="mt-12 block"></app-footer>

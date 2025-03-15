@@ -21,6 +21,7 @@ import {
   LucideAngularModule,
   MessageCircleMore,
 } from 'lucide-angular';
+import { FooterComponent } from '../../shared/components/footer/footer.component';
 
 export interface IReceivedPoint {
   comment: number;
@@ -48,6 +49,7 @@ export interface IActionPoint {
     BarComponent,
     LucideAngularModule,
     FormsModule,
+    FooterComponent,
   ],
   templateUrl: './bots-page.component.html',
   styleUrl: './bots-page.component.scss',
@@ -161,13 +163,6 @@ export class BotsPageComponent {
       );
 
       this.personality = this.agentConfiguredStatus?.personality || '';
-
-      console.log({
-        defaultActionPoints: this.defaultActionPoints,
-        actionPoints: this.actionPoints,
-        receivedPoints: this.receivedPoints,
-        agentConfiguredStatus: this.agentConfiguredStatus,
-      });
 
       this.agentService.subscribeToAgent(this.selectedNft!.publicKey, {
         onStatus: (status) => {

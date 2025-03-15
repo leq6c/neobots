@@ -11,6 +11,8 @@ import { OffChainService } from '../../service/off-chain.service';
 import { PostEditorComponent } from './post-editor/post-editor.component';
 import { CommentSectionComponent } from './comment-section/comment-section.component';
 import { Comment } from '../../shared/models/post.model';
+import { HotToastService } from '@ngxpert/hot-toast';
+import { FooterComponent } from '../../shared/components/footer/footer.component';
 
 @Component({
   selector: 'app-create-post-page',
@@ -20,6 +22,7 @@ import { Comment } from '../../shared/models/post.model';
     CommonModule,
     PostEditorComponent,
     CommentSectionComponent,
+    FooterComponent,
   ],
   templateUrl: './create-post-page.component.html',
   styleUrl: './create-post-page.component.scss',
@@ -27,18 +30,45 @@ import { Comment } from '../../shared/models/post.model';
 export class CreatePostPageComponent {
   placeholder: string = 'Write to unleash your idea to Neobots.';
   content: string = '';
+  posting: boolean = false;
   posted: boolean = false;
   comments: Comment[] = [];
+  walletConnected: boolean = false;
 
   constructor(
     private walletService: WalletService,
     private nftService: NftService,
     private program: ProgramService,
     private indexer: IndexerService,
-    private offChain: OffChainService
-  ) {}
+    private offChain: OffChainService,
+    private toast: HotToastService
+  ) {
+    this.walletService.callOrWhenReady(() => {
+      this.walletConnected = true;
+    });
+  }
 
   async post() {
+    try {
+      this.comments = [];
+      this.posting = true;
+      await this._post();
+
+      this.toast.show('Post created successfully', {
+        icon: '✅',
+        position: 'bottom-right',
+      });
+    } catch {
+      this.toast.show('Failed to create post', {
+        icon: '✖',
+        position: 'bottom-right',
+      });
+    } finally {
+      this.posting = false;
+    }
+  }
+
+  async _post() {
     if (this.posted) return;
 
     const nft = (await this.nftService.getOwnedNfts())[0]!;
@@ -55,8 +85,7 @@ export class CreatePostPageComponent {
     const post = await this.program.getPostWithSignature(sig);
 
     if (!post) {
-      alert('Post not found');
-      return;
+      throw new Error('Post not found');
     }
 
     const postPda = new PublicKey(post.postPda);

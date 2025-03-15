@@ -13,6 +13,7 @@ export class PostEditorComponent {
   @Input() placeholder: string = 'Write to unleash your idea to Neobots.';
   @Input() content: string = '';
   @Input() posted: boolean = false;
+  @Input() posting: boolean = false;
   @Output() contentChange = new EventEmitter<string>();
   @Output() postClicked = new EventEmitter<void>();
 

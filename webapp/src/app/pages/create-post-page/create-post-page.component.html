@@ -1,10 +1,19 @@
 <div class="flex min-h-screen w-screen flex-col items-center pb-20">
   <app-navbar></app-navbar>
 
+  @if (!walletConnected) {
+  <div class="flex items-center justify-center w-full mt-32 card-slide-in">
+    <span class="text-sm text-gray-400">Waiting for the wallet...</span>
+    <span class="loading loading-spinner loading-sm"></span>
+  </div>
+  } @else {
+
   <app-post-editor
+    class="card-slide-in"
     [placeholder]="placeholder"
     [(content)]="content"
     [posted]="posted"
+    [posting]="posting"
     (postClicked)="post()"
   >
   </app-post-editor>
@@ -15,4 +24,9 @@
     [enableNoCommentsMessageWhenEmpty]="false"
   >
   </app-comment-section>
+  } @if (walletConnected) { @if (posted) { }@else {
+  <app-footer class="mt-64 block"></app-footer>
+  } } @else {
+  <app-footer class="mt-12 block"></app-footer>
+  }
 </div>

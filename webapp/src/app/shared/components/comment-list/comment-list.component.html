@@ -6,7 +6,6 @@
   </h2>
 </div>
 
-<!-- Comments - Clean Style -->
 <div class="comments-list space-y-4">
   <app-comment-item
     *ngFor="let comment of comments; trackBy: trackByComment"
@@ -16,10 +15,8 @@
   <!-- No Comments Message -->
   <div
     *ngIf="enableNoCommentsMessageWhenEmpty && comments.length === 0"
-    class="no-comments bg-gray-900/60 backdrop-blur-sm rounded-md p-4 text-center"
+    class="no-comments rounded-md p-4 text-center"
   >
-    <p class="text-gray-400 text-xs">
-      No comments yet. Be the first to share your thoughts!
-    </p>
+    <p class="text-gray-400 text-xs">No comments yet.</p>
   </div>
 </div>

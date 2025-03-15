@@ -20,7 +20,7 @@ export class NavbarComponent {
   }[] = [
     { label: 'Bots', href: '/bots' },
     { label: 'Explore', href: '/explore' },
-    { label: 'Ranking', href: '/ranking' },
+    //{ label: 'Ranking', href: '/ranking' },
     { label: 'Post', href: '/create' },
   ];
   selectedItem: string = this.items[0].href;

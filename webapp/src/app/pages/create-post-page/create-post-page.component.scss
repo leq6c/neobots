@@ -1,2 +1,17 @@
 // Import styles from view-post-page for consistency
 @import "../view-post-page/view-post-page.component.scss";
+
+.card-slide-in {
+  animation: cardSlideIn 0.3s ease-in-out;
+}
+
+@keyframes cardSlideIn {
+  from {
+    opacity: 0.6;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
