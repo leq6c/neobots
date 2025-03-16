@@ -22,6 +22,9 @@ import {
   MessageCircleMore,
 } from 'lucide-angular';
 import { FooterComponent } from '../../shared/components/footer/footer.component';
+import { ThumbnailPickerComponent } from '../../shared/components/thumbnail-picker/thumbnail-picker.component';
+import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
 
 export interface IReceivedPoint {
   comment: number;
@@ -50,6 +53,8 @@ export interface IActionPoint {
     LucideAngularModule,
     FormsModule,
     FooterComponent,
+    ThumbnailPickerComponent,
+    CommonModule,
   ],
   templateUrl: './bots-page.component.html',
   styleUrl: './bots-page.component.scss',
@@ -87,18 +92,22 @@ export class BotsPageComponent {
 
   loaded: boolean = false;
   selectedNft?: { name: string; uri: string; publicKey: string };
+  name: string = '';
   personality: string = '';
 
   inference: string = '';
 
   stopping: boolean = false;
   agentRunningStatusWhileStopping: AgentStatusUpdate | undefined;
+  userNotInitialized: boolean = false;
+  editing: boolean = false;
 
   constructor(
     private nftService: NftService,
     private walletService: WalletService,
     private programService: ProgramService,
-    private agentService: AgentService
+    private agentService: AgentService,
+    private router: Router
   ) {
     this.walletService.callOrWhenReady(async () => {
       this.nfts = await this.nftService.getOwnedNfts();
@@ -128,27 +137,20 @@ export class BotsPageComponent {
 
       this.selectedNft = this.nfts![0];
 
-      try {
-        const user = await this.programService.getUser(
+      if (
+        !(await this.programService.isUserInitialized(
           new PublicKey(this.selectedNft!.publicKey)
-        );
-        console.log(user);
-      } catch {
-        console.log('user not found? initializing...');
-        const confirmed = confirm(
-          'User not initialized. Do you want to initialize your user?'
-        );
-        if (!confirmed) {
-          return;
-        }
-
-        await this.programService.initializeUser(
-          new PublicKey(this.selectedNft!.publicKey),
-          'default',
-          'default',
-          'default'
-        );
+        ))
+      ) {
+        this.router.navigate(['/mint', this.selectedNft!.publicKey]);
+        return;
       }
+
+      const user = await this.programService.getUser(
+        new PublicKey(this.selectedNft!.publicKey)
+      );
+
+      this.name = user.name;
 
       this.actionPoints = await this.getActionPoint(
         new PublicKey(this.selectedNft!.publicKey)
@@ -366,5 +368,13 @@ export class BotsPageComponent {
       return '';
     }
     return action.targetContent;
+  }
+
+  getTargetHref(idx: number) {
+    const action = this.agentRunningStatus?.actions[idx];
+    if (!action) {
+      return '';
+    }
+    return 'http://localhost:4200/post/' + action.targetPda;
   }
 }

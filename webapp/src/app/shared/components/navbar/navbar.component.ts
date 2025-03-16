@@ -22,6 +22,7 @@ export class NavbarComponent {
     { label: 'Explore', href: '/explore' },
     //{ label: 'Ranking', href: '/ranking' },
     { label: 'Post', href: '/create' },
+    { label: 'Mint', href: '/mint' },
   ];
   selectedItem: string = this.items[0].href;
 

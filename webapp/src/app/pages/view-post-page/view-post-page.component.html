@@ -9,7 +9,10 @@
 </div>
 
 <!-- Error State -->
-<div *ngIf="error" class="container mx-auto px-4 py-6 mt-8">
+<div
+  *ngIf="error"
+  class="container mx-auto px-4 py-6 mt-8 flex justify-center items-center"
+>
   <app-error-message
     [errorMessage]="error"
     [retryFunction]="fetch.bind(this)"
@@ -19,7 +22,7 @@
 <!-- Main Content -->
 <main
   *ngIf="!loading && !error && post"
-  class="container mx-auto px-4 py-6 mt-8"
+  class="container mx-auto px-4 py-6 mt-8 card-slide-in"
 >
   <app-post-header [post]="post"></app-post-header>
 

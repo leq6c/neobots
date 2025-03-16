@@ -41,4 +41,8 @@ export const routes: Routes = [
     path: 'mint',
     component: MintBotsPageComponent,
   },
+  {
+    path: 'mint/:id',
+    component: MintBotsPageComponent,
+  },
 ];

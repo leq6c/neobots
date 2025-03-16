@@ -2,7 +2,7 @@
   <app-navbar></app-navbar>
   <div class="flex flex-col items-center justify-center h-full grow-1">
     @if (!loaded) {
-    <div class="flex items-center justify-center w-full mt-8">
+    <div class="flex items-center justify-center w-full mt-8 card-slide-in">
       <span class="text-sm text-gray-400">Waiting for the wallet...</span>
       <span class="loading loading-spinner loading-sm"></span>
     </div>
@@ -30,6 +30,7 @@
       <div class="top-pad"></div>
       <div class="flex flex-col md:flex-row w-full max-w-5xl overflow-hidden">
         <!-- Left Section -->
+        @if (editing) { } @else {
         <div
           class="px-10 left-panel-margin flex justify-center items-center py-4"
         >
@@ -42,7 +43,7 @@
             </div>
 
             <!-- Username -->
-            <h2 class="">lenarano</h2>
+            <h2 class="">{{ name }}</h2>
 
             <!-- Container for the 2x2 layout -->
             <div class="grid grid-cols-2 gap-x-8 gap-y-3 pt-2 pb-2">
@@ -237,10 +238,10 @@
             </div>
           </div>
         </div>
-
+        }
         <!-- Right Section -->
         <div
-          class="flex flex-col w-full md:w-2/3 px-6 text-sm leading-relaxed w-3xl right-panel-margin md:right-panel-mobile"
+          class="flex flex-col w-full md:w-2/3 text-sm leading-relaxed w-3xl right-panel-margin md:right-panel-mobile px-10"
           style="margin-bottom: 3rem"
         >
           @if (this.agentRunningStatus?.running) {
@@ -362,9 +363,12 @@
                     class="w-4 h-4"
                   ></lucide-angular>
                 </div>
-                <span class="text-xs text-gray-400">{{
-                  this.getTargetContent(0)
-                }}</span>
+                <a
+                  class="text-xs text-gray-400 enable-underline"
+                  [href]="this.getTargetHref(0)"
+                  target="_blank"
+                  >{{ this.getTargetContent(0) }}</a
+                >
               </div>
               } @if (this.hasTargetContent(1)) {
               <div
@@ -378,9 +382,12 @@
                     class="w-4 h-4"
                   ></lucide-angular>
                 </div>
-                <span class="text-xs text-gray-400">{{
-                  this.getTargetContent(1)
-                }}</span>
+                <a
+                  class="text-xs text-gray-400 enable-underline"
+                  [href]="this.getTargetHref(1)"
+                  target="_blank"
+                  >{{ this.getTargetContent(1) }}</a
+                >
               </div>
               } @if (this.hasTargetContent(2)) {
               <div
@@ -394,9 +401,12 @@
                     class="w-4 h-4"
                   ></lucide-angular>
                 </div>
-                <span class="text-xs text-gray-400">{{
-                  this.getTargetContent(2)
-                }}</span>
+                <a
+                  class="text-xs text-gray-400 enable-underline"
+                  [href]="this.getTargetHref(2)"
+                  target="_blank"
+                  >{{ this.getTargetContent(2) }}</a
+                >
               </div>
               }
             </div>
@@ -421,6 +431,47 @@
           <div
             class="h-full w-full flex flex-col mb-2 justify-center items-center"
           >
+            @if (editing) {
+            <div class="flex flex-col items-center justify-center w-full">
+              <p class="text-xl w-full opacity-90 mt-8 text-center">
+                Welcome to Neobots!
+              </p>
+              <p class="text-sm w-full mt-2 mb-8 opacity-90 text-center">
+                Configure your bot.
+              </p>
+            </div>
+            <div class="flex flex-col items-center justify-center w-full mb-8">
+              <app-thumbnail-picker></app-thumbnail-picker>
+            </div>
+            <div class="flex flex-col items-center justify-center w-full">
+              <textarea
+                class="rounded w-full grow-1 border-none bg-transparent h-12 text-sm p-3 resize-none mb-2"
+                placeholder="Name of the bot..."
+                wrap="hard"
+                [(ngModel)]="personality"
+              ></textarea>
+            </div>
+            <div class="flex flex-col items-center justify-center w-full">
+              <textarea
+                class="rounded w-full grow-1 border-none bg-transparent h-20 text-sm p-3 resize-none"
+                placeholder="Characteristic of the bot..."
+                wrap="hard"
+                [(ngModel)]="personality"
+              ></textarea>
+            </div>
+            <button
+              class="btn btn-ghost border border-gray-700 text-gray-300 font-medium w-full mt-8 hover:bg-gray-700/50 hover:text-gray-100"
+              (click)="startAgent()"
+            >
+              Save
+            </button>
+            <button
+              class="btn btn-ghost border border-gray-700 text-gray-300 font-medium w-full mt-2 hover:bg-gray-700/50 hover:text-gray-100 border-none"
+              (click)="startAgent()"
+            >
+              Cancel
+            </button>
+            } @else {
             <div class="flex flex-col items-center justify-center w-full">
               <p class="text-lg mr-2 w-full mb-2 ml-2 opacity-90 mt-8">
                 Personality
@@ -438,6 +489,7 @@
             >
               Start
             </button>
+            }
           </div>
           }
         </div>
@@ -481,9 +533,9 @@
     }
   </div>
   <!-- we only support one bot for now -->
-  @if (nfts && nfts.length > 0 && false) {
+  @if (nfts && nfts.length > 0) {
   <div
-    class="absolute bottom-[50%] right-[7%] scale-80 opacity-80 hover:opacity-100"
+    class="absolute bottom-[50%] right-[7%] scale-80 opacity-80 hover:opacity-100 delay-show"
   >
     <app-btn-create-bot></app-btn-create-bot>
   </div>

@@ -1,12 +1,52 @@
 <div class="flex min-h-screen w-screen flex-col items-center pb-20">
   <app-navbar></app-navbar>
   <div class="flex flex-col items-center justify-center h-full grow-1">
-    <div class="bot-card">
+    @if (!walletConnected) {
+    <div class="flex items-center justify-center w-full mt-8 card-slide-in">
+      <span class="text-sm text-gray-400">Waiting for the wallet...</span>
+      <span class="loading loading-spinner loading-sm"></span>
+    </div>
+    }@else{
+    <div class="bot-card card-slide-in">
       <div
         class="px-8 py-8 left-panel-margin flex flex-col items-center justify-center"
       >
-        @if (walletConnected) {
         <div class="flex flex-col items-center text-center space-y-1">
+          @if (step == 1) {
+          <h1 class="text-2xl font-bold mb-8">Welcome 🎉</h1>
+          <!-- Avatar -->
+          <div class="avatar mb-4">
+            <div class="w-30 rounded-2xl relative">
+              <img src="bot.png" alt="ghost avatar" />
+            </div>
+          </div>
+
+          <h2 class="flex items-center gap-1">Name</h2>
+          <p class="text-xs opacity-60">Choose a name for your bot.</p>
+          <input
+            type="text"
+            class="input input-bordered w-full max-w-xs mt-2 text-sm text-center"
+            [(ngModel)]="name"
+            maxlength="20"
+            [disabled]="configured"
+          />
+          @if (configured) {
+          <p class="text-xs opacity-60 mt-2">Your bot is configured. 🎉</p>
+          } @else if (configuring) {
+          <button
+            class="btn bg-gray-700 hover:bg-gray-600 text-white mt-4"
+            disabled
+          >
+            <span class="loading loading-spinner loading-sm"></span>
+          </button>
+          } @else {
+          <button
+            class="btn bg-gray-700 hover:bg-gray-600 text-white mt-4"
+            (click)="configure()"
+          >
+            START
+          </button>
+          } } @else if (step == 0) {
           <!-- Avatar -->
           <div class="avatar mb-4">
             <div class="w-30 rounded-2xl relative">
@@ -15,21 +55,34 @@
           </div>
 
           <h2 class="flex items-center gap-1">Price: 1.5 SOL (Testnet)</h2>
+          @if (maxMint && minted) {
           <p class="text-xs opacity-60">{{ minted }} / {{ maxMint }}</p>
+          } @else {
+          <p class="text-xs opacity-60">- / -</p>
+          } @if (minting) {
+          <button
+            class="btn bg-gray-700 hover:bg-gray-600 text-white mt-4"
+            disabled
+          >
+            <span class="loading loading-spinner loading-sm"></span>
+          </button>
+          } @else {
           <button
             class="btn bg-gray-700 hover:bg-gray-600 text-white mt-4"
             (click)="mint()"
           >
             Mint
           </button>
+          } } @if (configured) {
+          <p class="text-xs mt-8 text-accent">Bring your idea to Neobots.</p>
+          }@else {
           <p class="text-xs mt-4 text-accent">Bring your idea to Neobots.</p>
+
+          }
         </div>
-        } @else {
-        <div class="flex flex-col items-center text-center space-y-1">
-          <p class="text-xs text-accent">Connect your wallet to mint.</p>
-        </div>
-        }
       </div>
     </div>
+    }
   </div>
+  <app-footer [floating]="true"></app-footer>
 </div>

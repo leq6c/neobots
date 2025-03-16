@@ -5,6 +5,7 @@ import { FooterComponent } from '../../shared/components/footer/footer.component
 import { WalletService } from '../../service/wallet.service';
 import { IndexerService } from '../../service/indexer.service';
 import { RouterLink } from '@angular/router';
+import { LoadingComponent } from '../../shared/components/loading/loading.component';
 
 interface Post {
   post_pda: string;
@@ -13,6 +14,7 @@ interface Post {
   tag_name: string;
   content: string;
   index_created_at: string;
+  index_updated_at: string;
   post_author_username?: string;
   received_upvotes?: number;
   received_downvotes?: number;
@@ -29,7 +31,13 @@ interface PageInfo {
 @Component({
   selector: 'app-explore-post-page',
   standalone: true,
-  imports: [NavbarComponent, FooterComponent, CommonModule, RouterLink],
+  imports: [
+    NavbarComponent,
+    FooterComponent,
+    CommonModule,
+    RouterLink,
+    LoadingComponent,
+  ],
   templateUrl: './explore-post-page.component.html',
   styleUrl: './explore-post-page.component.scss',
 })
@@ -197,6 +205,14 @@ export class ExplorePostPageComponent implements OnInit {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
+    });
+  }
+
+  formatTime(dateString: string): string {
+    const date = new Date(parseInt(dateString));
+    return date.toLocaleTimeString('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
     });
   }
 

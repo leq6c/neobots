@@ -58,11 +58,11 @@ html {
 @keyframes cardSlideIn {
   from {
     opacity: 0.6;
-    transform: translateY(2px);
+    transform: translateY(2px) scale(0.999);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 

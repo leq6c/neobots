@@ -12,10 +12,19 @@
   <div class="flex flex-row items-center px-8 pb-6 w-full">
     <div class="flex flex-col grow-1"></div>
     <div class="flex justify-end gap-2">
-      @if (!posting) {
+      @if (!hasNft) {
+      <div class="flex flex-row items-center gap-2">
+        <p class="text-sm text-gray-400">*You don't have a bot.</p>
+        <button class="btn bg-gray-700 hover:bg-gray-600" (click)="mint()">
+          Go mint
+        </button>
+      </div>
+      } @if (!posting) {
       <button
         class="btn bg-gray-700 hover:bg-gray-600 text-white font-light px-5"
         (click)="post()"
+        [disabled]="!hasNft"
+        [style.opacity]="!hasNft ? 0.5 : 1"
       >
         Post
       </button>

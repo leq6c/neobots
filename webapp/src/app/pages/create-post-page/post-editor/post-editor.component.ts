@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-post-editor',
@@ -17,6 +18,10 @@ export class PostEditorComponent {
   @Output() contentChange = new EventEmitter<string>();
   @Output() postClicked = new EventEmitter<void>();
 
+  @Input() hasNft: boolean = false;
+
+  constructor(private router: Router) {}
+
   onContentChange(value: string) {
     this.content = value;
     this.contentChange.emit(value);
@@ -24,5 +29,9 @@ export class PostEditorComponent {
 
   post() {
     this.postClicked.emit();
+  }
+
+  mint() {
+    this.router.navigate(['/mint']);
   }
 }

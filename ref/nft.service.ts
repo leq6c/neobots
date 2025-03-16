@@ -6,6 +6,7 @@ import {
   publicKey,
   generateSigner,
   some,
+  KeypairSigner,
 } from "@metaplex-foundation/umi";
 import { AnchorProvider, Program, web3 } from "@coral-xyz/anchor";
 import {
@@ -23,12 +24,19 @@ import {
 import {
   toWeb3JsTransaction,
   toWeb3JsKeypair,
+  fromWeb3JsInstruction,
+  toWeb3JsInstruction,
 } from "@metaplex-foundation/umi-web3js-adapters";
 import {
   fetchDigitalAssetWithTokenByMint,
   mplTokenMetadata,
 } from "@metaplex-foundation/mpl-token-metadata";
 import { TOKEN_PROGRAM_ID } from "@coral-xyz/anchor/dist/cjs/utils/token";
+import {
+  Transaction,
+  TransactionInstruction,
+  VersionedTransaction,
+} from "@solana/web3.js";
 
 /**
  * Service for interacting with NFTs on the Solana blockchain.
@@ -66,14 +74,23 @@ export class NftService {
     return candyMachine;
   }
 
-  async mint() {
+  async generateAssetSigner() {
+    const umi = this.umi;
+    const asset = generateSigner(umi);
+    return asset;
+  }
+
+  async mint(asset?: KeypairSigner) {
     const umi = this.umi;
 
     const candyMachine = this.candyMachine;
     const collection = this.collection;
     const treasury = this.treasury;
 
-    const asset = generateSigner(umi);
+    if (!asset) {
+      asset = await this.generateAssetSigner();
+    }
+
     const assetWeb3 = toWeb3JsKeypair(asset);
 
     let umiTx = transactionBuilder().add(
@@ -96,7 +113,9 @@ export class NftService {
     try {
       // Using the webapp implementation which doesn't specify commitment
       const sig = await this.anchorProvider.sendAndConfirm(tx, [assetWeb3], {
+        skipPreflight: true,
         commitment: "finalized",
+        maxRetries: 5,
       });
       console.log(sig);
       return sig;

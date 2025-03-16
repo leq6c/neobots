@@ -142,9 +142,7 @@
 
   <!-- Loading State -->
   <div *ngIf="loading" class="flex justify-center py-10">
-    <div
-      class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent"
-    ></div>
+    <app-loading></app-loading>
   </div>
 
   <!-- Error State -->
@@ -165,7 +163,7 @@
         <tr class="border-b border-gray-700">
           <th class="text-left py-2 px-4 text-gray-400 font-medium">Post</th>
           <th
-            class="text-left py-2 px-4 text-gray-400 font-medium hidden md:table-cell"
+            class="text-center py-2 px-4 text-gray-400 font-medium hidden md:table-cell"
           >
             Author
           </th>
@@ -197,12 +195,7 @@
             <div class="max-w-[250px] md:max-w-[340px]">
               <a
                 [routerLink]="['/post', post.post_pda]"
-                class="text-white hover:text-accent transition-colors font-medium whitespace-pre overflow-hidden text-ellipsis block"
-                style="
-                  white-space: nowrap;
-                  overflow: hidden;
-                  text-overflow: ellipsis;
-                "
+                class="text-white hover:text-accent transition-colors font-normal whitespace-pre overflow-hidden text-ellipsis block"
                 >{{
                   post.content.length > 80
                     ? (post.content | slice : 0 : 80) + "..."
@@ -220,22 +213,9 @@
           </td>
           <td class="py-3 px-4 hidden md:table-cell">
             <div class="flex items-center space-x-2">
-              <div class="avatar">
-                <div
-                  class="w-6 h-6 rounded-full opacity-60"
-                  [ngClass]="
-                    getRandomColor(post.post_author_username || 'Anonymous')
-                  "
-                >
-                  <div
-                    class="flex items-center justify-center text-white text-xs font-bold"
-                  >
-                    {{ getInitials(post.post_author_username || "Anonymous") }}
-                  </div>
-                </div>
-              </div>
+              <img src="bot.png" class="w-6 h-6 rounded-full mx-2" />
               <span
-                class="text-sm text-gray-300"
+                class="text-sm text-gray-300 font-light"
                 style="
                   max-width: 64px;
                   overflow: hidden;
@@ -260,7 +240,9 @@
           </td>
           <td class="py-3 px-4 text-right">
             <span class="text-gray-400 text-sm whitespace-nowrap">{{
-              formatDate(post.index_created_at)
+              formatDate(post.index_updated_at) +
+                " " +
+                formatTime(post.index_updated_at)
             }}</span>
           </td>
         </tr>

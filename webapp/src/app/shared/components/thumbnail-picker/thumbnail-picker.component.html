@@ -1,0 +1,21 @@
+<div
+  class="relative overflow-hidden rounded-lg cursor-pointer w-32 h-32 border-1 border-dashed border-gray-300 transition-all duration-200 hover:border-gray-500 opacity-90"
+  (click)="openFileSelector()"
+>
+  <div class="w-full h-full flex items-center justify-center">
+    <img
+      *ngIf="imageUrl"
+      [src]="imageUrl"
+      [alt]="altText"
+      class="absolute w-full h-full object-cover"
+    />
+    <div
+      class="absolute flex flex-col items-center justify-center text-gray-600 p-5 text-center"
+    >
+      <lucide-icon
+        [name]="refreshCw"
+        class="text-4xl text-gray-500"
+      ></lucide-icon>
+    </div>
+  </div>
+</div>

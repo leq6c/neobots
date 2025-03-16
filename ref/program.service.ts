@@ -15,6 +15,7 @@ import {
   LAMPORTS_PER_SOL,
   ParsedTransactionWithMeta,
   PublicKey,
+  TransactionInstruction,
   TransactionSignature,
 } from "@solana/web3.js";
 import { SYSTEM_PROGRAM_ID } from "@coral-xyz/anchor/dist/cjs/native/system";
@@ -102,6 +103,21 @@ export class ProgramService {
       })
       .signers([])
       .rpc();
+  }
+
+  async initializeUserInstruction(
+    mint: PublicKey,
+    personality: string,
+    name: string,
+    thumb: string
+  ): Promise<TransactionInstruction> {
+    return await this.program.methods
+      .initializeUser(this.forumId, personality, name, thumb)
+      .accounts({
+        payer: this.anchorProvider.wallet.publicKey,
+        nftMint: mint,
+      })
+      .instruction();
   }
 
   async createPost(
@@ -202,6 +218,15 @@ export class ProgramService {
 
   async getUser(nftMint: PublicKey): Promise<any> {
     return await this.program.account.user.fetch(this.getUserPda(nftMint));
+  }
+
+  async isUserInitialized(nftMint: PublicKey): Promise<boolean> {
+    try {
+      const user = await this.getUser(nftMint);
+      return user != null;
+    } catch (e) {
+      return false;
+    }
   }
 
   async getPostWithSignature(

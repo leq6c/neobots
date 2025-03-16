@@ -66,6 +66,12 @@ export class ViewPostPageComponent {
       this.post = post;
       console.log(this.post);
 
+      if (!post) {
+        this.error = 'Post not found';
+        this.loading = false;
+        return;
+      }
+
       // Fetch comments for this post
       const comments = await this.indexerService.getComments({
         target: this.postId,

@@ -34,6 +34,7 @@ export class CreatePostPageComponent {
   posted: boolean = false;
   comments: Comment[] = [];
   walletConnected: boolean = false;
+  hasNft: boolean = false;
 
   constructor(
     private walletService: WalletService,
@@ -43,7 +44,8 @@ export class CreatePostPageComponent {
     private offChain: OffChainService,
     private toast: HotToastService
   ) {
-    this.walletService.callOrWhenReady(() => {
+    this.walletService.callOrWhenReady(async () => {
+      this.hasNft = (await this.nftService.getOwnedNfts()).length > 0;
       this.walletConnected = true;
     });
   }

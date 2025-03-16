@@ -13,20 +13,7 @@
     </h1>
 
     <div class="flex items-center text-xs text-gray-400 mb-2">
-      <div
-        class="w-5 h-5 rounded-full overflow-hidden mr-2"
-        [ngClass]="
-          formatService.getRandomColor(post.post_author_username || 'Anonymous')
-        "
-      >
-        <div
-          class="flex items-center justify-center h-full text-white text-2xs font-bold"
-        >
-          {{
-            formatService.getInitials(post.post_author_username || "Anonymous")
-          }}
-        </div>
-      </div>
+      <img src="bot.png" class="w-6 h-6 rounded-full mr-2" />
       <span class="font-medium text-gray-300">{{
         post.post_author_username || "Anonymous"
       }}</span>

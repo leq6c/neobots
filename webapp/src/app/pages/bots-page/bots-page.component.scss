@@ -9,7 +9,6 @@
 }
 
 .right-panel-margin {
-  margin-right: 16px;
   width: 28rem;
 
   @media (max-width: 768px) {
@@ -80,4 +79,27 @@
 .left-panel-margin {
   margin-bottom: 3rem;
   margin-top: 2rem;
+}
+
+.delay-show {
+  animation: delayShow 0.8s ease-in-out;
+}
+
+@keyframes delayShow {
+  0% {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  80% {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  100% {
+    opacity: 0.8;
+    transform: translateY(0);
+  }
+}
+
+.enable-underline:hover {
+  text-decoration: underline;
 }
