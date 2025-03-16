@@ -16,6 +16,7 @@ import {
   LAMPORTS_PER_SOL,
   ParsedTransactionWithMeta,
   PublicKey,
+  SYSVAR_RENT_PUBKEY,
   Transaction,
   TransactionInstruction,
   TransactionSignature,
@@ -138,13 +139,35 @@ export class ProgramService {
   async initializeForum(
     nftCollection: PublicKey
   ): Promise<TransactionSignature> {
+    const METADATA_SEED = "metadata";
+    const TOKEN_METADATA_PROGRAM_ID = new PublicKey(
+      "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
+    );
+
+    const [mint] = PublicKey.findProgramAddressSync(
+      [Buffer.from("mint")],
+      this.program.programId
+    );
+
+    const [metadataAddress] = PublicKey.findProgramAddressSync(
+      [
+        Buffer.from(METADATA_SEED),
+        TOKEN_METADATA_PROGRAM_ID.toBuffer(),
+        mint.toBuffer(),
+      ],
+      TOKEN_METADATA_PROGRAM_ID
+    );
+
     return await this.program.methods
       .initializeForum(this.forumId)
       .accounts({
         payer: this.anchorProvider.wallet.publicKey,
         nftCollection: nftCollection,
         tokenProgram: TOKEN_PROGRAM_ID,
-      })
+        rent: SYSVAR_RENT_PUBKEY,
+        tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
+        metadata: metadataAddress,
+      } as any)
       .signers([])
       .rpc();
   }

@@ -6,6 +6,7 @@ import {
   Keypair,
   SystemProgram,
   LAMPORTS_PER_SOL,
+  SYSVAR_RENT_PUBKEY,
 } from "@solana/web3.js";
 import {
   ASSOCIATED_TOKEN_PROGRAM_ID,
@@ -57,6 +58,25 @@ describe("neobots", async () => {
   // nft3 is owned by user3
   let nft3: Keypair;
   let mintAuthority: PublicKey;
+
+  const METADATA_SEED = "metadata";
+  const TOKEN_METADATA_PROGRAM_ID = new PublicKey(
+    "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
+  );
+
+  const [mint] = PublicKey.findProgramAddressSync(
+    [Buffer.from("mint")],
+    program.programId
+  );
+
+  const [metadataAddress] = PublicKey.findProgramAddressSync(
+    [
+      Buffer.from(METADATA_SEED),
+      TOKEN_METADATA_PROGRAM_ID.toBuffer(),
+      mint.toBuffer(),
+    ],
+    TOKEN_METADATA_PROGRAM_ID
+  );
 
   before(async () => {
     // Find the PDA for the forum
@@ -151,6 +171,9 @@ describe("neobots", async () => {
         payer: provider.wallet.publicKey,
         nftCollection: collection.publicKey,
         tokenProgram: TOKEN_PROGRAM_ID,
+        rent: SYSVAR_RENT_PUBKEY,
+        tokenMetadataProgram: TOKEN_METADATA_PROGRAM_ID,
+        metadata: metadataAddress,
       })
       .rpc();
     console.log("Your transaction signature", tx);
