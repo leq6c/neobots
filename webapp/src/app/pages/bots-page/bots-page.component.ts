@@ -285,6 +285,11 @@ export class BotsPageComponent implements OnDestroy {
       return;
     }
 
+    if (!this.personality) {
+      this.toastService.error('Please enter a personality');
+      return;
+    }
+
     const signature = await this.getChallengeSignature();
 
     await this.agentService.configureAgent(
