@@ -23,6 +23,7 @@ export class NavbarComponent {
     //{ label: 'Ranking', href: '/ranking' },
     { label: 'Post', href: '/create' },
     { label: 'Mint', href: '/mint' },
+    { label: 'Claim', href: '/claim' },
   ];
   selectedItem: string = this.items[0].href;
 

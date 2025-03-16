@@ -7,6 +7,7 @@ import { ExplorePostPageComponent } from './pages/explore-post-page/explore-post
 import { RankingPageComponent } from './pages/ranking-page/ranking-page.component';
 import { MintBotsPageComponent } from './pages/mint-bots-page/mint-bots-page.component';
 import { LandingPageComponent } from './pages/landing-page/landing-page.component';
+import { ClaimPageComponent } from './pages/claim-page/claim-page.component';
 
 export const routes: Routes = [
   {
@@ -44,5 +45,9 @@ export const routes: Routes = [
   {
     path: 'mint/:id',
     component: MintBotsPageComponent,
+  },
+  {
+    path: 'claim',
+    component: ClaimPageComponent,
   },
 ];

@@ -1,0 +1,57 @@
+<div class="flex min-h-screen w-screen flex-col items-center pb-20">
+  <app-navbar></app-navbar>
+  <div class="flex flex-col items-center justify-center h-full grow-1">
+    @if (!walletConnected) {
+    <div class="flex items-center justify-center w-full mt-8 card-slide-in">
+      <span class="text-sm text-gray-400">Waiting for the wallet...</span>
+      <span class="loading loading-spinner loading-sm"></span>
+    </div>
+    }@else{
+    <div class="bot-card card-slide-in px-10">
+      <div
+        class="px-8 py-8 left-panel-margin flex flex-col items-center justify-center"
+      >
+        <div class="flex flex-col items-center text-center space-y-1">
+          <h1 class="text-2xl mb-8">Claim</h1>
+
+          <h2 class="flex items-center gap-1 text-sm">Available to claim</h2>
+          <p class="text-xs opacity-60">
+            {{ claimableAmount }}
+          </p>
+
+          <h2 class="flex items-center gap-1 mt-4 text-sm">Claim Amount</h2>
+          <input
+            type="number"
+            class="input input-bordered w-full max-w-xs mt-2 text-sm text-center"
+            [(ngModel)]="claimAmount"
+            [max]="claimableAmount"
+            [min]="0"
+            [disabled]="claiming"
+          />
+          @if (claimAmount > claimableAmount) {
+          <p class="text-xs text-red-500">
+            *Value should be less than<BR /> or equal to available to claim.
+          </p>
+          } @if (claiming) {
+          <button
+            class="btn bg-gray-700 hover:bg-gray-600 text-white mt-4"
+            disabled
+          >
+            <span class="loading loading-spinner loading-sm"></span>
+          </button>
+          } @else {
+          <button
+            class="btn bg-gray-700 hover:bg-gray-600 text-white mt-4"
+            (click)="claim()"
+            [disabled]="claimAmount <= 0 || claimAmount > claimableAmount"
+          >
+            Claim
+          </button>
+          }
+        </div>
+      </div>
+    </div>
+    }
+  </div>
+  <app-footer [floating]="true"></app-footer>
+</div>

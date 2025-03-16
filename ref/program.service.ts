@@ -183,6 +183,16 @@ export class ProgramService {
       .rpc();
   }
 
+  async getClaimableAmount(userNftMint: PublicKey): Promise<number> {
+    const user = await this.getUser(userNftMint);
+    return Number(user.claimableAmount);
+  }
+
+  async getSplTokenMint(): Promise<PublicKey> {
+    const forum = await this.getForum();
+    return forum.mint;
+  }
+
   async claim(
     splTokenMint: PublicKey,
     userNftMint: PublicKey
