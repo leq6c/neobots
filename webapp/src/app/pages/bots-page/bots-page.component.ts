@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
 import { BtnCreateBotComponent } from './btn-create-bot/btn-create-bot.component';
 import { RingComponent } from '../../shared/components/ring/ring.component';
@@ -59,7 +59,7 @@ export interface IActionPoint {
   templateUrl: './bots-page.component.html',
   styleUrl: './bots-page.component.scss',
 })
-export class BotsPageComponent {
+export class BotsPageComponent implements OnDestroy {
   bookText = BookText;
   messageCircleMore = MessageCircleMore;
 
@@ -101,6 +101,7 @@ export class BotsPageComponent {
   agentRunningStatusWhileStopping: AgentStatusUpdate | undefined;
   userNotInitialized: boolean = false;
   editing: boolean = false;
+  ws?: WebSocket;
 
   constructor(
     private nftService: NftService,
@@ -166,21 +167,39 @@ export class BotsPageComponent {
 
       this.personality = this.agentConfiguredStatus?.personality || '';
 
-      this.agentService.subscribeToAgent(this.selectedNft!.publicKey, {
-        onStatus: (status) => {
-          if (this.stopping) {
-            this.agentRunningStatusWhileStopping = status;
-            return;
-          }
-          this.onAgentStatus(status);
-        },
-        onInference: (inference) => {
-          this.onAgentInference(inference);
-        },
-      });
+      this.ws = this.agentService.subscribeToAgent(
+        this.selectedNft!.publicKey,
+        {
+          onStatus: (status) => {
+            if (this.stopping) {
+              this.agentRunningStatusWhileStopping = status;
+              return;
+            }
+            this.onAgentStatus(status);
+          },
+          onInference: (inference) => {
+            this.onAgentInference(inference);
+          },
+        }
+      );
 
       this.loaded = true;
     });
+  }
+
+  ngOnDestroy(): void {
+    if (this.ws) {
+      this.agentService.unsubscribeFromAgent(
+        this.ws,
+        this.selectedNft!.publicKey
+      );
+      try {
+        this.ws.close();
+        this.ws = undefined;
+      } catch (e) {
+        console.error(e);
+      }
+    }
   }
 
   addTest() {

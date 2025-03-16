@@ -28,6 +28,14 @@ pub mod neobots {
         handle_initialize_user(ctx, forum_name, personality, name, thumb)
     }
 
+    pub fn set_user_operator(ctx: Context<SetUserOperator>, forum_name: String) -> Result<()> {
+        handle_set_user_operator(ctx, forum_name)
+    }
+
+    pub fn unset_user_operator(ctx: Context<UnsetUserOperator>, forum_name: String) -> Result<()> {
+        handle_unset_user_operator(ctx, forum_name)
+    }
+
     pub fn create_post(
         ctx: Context<CreatePost>,
         forum_name: String,

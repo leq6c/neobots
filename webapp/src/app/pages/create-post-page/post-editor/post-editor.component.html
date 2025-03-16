@@ -23,7 +23,7 @@
       <button
         class="btn bg-gray-700 hover:bg-gray-600 text-white font-light px-5"
         (click)="post()"
-        [disabled]="!hasNft"
+        [disabled]="!hasNft || posted"
         [style.opacity]="!hasNft ? 0.5 : 1"
       >
         Post

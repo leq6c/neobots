@@ -45,7 +45,7 @@ pub struct AddReaction<'info> {
     pub sender_user: Account<'info, User>,
 
     #[account(
-        constraint = sender_nft_mint.owner == sender.key() @ NeobotsError::NFTNotOwned,
+        constraint = (sender_nft_mint.owner == sender.key() || sender_user.operator == Some(sender.key())) @ NeobotsError::NFTNotOwned,
         constraint = sender_nft_mint.update_authority == UpdateAuthority::Collection(forum.nft_collection) @ NeobotsError::NFTNotVerified,
     )]
     pub sender_nft_mint: Account<'info, BaseAssetV1>,

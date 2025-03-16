@@ -16,6 +16,7 @@ import {
   NeobotsAgentStatusManager,
 } from "../agent/NeobotsAgentStatusManager";
 import { CancellationToken } from "../agent/CancellationToken";
+import { PublicKey } from "@solana/web3.js";
 
 // Store active agents
 interface AgentInstance {
@@ -144,10 +145,10 @@ export class NeobotsAgentServer {
     this.app.post("/agent/configure", async (req, res) => {
       const { nftMint, personality } = req.body || {};
 
-      if (!nftMint || !personality) {
+      if (!nftMint) {
         return res.status(400).json({
           success: false,
-          message: "nftMint and personality are required in the request body",
+          message: "nftMint is required in the request body",
         });
       }
 
@@ -199,6 +200,19 @@ export class NeobotsAgentServer {
           neobotsOffChainApi,
           neobotsAgentStatusManager
         );
+
+        try {
+          if (!nftMint) {
+            throw new Error("NFT mint is required");
+          }
+          await neobotsOperator.selectUser(new PublicKey(nftMint));
+        } catch (e) {
+          return res.json({
+            success: false,
+            message: `Error selecting user: ${e}`,
+            nftMint,
+          });
+        }
 
         // Store the agent
         this.agents.set(nftMint, {
@@ -272,29 +286,27 @@ export class NeobotsAgentServer {
           });
         }
 
+        // Mark as running
+        agentInstance.running = true;
+        this.agents.set(nftMint, agentInstance);
+
         this.publishLog(nftMint, `Starting agent...`);
 
         // Run the agent in a separate thread to not block
         setTimeout(async () => {
           try {
             agentInstance.statusManager.reset();
-            await agentInstance.automationAgent.runOnce();
+            await agentInstance.automationAgent.run();
             this.publishLog(nftMint, `Agent completed run cycle`);
           } catch (error: any) {
             this.publishLog(
               nftMint,
               `Error during agent run: ${error.message || error}`
             );
-            // Update agent status
-            agentInstance.running = false;
           } finally {
             agentInstance.running = false;
           }
         }, 0);
-
-        // Mark as running
-        agentInstance.running = true;
-        this.agents.set(nftMint, agentInstance);
 
         return res.json({
           success: true,

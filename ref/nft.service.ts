@@ -44,12 +44,12 @@ import {
  */
 export class NftService {
   private candyMachine = publicKey(
-    "7JcbH5Ge33UzfbbStismeZjqeJTof6T58efdhxMpWAMe"
+    "6RdyCmN2iiMngurhLuzVG8VWP5bzfWStvbM3vp3cHEue"
   );
   private collection = publicKey(
-    "873sJ6yruD12GupTWDV8yTCLCAQNTX2TKsCvfBi4gPGu"
+    "8dspsZh4uMwNuY51ireEHEGECekfJyrUSP3BxBMJnQLh"
   );
-  private treasury = publicKey("J4fMrUCnUaBFXyA5fNeAMqiGw1D7ouFhLpaKWmx4B2QW");
+  private treasury = publicKey("8EKfYRweAaQWEtrY1ZAuYKj4vbBgQHXGFVez3gTAQjE");
 
   private get umi(): Umi {
     return createUmi(this.anchorProvider.connection)

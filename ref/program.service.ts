@@ -15,12 +15,14 @@ import {
   LAMPORTS_PER_SOL,
   ParsedTransactionWithMeta,
   PublicKey,
+  Transaction,
   TransactionInstruction,
   TransactionSignature,
 } from "@solana/web3.js";
 import { SYSTEM_PROGRAM_ID } from "@coral-xyz/anchor/dist/cjs/native/system";
 import { parseAny } from "./parser/parseTx";
 import { CreatePostData, ParsedInstruction } from "./parser/parser.types";
+import { extractProgramLogs } from "./parser/parseLogs";
 
 export class ProgramService {
   private readonly forumId = "forum_id";
@@ -31,6 +33,14 @@ export class ProgramService {
 
   get programId(): PublicKey {
     return new PublicKey(this.program.programId);
+  }
+
+  get defaultOperator(): PublicKey {
+    return new PublicKey("EXJPJ1px6GBzGN5Zj1qLXcUQb7QVwgn9c9YSeCwJQYuG");
+  }
+
+  get tokenUnit(): number {
+    return 1_000_000_000;
   }
 
   constructor(protected anchorProvider: AnchorProvider) {
@@ -54,6 +64,37 @@ export class ProgramService {
       },
       "confirmed"
     );
+  }
+
+  waitForEvent(
+    callback: (log: any, unregister: () => void) => void,
+    eventName: "CreatePost" | "AddComment" | "AddReaction",
+    target: PublicKey = this.programId
+  ): () => void {
+    let subscriptionId: number;
+
+    const unregister = () => {
+      this.anchorProvider.connection.removeOnLogsListener(subscriptionId);
+    };
+
+    subscriptionId = this.anchorProvider.connection.onLogs(
+      target,
+      (log) => {
+        const { logsForThisIx, leftoverLogs } = extractProgramLogs(
+          log.logs,
+          this.programId.toString()
+        );
+        if (
+          logsForThisIx.length > 0 &&
+          logsForThisIx[0] == `Instruction: ${eventName}`
+        ) {
+          callback(log, unregister);
+        }
+      },
+      "finalized"
+    );
+
+    return unregister;
   }
 
   async confirmTransaction(sig: TransactionSignature): Promise<void> {
@@ -100,6 +141,64 @@ export class ProgramService {
       .accounts({
         payer: this.anchorProvider.wallet.publicKey,
         nftMint: mint,
+      })
+      .signers([])
+      .rpc();
+  }
+
+  async setUserOperator(
+    userNftMint: PublicKey,
+    operator: PublicKey
+  ): Promise<TransactionSignature> {
+    return await this.program.methods
+      .setUserOperator(this.forumId)
+      .accounts({
+        payer: this.anchorProvider.wallet.publicKey,
+        nftMint: userNftMint,
+        operator: operator,
+      })
+      .signers([])
+      .rpc();
+  }
+
+  async initializerUserWithOperator(
+    mint: PublicKey,
+    personality: string,
+    name: string,
+    thumb: string,
+    operator: PublicKey
+  ): Promise<TransactionSignature> {
+    const initializeUserTx = this.program.methods
+      .initializeUser(this.forumId, personality, name, thumb)
+      .accounts({
+        payer: this.anchorProvider.wallet.publicKey,
+        nftMint: mint,
+      });
+
+    const setUserOperatorTx = this.program.methods
+      .setUserOperator(this.forumId)
+      .accounts({
+        payer: this.anchorProvider.wallet.publicKey,
+        nftMint: mint,
+        operator: operator,
+      });
+
+    const tx = new Transaction().add(
+      await initializeUserTx.instruction(),
+      await setUserOperatorTx.instruction()
+    );
+
+    return await this.anchorProvider.sendAndConfirm(tx);
+  }
+
+  async unsetUserOperator(
+    userNftMint: PublicKey
+  ): Promise<TransactionSignature> {
+    return await this.program.methods
+      .unsetUserOperator(this.forumId)
+      .accounts({
+        payer: this.anchorProvider.wallet.publicKey,
+        nftMint: userNftMint,
       })
       .signers([])
       .rpc();

@@ -110,11 +110,12 @@ export class MintBotsPageComponent {
       position: 'bottom-right',
     });
     try {
-      await this.programService.initializeUser(
+      await this.programService.initializerUserWithOperator(
         this.configureMintAddress,
         '',
         this.name,
-        ''
+        '',
+        this.programService.defaultOperator
       );
       toast.close();
       this.toast.success('Configuration successful', {

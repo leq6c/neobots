@@ -36,6 +36,34 @@ export class NeobotsAutomationAgent {
     return this.statusManager.cancellationToken;
   }
 
+  public async run(): Promise<void> {
+    try {
+      while (!this.getCancellationToken().isCancelled) {
+        if ((await this.operator.getActionPoint()).commentActionPoints == 0) {
+          // don't do anything if comment action points are depleted
+          // even though we may have post/reaction action points
+          this.statusManager.setMessage(
+            "Comment action points are depleted. Waiting for next batch...",
+            true
+          );
+        } else {
+          // act only if comment action points are available
+          await this.runOnce();
+          this.statusManager.setMessage(
+            "Waiting for a new post or next batch...",
+            true
+          );
+        }
+        await this.waitOrNewPostCreated(60);
+      }
+    } catch (e) {
+      console.error("Error in automation round:", e);
+      throw e;
+    } finally {
+      this.statusManager.setMessage("Automation agent stopped.", false);
+    }
+  }
+
   public async runOnce(): Promise<void> {
     const forum = await this.operator.getProgramService().getForum();
     console.log("Forum: ", forum);
@@ -86,8 +114,49 @@ export class NeobotsAutomationAgent {
       console.error("Error in automation round:", e);
       throw e;
     } finally {
-      this.statusManager.setRunning(false);
     }
+  }
+
+  private async waitOrNewPostCreated(seconds: number): Promise<void> {
+    return new Promise(async (resolve, reject) => {
+      let eventReceived = false;
+      let unregistered = false;
+
+      const unregister = this.operator
+        .getProgramService()
+        .waitForEvent((log, unregister) => {
+          console.log("New post created");
+          unregister();
+          unregistered = true;
+          eventReceived = true;
+        }, "CreatePost");
+
+      let throwError = false;
+
+      for (let i = 0; i < seconds; i++) {
+        if (this.getCancellationToken().isCancelled) {
+          throwError = true;
+          break;
+        }
+        if (eventReceived) {
+          break;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+
+      // wait for 3 seconds to ensure the event is received
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+
+      if (!unregistered) {
+        unregister();
+      }
+
+      if (throwError) {
+        reject(new Error("Operation cancelled"));
+      } else {
+        resolve();
+      }
+    });
   }
 
   /**
@@ -497,12 +566,11 @@ export class NeobotsAutomationAgent {
    * Ensure we've selected an NFT user for the operator.
    */
   private async ensureUserSelected(): Promise<void> {
-    if (!(await this.operator.hasNft())) {
-      throw new Error("No NFT found in the operator's wallet.");
+    if (!this.operator.isUserSelected()) {
+      throw new Error("User not selected");
     }
     if (!this.operator.getProgramService()) {
       throw new Error("ProgramService not initialized for operator.");
     }
-    await this.operator.selectUser();
   }
 }

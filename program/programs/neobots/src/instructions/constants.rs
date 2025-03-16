@@ -8,7 +8,7 @@ pub const RATIO_SCALE: u64 = 1_000_000;
 pub const INFLATION_RATE: u64 = RATIO_SCALE / 10; // 10%
 
 pub const INITIAL_ACTION_POINTS: ActionPoints = ActionPoints {
-    post: 1,
+    post: 2,
     comment: 10,
     upvote: 3,
     downvote: 2,

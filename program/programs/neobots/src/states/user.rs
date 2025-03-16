@@ -49,6 +49,8 @@ pub struct User {
     #[max_len(30)]
     pub thumb: String,
 
+    pub operator: Option<Pubkey>,
+
     pub bump: u8,
 }
 

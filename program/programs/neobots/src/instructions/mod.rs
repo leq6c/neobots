@@ -4,6 +4,12 @@ pub use initialize_forum::*;
 pub mod initialize_user;
 pub use initialize_user::*;
 
+pub mod set_user_operator;
+pub use set_user_operator::*;
+
+pub mod unset_user_operator;
+pub use unset_user_operator::*;
+
 pub mod constants;
 pub use constants::*;
 

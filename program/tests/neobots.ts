@@ -37,10 +37,12 @@ describe("neobots", async () => {
   const authority = Keypair.generate();
   const user1 = Keypair.generate();
   const user2 = Keypair.generate();
+  const user3 = Keypair.generate();
 
   let forumPda: PublicKey;
   let user1Pda: PublicKey;
   let user2Pda: PublicKey;
+  let user3Pda: PublicKey;
   let postPda: PublicKey;
 
   let splTokenMint: PublicKey;
@@ -52,7 +54,8 @@ describe("neobots", async () => {
   let nft1: Keypair;
   // nft2 is owned by user2
   let nft2: Keypair;
-
+  // nft3 is owned by user3
+  let nft3: Keypair;
   let mintAuthority: PublicKey;
 
   before(async () => {
@@ -91,9 +94,16 @@ describe("neobots", async () => {
     );
     await provider.connection.confirmTransaction(txUser2);
 
+    // Airdrop SOL to the user
+    const txUser3 = await provider.connection.requestAirdrop(
+      user3.publicKey,
+      LAMPORTS_PER_SOL
+    );
+    await provider.connection.confirmTransaction(txUser3);
     console.log("Airdropped 1 SOL to the authority:", tx);
     console.log("Airdropped 1 SOL to the user 1:", txUser1);
     console.log("Airdropped 1 SOL to the user 2:", txUser2);
+    console.log("Airdropped 1 SOL to the user 3:", txUser3);
   });
 
   it("Core NFT Builder", async () => {
@@ -106,10 +116,12 @@ describe("neobots", async () => {
     // airdrop
     await coreNftBuilder.airdrop(user1, 100); // 100 SOL
     await coreNftBuilder.airdrop(user2, 100); // 100 SOL
+    await coreNftBuilder.airdrop(user3, 100); // 100 SOL
 
     // mint NFT
     nft1 = await coreNftBuilder.mintNFT(user1);
     nft2 = await coreNftBuilder.mintNFT(user2);
+    nft3 = await coreNftBuilder.mintNFT(user3);
 
     // generate PDA for user1 and user2 (neobots platform user)
     [user1Pda] = PublicKey.findProgramAddressSync(
@@ -119,6 +131,11 @@ describe("neobots", async () => {
 
     [user2Pda] = PublicKey.findProgramAddressSync(
       [Buffer.from("user"), nft2.publicKey.toBuffer()],
+      program.programId
+    );
+
+    [user3Pda] = PublicKey.findProgramAddressSync(
+      [Buffer.from("user"), nft3.publicKey.toBuffer()],
       program.programId
     );
 
@@ -161,6 +178,21 @@ describe("neobots", async () => {
 
     const user = await program.account.user.fetch(user1Pda);
     console.log("User 1:", user);
+  });
+
+  it("initialize user 3", async () => {
+    const tx = await program.methods
+      .initializeUser("forum_id", "personality", "name", "thumb")
+      .accounts({
+        payer: user3.publicKey,
+        nftMint: nft3.publicKey,
+      })
+      .signers([user3])
+      .rpc();
+    console.log("Initialized user 3:", tx);
+
+    const user = await program.account.user.fetch(user3Pda);
+    console.log("User 3:", user);
   });
 
   it("create post", async () => {
@@ -331,5 +363,82 @@ describe("neobots", async () => {
     expect(forum.roundStatus.roundNumber.toNumber()).to.equal(1);
     expect(forum.roundStatus.roundStartTime.toNumber()).to.above(1);
     expect(forum.roundDistributed.toNumber()).to.equal(0);
+  });
+
+  // Operator
+    it("[operator] create post should fail nft3 signed by user2", async () => {
+    try{
+    const tx = await program.methods
+      .createPost("forum_id", "Hello, world!", "tag_name")
+      .accounts({
+        owner: user2.publicKey,
+        nftMint: nft3.publicKey,
+      })
+      .signers([user2])
+      .rpc();
+      console.log("Created post should fail:", tx);
+      expect.fail("should not reach here");
+    } catch (error) {
+      console.log("Create post failed as expected:", error);
+    }
+  });
+
+  it("[operator] update user 3", async () => {
+    const tx = await program.methods
+      .setUserOperator("forum_id")
+      .accounts({
+        payer: user3.publicKey,
+        nftMint: nft3.publicKey,
+        operator: user2.publicKey,
+      })
+      .signers([user3])
+      .rpc();
+    console.log("[updated] Set user 3 operator:", tx);
+
+    const user = await program.account.user.fetch(user3Pda);
+    console.log("[updated] User 3:", user);
+    console.log("[updated] operator public key:", user.operator.toBase58());
+    console.log("[updated] user2 public key:", user2.publicKey.toBase58());
+  });
+
+  it("[operator] create post should not fail signed by user2", async () => {
+    const tx = await program.methods
+      .createPost("forum_id", "Hello, world!", "tag_name")
+      .accounts({
+        owner: user2.publicKey,
+        nftMint: nft3.publicKey,
+      })
+      .signers([user2])
+      .rpc();
+    console.log("Created post [operator]:", tx);
+  });
+
+  it("[operator] unset user 3 operator", async () => {
+    const tx = await program.methods
+      .unsetUserOperator("forum_id")
+      .accounts({
+        payer: user3.publicKey,
+        nftMint: nft3.publicKey,
+      })
+      .signers([user3])
+      .rpc();
+    console.log("Unset user 3 operator:", tx);
+  });
+
+  it("[operator] create post should fail nft3 signed by user2 after unset operator", async () => {
+    try{
+    const tx = await program.methods
+      .createPost("forum_id", "Hello, world!", "tag_name")
+      .accounts({
+        owner: user2.publicKey,
+        nftMint: nft3.publicKey,
+      })
+      .signers([user2])
+      .rpc();
+      console.log("Created post should fail:", tx);
+      expect.fail("should not reach here");
+    } catch (error) {
+      console.log("Create post failed as expected:", error);
+    }
   });
 });

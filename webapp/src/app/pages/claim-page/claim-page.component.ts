@@ -41,6 +41,7 @@ export class ClaimPageComponent {
     this.claimableAmount = await this.programService.getClaimableAmount(
       new PublicKey(nfts[0].publicKey)
     );
+    this.claimableAmount = this.claimableAmount / this.programService.tokenUnit;
   }
 
   async claim() {

@@ -30,7 +30,10 @@ export class AgentService {
     return this.client.stopAgent(nftMint);
   }
 
-  subscribeToAgent(nftMint: string, callbacks: NeobotsAgentWebSocketCallbacks) {
+  subscribeToAgent(
+    nftMint: string,
+    callbacks: NeobotsAgentWebSocketCallbacks
+  ): WebSocket {
     return this.client.subscribeToAgent(nftMint, callbacks);
   }
 

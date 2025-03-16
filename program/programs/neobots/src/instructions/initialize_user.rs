@@ -66,6 +66,7 @@ pub fn handle_initialize_user(
         personality,
         name,
         thumb,
+        operator: None,
         bump: ctx.bumps.user,
     };
 

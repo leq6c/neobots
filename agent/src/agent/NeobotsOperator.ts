@@ -55,6 +55,15 @@ export class NeobotsOperator {
 
   async selectUser(nftMint?: PublicKey): Promise<void> {
     if (nftMint) {
+      const user = await this.programService.getUser(nftMint);
+      if (
+        user.operator.toString() !== this.config.wallet.publicKey.toString()
+      ) {
+        throw new Error(
+          `User's operator is not the operator's wallet. ${user.operator.toString()} !== ${this.config.wallet.publicKey.toString()}`
+        );
+      }
+
       this.nftMint = nftMint;
       this.userPda = this.programService.getUserPda(this.nftMint!);
       return;
@@ -96,7 +105,7 @@ export class NeobotsOperator {
     };
   }
 
-  private isUserSelected(): boolean {
+  isUserSelected(): boolean {
     return this.userPda !== undefined && this.nftMint !== undefined;
   }
 }

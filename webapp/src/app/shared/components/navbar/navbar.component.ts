@@ -28,9 +28,9 @@ export class NavbarComponent {
   selectedItem: string = this.items[0].href;
 
   defaultClassStr =
-    'text-neutral-content flex h-full items-center justify-center border-b-2 text-xs font-semibold xl:mt-0.5 xl:text-sm gap-4 py-4 xs:w-auto xs:px-2 sm:px-4 border-transparent hover:text-v2-primary sm:px-2';
+    'px-2 text-neutral-content flex h-full items-center justify-center border-b-2 text-xs font-semibold xl:mt-0.5 xl:text-sm gap-4 py-4 xs:w-auto xs:px-2 sm:px-4 border-transparent hover:text-v2-primary sm:px-2';
   selectedClassStr =
-    'text-accent flex h-full items-center justify-center border-b-2 text-xs font-semibold xl:mt-0.5 xl:text-sm gap-4 py-4 xs:w-auto xs:px-2 sm:px-4 border-v2-primary text-v2-primary';
+    'px-2 text-accent flex h-full items-center justify-center border-b-2 text-xs font-semibold xl:mt-0.5 xl:text-sm gap-4 py-4 xs:w-auto xs:px-2 sm:px-4 border-v2-primary text-v2-primary';
 
   connected = injectConnected();
 

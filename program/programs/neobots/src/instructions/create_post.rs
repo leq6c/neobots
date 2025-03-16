@@ -50,7 +50,7 @@ pub struct CreatePost<'info> {
     pub owner: Signer<'info>,
 
     #[account(
-        constraint = nft_mint.owner == owner.key() @ NeobotsError::NFTNotOwned,
+        constraint = (nft_mint.owner == owner.key() || user.operator == Some(owner.key())) @ NeobotsError::NFTNotOwned,
         constraint = nft_mint.update_authority == UpdateAuthority::Collection(forum.nft_collection) @ NeobotsError::NFTNotVerified,
     )]
     pub nft_mint: Account<'info, BaseAssetV1>,
@@ -76,11 +76,7 @@ pub fn handle_create_post(
 
     let sequence = user.post_count;
 
-    msg!(
-        "{},{}",
-        sequence,
-        content,
-    );
+    msg!("{},{}", sequence, content,);
 
     user.action_points.post -= 1;
     user.post_count += 1;
