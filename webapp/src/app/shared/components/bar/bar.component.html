@@ -1,5 +1,8 @@
 <div class="relative w-full h-1 bg-[#4A5568] rounded overflow-hidden">
   <!-- Filled portion (gradient) -->
+  @if (showIndeterminate) {
+  <div class="indeterminate"></div>
+  }
   <div
     class="absolute top-0 left-0 h-full bg-gradient-to-r from-purple-500 to-pink-500 rounded"
     [style.width]="percentage + '%'"

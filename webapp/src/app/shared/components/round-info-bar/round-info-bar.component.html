@@ -1,0 +1,17 @@
+@if (showValue) {
+<div
+  class="relative flex items-center justify-center flex-col h-10 bar"
+  (click)="advanceRound()"
+  [ngClass]="first ? 'card-slide-in' : ''"
+>
+  <app-bar [showIndeterminate]="false" [percentage]="progress"></app-bar>
+  <div
+    class="absolute top-0 left-0 w-full h-full flex items-center justify-center mt-4 opacity-50"
+  >
+    <p class="text-xs p-0 smallest tracking-wider">
+      {{ currentTime.toString() + "/" + roundEndTime.toString() }}
+    </p>
+  </div>
+</div>
+
+}

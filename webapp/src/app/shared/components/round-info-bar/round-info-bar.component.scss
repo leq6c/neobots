@@ -1,0 +1,27 @@
+app-bar {
+  width: 100%;
+}
+
+.smallest {
+  font-size: 11px;
+}
+
+.bar {
+  transition: transform 0.3s ease-in-out;
+}
+
+.bar > div {
+  transition: opacity 0.3s ease-in-out;
+}
+
+.bar > * {
+  pointer-events: none;
+}
+
+.bar:hover {
+  transform: translateY(0px);
+}
+
+.bar:hover > div {
+  opacity: 1;
+}

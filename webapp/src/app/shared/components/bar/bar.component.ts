@@ -8,4 +8,5 @@ import { Component, Input } from '@angular/core';
 })
 export class BarComponent {
   @Input() percentage: number = 80;
+  @Input() showIndeterminate: boolean = false;
 }

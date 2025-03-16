@@ -5,10 +5,11 @@ import { injectConnected } from '../../../lib/solana/lib/inject-connected';
 import { Check, LucideAngularModule } from 'lucide-angular';
 import { injectPublicKey } from '../../../lib/solana/lib/inject-public-key';
 import { ProgramService } from '../../../service/program.service';
+import { RoundInfoBarComponent } from '../round-info-bar/round-info-bar.component';
 
 @Component({
   selector: 'app-navbar',
-  imports: [LucideAngularModule],
+  imports: [LucideAngularModule, RoundInfoBarComponent],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss',
 })

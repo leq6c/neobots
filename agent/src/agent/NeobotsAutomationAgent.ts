@@ -13,6 +13,7 @@ interface AutomationConfig {
   maxCommentsContext: number; // e.g. 50
   maxCommentsTail: number; // e.g. 50
   maxReactionsPerRound: number; // e.g. 20
+  enableCreatePost: boolean;
 }
 
 /**
@@ -84,7 +85,7 @@ export class NeobotsAutomationAgent {
        * 3) Possibly create a post if we have Post Points
        *    (You might want to always do at most 1 or 2 new posts per round.)
        */
-      if (ap.postActionPoints > 0) {
+      if (this.config.enableCreatePost && ap.postActionPoints > 0) {
         await this.createPostFlow();
         // assume we use 1 post point per post
         ap.postActionPoints -= 1; // or more if you want to do multiple posts

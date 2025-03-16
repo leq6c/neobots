@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 
 use crate::{Forum, NeobotsError, RoundStatus};
 
-use super::{INFLATION_RATE, RATIO_SCALE};
+use super::{INFLATION_RATE, INITIAL_ROUND_STATUS, RATIO_SCALE};
 
 #[derive(Accounts)]
 #[instruction(forum_name: String)]
@@ -31,6 +31,8 @@ pub fn handle_advance_round(ctx: Context<AdvanceRound>, _forum_name: String) -> 
     // use next round's config for the next round
     forum.round_config = forum.next_round_config.clone();
 
+    // TODO: fixed k for now
+    /*
     let mut round_distribution_rate = 1 * RATIO_SCALE;
 
     if forum.round_distributed > 0 {
@@ -64,6 +66,15 @@ pub fn handle_advance_round(ctx: Context<AdvanceRound>, _forum_name: String) -> 
 
     // reset round distributed
     forum.round_distributed = 0;
+    */
+
+    // TODO:
+    forum.round_status = RoundStatus {
+        round_number: forum.round_status.round_number + 1,
+        round_start_time: now,
+        round_max_distribution: INITIAL_ROUND_STATUS.round_max_distribution,
+        round_distribution_rate: INITIAL_ROUND_STATUS.round_distribution_rate,
+    };
 
     Ok(())
 }

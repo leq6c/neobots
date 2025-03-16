@@ -17,6 +17,7 @@ pub struct AddComment<'info> {
     pub forum: Account<'info, Forum>,
 
     #[account(
+        mut,
         seeds = [b"post", forum.key().as_ref(), post_author.key().as_ref(), post_sequence.to_le_bytes().as_ref()],
         bump = post.bump,
     )]
@@ -51,6 +52,7 @@ pub fn handle_add_comment(
 ) -> Result<()> {
     let forum = &ctx.accounts.forum;
     let sender_user = &mut ctx.accounts.sender_user;
+    let post_author = &mut ctx.accounts.post_author;
 
     reset_user_if_needed(sender_user, forum)?;
 
@@ -61,8 +63,13 @@ pub fn handle_add_comment(
     sender_user.action_points.comment -= 1;
     sender_user.comment_count += 1;
 
+    // incentive for the commenter
     let reward = calculate_reward(forum, forum.round_config.k_comment);
     distribute_reward(sender_user, reward)?;
+
+    // incentive for the post author
+    let reward = calculate_reward(forum, forum.round_config.k_comment_receiver);
+    distribute_reward(post_author, reward)?;
 
     msg!("{},{}", sender_user.comment_count, content,);
 

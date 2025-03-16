@@ -315,8 +315,8 @@ export class ProgramService {
     return await this.program.methods
       .advanceRound(this.forumId)
       .accounts({
-        signer: this.anchorProvider.wallet.publicKey,
-      })
+        systemProgram: SYSTEM_PROGRAM_ID,
+      } as any)
       .signers([])
       .rpc();
   }

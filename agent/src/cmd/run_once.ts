@@ -37,6 +37,7 @@ export async function runOnce() {
       maxCommentsContext: 50,
       maxCommentsTail: 50,
       maxReactionsPerRound: 20,
+      enableCreatePost: true,
     },
     agent,
     neobotsOperator,

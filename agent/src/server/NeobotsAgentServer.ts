@@ -193,6 +193,7 @@ export class NeobotsAgentServer {
             maxCommentsContext: 10,
             maxCommentsTail: 10,
             maxReactionsPerRound: 3,
+            enableCreatePost: false,
           },
           agent,
           neobotsOperator,

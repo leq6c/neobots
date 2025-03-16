@@ -54,6 +54,7 @@ pub struct RoundConfig {
     pub round_max_distribution_rate: u64,
 
     // coefficients for the points calculation
+    pub k_comment_receiver: u64,
     pub k_comment: u64,
     pub k_quote: u64,
     pub k_reaction_giver: u64,

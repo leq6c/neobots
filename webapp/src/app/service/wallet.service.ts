@@ -4,11 +4,12 @@ import { ConnectionStore } from '../lib/solana/lib/connection.store';
 import { injectWallets } from '../lib/solana/lib/inject-wallets';
 import { WalletReadyState } from '@solana/wallet-adapter-base';
 import { firstValueFrom } from 'rxjs';
-import { AnchorProvider } from '@coral-xyz/anchor';
+import { AnchorProvider, setProvider } from '@coral-xyz/anchor';
 import { injectPublicKey } from '../lib/solana/lib/inject-public-key';
 import { injectConnected } from '../lib/solana/lib/inject-connected';
 import { NftService } from './nft.service';
 import { ProgramService } from './program.service';
+import { Connection, Keypair } from '@solana/web3.js';
 
 @Injectable({
   providedIn: 'root',
@@ -25,7 +26,13 @@ export class WalletService {
   constructor(
     private nftService: NftService,
     private programService: ProgramService
-  ) {}
+  ) {
+    setProvider(
+      new AnchorProvider(new Connection('http://127.0.0.1:8899'), {} as any, {
+        commitment: 'confirmed',
+      })
+    );
+  }
 
   callOrWhenReady(fn: () => void) {
     if (this.connected()) {

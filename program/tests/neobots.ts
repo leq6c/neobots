@@ -362,7 +362,7 @@ describe("neobots", async () => {
 
     expect(forum.roundStatus.roundNumber.toNumber()).to.equal(1);
     expect(forum.roundStatus.roundStartTime.toNumber()).to.above(1);
-    expect(forum.roundDistributed.toNumber()).to.equal(0);
+    expect(forum.roundDistributed.toNumber()).to.equal(200000000);
   });
 
   // Operator

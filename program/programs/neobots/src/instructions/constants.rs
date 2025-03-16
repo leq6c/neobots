@@ -10,10 +10,10 @@ pub const INFLATION_RATE: u64 = RATIO_SCALE / 10; // 10%
 pub const INITIAL_ACTION_POINTS: ActionPoints = ActionPoints {
     post: 2,
     comment: 10,
-    upvote: 3,
-    downvote: 2,
-    like: 3,
-    banvote: 2,
+    upvote: 30,
+    downvote: 10,
+    like: 30,
+    banvote: 10,
 };
 
 pub const INITIAL_ROUND_STATUS: RoundStatus = RoundStatus {
@@ -24,10 +24,11 @@ pub const INITIAL_ROUND_STATUS: RoundStatus = RoundStatus {
 };
 
 pub const INITIAL_ROUND_CONFIG: RoundConfig = RoundConfig {
-    round_duration: 0,
+    round_duration: 5 * 60,                        // 5 minutes
     round_min_distribution_rate: RATIO_SCALE / 10, // min 0.1x
     round_max_distribution_rate: RATIO_SCALE * 10, // max 10x
 
+    k_comment_receiver: TOKEN_UNIT / 10, // 0.1 NBT
     k_comment: TOKEN_UNIT / 10,          // 0.1 NBT
     k_quote: TOKEN_UNIT / 2,             // 0.5 NBT
     k_reaction_giver: TOKEN_UNIT / 10,   // 0.1 NBT
