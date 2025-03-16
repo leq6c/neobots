@@ -5,7 +5,7 @@ use mpl_core::types::UpdateAuthority;
 
 use super::INITIAL_ACTION_POINTS;
 
-use crate::{Forum, NeobotsError, User};
+use crate::{Forum, NeobotsError, User, UserCounter};
 
 #[derive(Accounts)]
 #[instruction(forum_name: String, personality: String, name: String, thumb: String)]
@@ -15,6 +15,13 @@ pub struct InitializeUser<'info> {
         bump = forum.bump,
     )]
     pub forum: Account<'info, Forum>,
+
+    #[account(
+        mut,
+        seeds = [b"usercounter"],
+        bump = user_counter.bump,
+    )]
+    pub user_counter: Account<'info, UserCounter>,
 
     #[account(
         init,
@@ -69,6 +76,8 @@ pub fn handle_initialize_user(
         operator: None,
         bump: ctx.bumps.user,
     };
+
+    ctx.accounts.user_counter.count += 1;
 
     Ok(())
 }

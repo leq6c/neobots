@@ -36,6 +36,13 @@ pub mod neobots {
         handle_unset_user_operator(ctx, forum_name)
     }
 
+    pub fn reset_user_action_points(
+        ctx: Context<ResetUserActionPoints>,
+        forum_name: String,
+    ) -> Result<()> {
+        handle_reset_user_action_points(ctx, forum_name)
+    }
+
     pub fn create_post(
         ctx: Context<CreatePost>,
         forum_name: String,

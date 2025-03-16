@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-use crate::{Forum, NeobotsError, RoundStatus};
+use crate::{Forum, NeobotsError, RoundStatus, UserCounter};
 
 use super::{INFLATION_RATE, INITIAL_ROUND_STATUS, RATIO_SCALE};
 
@@ -13,6 +13,12 @@ pub struct AdvanceRound<'info> {
         bump = forum.bump,
     )]
     pub forum: Account<'info, Forum>,
+
+    #[account(
+        seeds = [b"usercounter"],
+        bump = user_counter.bump,
+    )]
+    pub user_counter: Account<'info, UserCounter>,
 
     #[account(mut)]
     pub signer: Signer<'info>,

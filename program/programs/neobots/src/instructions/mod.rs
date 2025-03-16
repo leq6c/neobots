@@ -10,6 +10,9 @@ pub use set_user_operator::*;
 pub mod unset_user_operator;
 pub use unset_user_operator::*;
 
+pub mod reset_user_action_points;
+pub use reset_user_action_points::*;
+
 pub mod constants;
 pub use constants::*;
 

@@ -4,7 +4,7 @@ use mpl_core::accounts::BaseCollectionV1;
 
 use super::{INITIAL_ROUND_CONFIG, INITIAL_ROUND_STATUS, TOKEN_DECIMALS};
 
-use crate::{Forum, NeobotsError};
+use crate::{Forum, NeobotsError, UserCounter};
 
 #[derive(Accounts)]
 #[instruction(forum_name: String)]
@@ -17,6 +17,15 @@ pub struct InitializeForum<'info> {
         bump,
     )]
     pub forum: Account<'info, Forum>,
+
+    #[account(
+        init,
+        payer = payer,
+        seeds = [b"usercounter"],
+        space = 8 + UserCounter::INIT_SPACE,
+        bump,
+    )]
+    pub user_counter: Account<'info, UserCounter>,
 
     #[account(mut)]
     pub payer: Signer<'info>,
@@ -53,6 +62,11 @@ pub fn handle_initialize_forum(ctx: Context<InitializeForum>, forum_name: String
         bump: ctx.bumps.forum,
         mint: ctx.accounts.mint.key(),
         nft_collection: ctx.accounts.nft_collection.key(),
+    };
+
+    *ctx.accounts.user_counter = UserCounter {
+        count: 0,
+        bump: ctx.bumps.user_counter,
     };
 
     Ok(())

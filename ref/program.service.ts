@@ -12,6 +12,7 @@ import {
   TOKEN_PROGRAM_ID,
 } from "@coral-xyz/anchor/dist/cjs/utils/token";
 import {
+  Keypair,
   LAMPORTS_PER_SOL,
   ParsedTransactionWithMeta,
   PublicKey,
@@ -23,6 +24,15 @@ import { SYSTEM_PROGRAM_ID } from "@coral-xyz/anchor/dist/cjs/native/system";
 import { parseAny } from "./parser/parseTx";
 import { CreatePostData, ParsedInstruction } from "./parser/parser.types";
 import { extractProgramLogs } from "./parser/parseLogs";
+
+export interface ActionPoints {
+  post: number;
+  comment: number;
+  upvote: number;
+  downvote: number;
+  like: number;
+  banvote: number;
+}
 
 export class ProgramService {
   private readonly forumId = "forum_id";
@@ -213,6 +223,62 @@ export class ProgramService {
       .rpc();
   }
 
+  async resetUserActionPoints(
+    userNftMint: PublicKey
+  ): Promise<TransactionSignature> {
+    return await this.program.methods
+      .resetUserActionPoints(this.forumId)
+      .accounts({
+        nftMint: userNftMint,
+        signer: this.anchorProvider.wallet.publicKey,
+      })
+      .signers([])
+      .rpc();
+  }
+
+  async simulateResetUserActionPoints(userNftMint: PublicKey): Promise<{
+    user: ActionPoints;
+    default: ActionPoints;
+  }> {
+    const result = await this.program.methods
+      .resetUserActionPoints(this.forumId)
+      .accounts({
+        nftMint: userNftMint,
+        signer: this.anchorProvider.wallet.publicKey,
+      })
+      .signers([])
+      .simulate();
+
+    const { logsForThisIx, leftoverLogs } = extractProgramLogs(
+      result.raw.map((r) => r.toString()),
+      this.programId.toString()
+    );
+
+    const parseItem = (item: string) => {
+      return item.split("=");
+    };
+
+    const parse = (line: string) => {
+      const sp = line.split(",");
+      const obj: any = {};
+      for (const item of sp.slice(1)) {
+        const [key, value] = parseItem(item);
+        obj[key] = value;
+      }
+      return {
+        type: sp[0].split("=")[1],
+        values: obj,
+      };
+    };
+
+    const results = logsForThisIx.slice(1).map(parse);
+
+    return {
+      user: results.find((r) => r.type === "user")!.values,
+      default: results.find((r) => r.type === "forum")!.values,
+    };
+  }
+
   async initializeUserInstruction(
     mint: PublicKey,
     personality: string,
@@ -334,6 +400,12 @@ export class ProgramService {
     return await this.program.account.forum.fetch(this.getForumPda());
   }
 
+  async getUserCounter(): Promise<any> {
+    return await this.program.account.userCounter.fetch(
+      this.getUserCounterPda()
+    );
+  }
+
   async getUser(nftMint: PublicKey): Promise<any> {
     return await this.program.account.user.fetch(this.getUserPda(nftMint));
   }
@@ -422,6 +494,13 @@ export class ProgramService {
       programId: this.programId,
       idl: idl as any,
     });
+  }
+
+  getUserCounterPda(): PublicKey {
+    return PublicKey.findProgramAddressSync(
+      [Buffer.from("usercounter")],
+      this.program.programId
+    )[0];
   }
 
   getForumPda(): PublicKey {

@@ -93,15 +93,17 @@ export class NeobotsOperator {
       throw new Error("User or NFT mint not selected");
     }
 
-    const user = await this.programService.getUser(this.nftMint!);
+    const aps = await this.programService.simulateResetUserActionPoints(
+      this.nftMint!
+    );
 
     return {
-      postActionPoints: Number(user.actionPoints.post),
-      commentActionPoints: Number(user.actionPoints.comment),
-      upvoteActionPoints: Number(user.actionPoints.upvote),
-      downvoteActionPoints: Number(user.actionPoints.downvote),
-      likeActionPoints: Number(user.actionPoints.like),
-      banvoteActionPoints: Number(user.actionPoints.banvote),
+      postActionPoints: aps.user.post,
+      commentActionPoints: aps.user.comment,
+      upvoteActionPoints: aps.user.upvote,
+      downvoteActionPoints: aps.user.downvote,
+      likeActionPoints: aps.user.like,
+      banvoteActionPoints: aps.user.banvote,
     };
   }
 

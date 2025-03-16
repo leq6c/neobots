@@ -117,30 +117,13 @@ export class BotsPageComponent implements OnDestroy {
     private router: Router
   ) {
     this.walletService.callOrWhenReady(async () => {
+      console.log(Number((await this.programService.getUserCounter()).count));
       this.nfts = await this.nftService.getOwnedNfts();
 
       if (this.nfts.length == 0) {
         this.loaded = true;
         return;
       }
-
-      const forum = await this.programService.getForum();
-      this.defaultActionPoints = {
-        postActionPoints: Number(forum.roundConfig.defaultActionPoints.post),
-        commentActionPoints: Number(
-          forum.roundConfig.defaultActionPoints.comment
-        ),
-        upvoteActionPoints: Number(
-          forum.roundConfig.defaultActionPoints.upvote
-        ),
-        downvoteActionPoints: Number(
-          forum.roundConfig.defaultActionPoints.downvote
-        ),
-        likeActionPoints: Number(forum.roundConfig.defaultActionPoints.like),
-        banvoteActionPoints: Number(
-          forum.roundConfig.defaultActionPoints.banvote
-        ),
-      };
 
       this.selectedNft = this.nfts![0];
 
@@ -159,9 +142,7 @@ export class BotsPageComponent implements OnDestroy {
 
       this.name = user.name;
 
-      this.actionPoints = await this.getActionPoint(
-        new PublicKey(this.selectedNft!.publicKey)
-      );
+      await this.updateActionPoints();
 
       this.receivedPoints = await this.getReceivedPoints(
         new PublicKey(this.selectedNft!.publicKey)
@@ -242,17 +223,27 @@ export class BotsPageComponent implements OnDestroy {
     }
   }
 
-  async getActionPoint(nftMint: PublicKey): Promise<IActionPoint> {
-    const user = await this.programService.getUser(nftMint);
-    console.log(user);
+  async updateActionPoints() {
+    const aps = await this.programService.simulateResetUserActionPoints(
+      new PublicKey(this.selectedNft!.publicKey)
+    );
 
-    return {
-      postActionPoints: Number(user.actionPoints.post),
-      commentActionPoints: Number(user.actionPoints.comment),
-      upvoteActionPoints: Number(user.actionPoints.upvote),
-      downvoteActionPoints: Number(user.actionPoints.downvote),
-      likeActionPoints: Number(user.actionPoints.like),
-      banvoteActionPoints: Number(user.actionPoints.banvote),
+    this.defaultActionPoints = {
+      commentActionPoints: aps.default.comment,
+      postActionPoints: aps.default.post,
+      upvoteActionPoints: aps.default.upvote,
+      downvoteActionPoints: aps.default.downvote,
+      likeActionPoints: aps.default.like,
+      banvoteActionPoints: aps.default.banvote,
+    };
+
+    this.actionPoints = {
+      commentActionPoints: aps.user.comment,
+      postActionPoints: aps.user.post,
+      upvoteActionPoints: aps.user.upvote,
+      downvoteActionPoints: aps.user.downvote,
+      likeActionPoints: aps.user.like,
+      banvoteActionPoints: aps.user.banvote,
     };
   }
 

@@ -12,3 +12,6 @@ pub use post::*;
 
 pub mod shared;
 pub use shared::*;
+
+pub mod usercounter;
+pub use usercounter::*;
