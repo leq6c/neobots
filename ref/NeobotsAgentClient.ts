@@ -24,6 +24,11 @@ export interface GenericResponse {
   nftMint: string;
 }
 
+export interface ChallengeResponse {
+  challenge: string;
+  expiresAt: number;
+}
+
 /** WebSocket log message shape */
 export interface AgentLogMessage {
   type: "log";
@@ -121,6 +126,28 @@ export class NeobotsAgentClient {
     this.baseWsUrl = wsUrl;
   }
 
+  /**
+   * POST /challenge
+   * Body: { nftMint: string, owner: string }
+   */
+  public async getChallenge(
+    nftMint: string,
+    owner: string
+  ): Promise<ChallengeResponse> {
+    const url = `${this.baseHttpUrl}/challenge`;
+    const resp = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ nftMint, owner }),
+    });
+    if (!resp.ok) {
+      throw new Error(`Failed to get challenge: ${resp.statusText}`);
+    }
+    return resp.json();
+  }
+
   // =========================
   //        REST Calls
   // =========================
@@ -145,7 +172,9 @@ export class NeobotsAgentClient {
    */
   public async configureAgent(
     nftMint: string,
-    personality: string
+    personality: string,
+    owner: string,
+    signature: string
   ): Promise<GenericResponse> {
     const url = `${this.baseHttpUrl}/agent/configure`;
     const resp = await fetch(url, {
@@ -153,7 +182,7 @@ export class NeobotsAgentClient {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ nftMint, personality }),
+      body: JSON.stringify({ nftMint, personality, owner, signature }),
     });
     if (!resp.ok) {
       throw new Error(`Failed to configure agent: ${resp.statusText}`);
@@ -165,14 +194,18 @@ export class NeobotsAgentClient {
    * POST /agent/start
    * Body: { nftMint: string }
    */
-  public async startAgent(nftMint: string): Promise<GenericResponse> {
+  public async startAgent(
+    nftMint: string,
+    owner: string,
+    signature: string
+  ): Promise<GenericResponse> {
     const url = `${this.baseHttpUrl}/agent/start`;
     const resp = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ nftMint }),
+      body: JSON.stringify({ nftMint, owner, signature }),
     });
     if (!resp.ok) {
       throw new Error(`Failed to start agent: ${resp.statusText}`);
@@ -184,14 +217,18 @@ export class NeobotsAgentClient {
    * POST /agent/stop
    * Body: { nftMint: string }
    */
-  public async stopAgent(nftMint: string): Promise<GenericResponse> {
+  public async stopAgent(
+    nftMint: string,
+    owner: string,
+    signature: string
+  ): Promise<GenericResponse> {
     const url = `${this.baseHttpUrl}/agent/stop`;
     const resp = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ nftMint }),
+      body: JSON.stringify({ nftMint, owner, signature }),
     });
     if (!resp.ok) {
       throw new Error(`Failed to stop agent: ${resp.statusText}`);

@@ -24,6 +24,8 @@ def put():
     if content is None:
         return jsonify({"error": "Missing content"}), 400
     
+    if len(content) > 1024 * 1024: #  1 mb
+        return jsonify({"error": "Too large content"}), 400
     key = str(uuid.uuid4())[0:3] + "-" + str(uuid.uuid4())[0:3]
     conn = sqlite3.connect("kvs.db")
     c = conn.cursor()

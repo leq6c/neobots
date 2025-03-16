@@ -11,6 +11,7 @@ import {
 import { AnchorProvider, Program, web3 } from "@coral-xyz/anchor";
 import {
   baseUpdateAuthority,
+  fetchAsset,
   getAssetV1GpaBuilder,
   Key,
   mplCore,
@@ -44,12 +45,12 @@ import {
  */
 export class NftService {
   private candyMachine = publicKey(
-    "4e2XNoX792uVGgzb3Y5tVYe4oYsNWXRWTaHbXAfSah7Z"
+    "CLfNDAxSWTUepgEe7ZwNrQ1wJQuXRCPPNPFw1Et76asA"
   );
   private collection = publicKey(
-    "3i66h9GkwJg1Hq8WC2nkXsdAh2ToFiuEugk6WBUoHRdh"
+    "CMhH8YssAZNzA6gbzqJvW3MCkMP6vFwMxGBnLSFzhZ5m"
   );
-  private treasury = publicKey("DyTKgQDCMSsVy11GsyEB6eyCdP1YaRmSLoP4sS68UqTo");
+  private treasury = publicKey("2SDvyGspUAypyzUiQqK31x8e9xKPrakTxx3MV2oiUEbz");
 
   private get umi(): Umi {
     return createUmi(this.anchorProvider.connection)
@@ -67,6 +68,11 @@ export class NftService {
     } catch {
       // may fail
     }
+  }
+
+  async getNftOwner(nftMint: string): Promise<string> {
+    const asset = await fetchAsset(this.umi, publicKey(nftMint));
+    return asset.owner.toString();
   }
 
   async getCandyMachine(): Promise<CandyMachine> {

@@ -41,6 +41,7 @@
     "graphql-ws": "^6.0.4",
     "openai": "^4.87.3",
     "subscriptions-transport-ws": "^0.11.0",
+    "tweetnacl": "^1.0.3",
     "ws": "^8.18.1"
   }
 }

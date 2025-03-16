@@ -1,3 +1,4 @@
+import nacl from "tweetnacl";
 import express from "express";
 import http from "http";
 import { WebSocketServer, WebSocket } from "ws";
@@ -17,6 +18,9 @@ import {
 } from "../agent/NeobotsAgentStatusManager";
 import { CancellationToken } from "../agent/CancellationToken";
 import { PublicKey } from "@solana/web3.js";
+import { randomBytes } from "crypto";
+import { NftService } from "../solana/nft.service";
+import { createDummyAnchorProvider } from "./createDummyAnchorProvider";
 
 // Store active agents
 interface AgentInstance {
@@ -35,6 +39,12 @@ interface LogMessage {
   message: string;
 }
 
+interface Challenge {
+  nftMint: string;
+  challenge: string;
+  expiresAt: Date;
+}
+
 /**
  * A REST + WebSocket server for managing Neobots agents and
  * broadcasting logs to subscribed clients.
@@ -44,6 +54,9 @@ export class NeobotsAgentServer {
   private app: express.Application;
   private wsServer: WebSocketServer;
   private agents: Map<string, AgentInstance> = new Map();
+  private dummyNftService: NftService;
+
+  private solanaRpc: string = "http://localhost:8899";
 
   /**
    * For storing which WebSockets are subscribed to which NFT mint.
@@ -52,6 +65,7 @@ export class NeobotsAgentServer {
   private subscribers: Map<string, Set<WebSocket>> = new Map();
   private publishedLogs: Map<string, LogMessage[]> = new Map();
   private agentStatus: Map<string, AgentStatus> = new Map();
+  private challenges: Map<string, Challenge> = new Map();
 
   constructor(private port: number = 4001) {
     this.app = express();
@@ -62,6 +76,71 @@ export class NeobotsAgentServer {
       server: this.httpServer,
       path: "/ws",
     });
+    this.dummyNftService = new NftService(
+      createDummyAnchorProvider(this.solanaRpc)
+    );
+  }
+
+  private async createChallenge(
+    nftMint: string,
+    ownerPubkey: string
+  ): Promise<Challenge> {
+    const assetOwner = await this.dummyNftService.getNftOwner(nftMint);
+    if (assetOwner !== ownerPubkey) {
+      throw new Error("Asset owner does not match");
+    }
+
+    const randomData = randomBytes(32).toString("hex");
+
+    const challenge =
+      "Sign this to prove Neobot ownership.\n\n" +
+      randomData.substring(0, 16) +
+      randomData.substring(16, 32);
+
+    const clg = {
+      nftMint,
+      challenge,
+      // 5 minutes
+      expiresAt: new Date(Date.now() + 1000 * 60 * 5),
+    };
+
+    this.challenges.set(ownerPubkey + "-" + nftMint, clg);
+    return clg;
+  }
+
+  private async verifyChallenge(
+    nftMint: string,
+    ownerPubkey: string,
+    signature: string
+  ): Promise<boolean> {
+    const clg = this.challenges.get(ownerPubkey + "-" + nftMint);
+    if (!clg) {
+      throw new Error("Challenge not found");
+    }
+
+    if (clg.expiresAt < new Date()) {
+      this.challenges.delete(ownerPubkey + "-" + nftMint);
+      throw new Error("Challenge expired");
+    }
+
+    const challengeBytes = new TextEncoder().encode(clg.challenge);
+    const signatureBytes = Buffer.from(signature, "base64");
+    const pubkeyBytes = new PublicKey(ownerPubkey).toBytes();
+
+    const isValid = nacl.sign.detached.verify(
+      challengeBytes,
+      signatureBytes,
+      pubkeyBytes
+    );
+
+    console.log("signature", signature);
+    console.log("isValid", isValid);
+
+    if (!isValid) {
+      throw new Error("Invalid signature");
+    }
+
+    return true;
   }
 
   /**
@@ -108,6 +187,17 @@ export class NeobotsAgentServer {
    * Setup express routes for REST endpoints
    */
   private setupRoutes() {
+    this.app.post("/challenge", async (req, res) => {
+      const { nftMint, owner } = req.body || {};
+      if (!nftMint || !owner) {
+        return res.status(400).json({
+          success: false,
+          message: "nftMint and ownerPubkey are required in the request body",
+        });
+      }
+      const challenge = await this.createChallenge(nftMint, owner);
+      res.json(challenge);
+    });
     /**
      * GET /agent/status?nftMint=xxxx
      */
@@ -143,12 +233,22 @@ export class NeobotsAgentServer {
      * Body: { nftMint: string, personality: string }
      */
     this.app.post("/agent/configure", async (req, res) => {
-      const { nftMint, personality } = req.body || {};
+      const { signature, owner, nftMint, personality } = req.body || {};
 
-      if (!nftMint) {
+      if (!nftMint || !owner || !signature) {
         return res.status(400).json({
           success: false,
-          message: "nftMint is required in the request body",
+          message:
+            "nftMint, owner, and signature are required in the request body",
+        });
+      }
+
+      try {
+        await this.verifyChallenge(nftMint, owner, signature);
+      } catch (e) {
+        return res.status(400).json({
+          success: false,
+          message: `Error verifying challenge: ${e}`,
         });
       }
 
@@ -176,7 +276,7 @@ export class NeobotsAgentServer {
           apiUrl: "http://localhost:4000/graphql",
         });
         const neobotsOperator = new NeobotsOperator({
-          solanaRpcUrl: "http://localhost:8899",
+          solanaRpcUrl: this.solanaRpc,
           wallet: getTestKeypair(),
         });
         const neobotsOffChainApi = new NeobotsOffChainApi(

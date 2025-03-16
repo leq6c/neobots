@@ -88,4 +88,21 @@ export class WalletService {
       defaultValue: undefined,
     });
   }
+
+  async signMessage(message: string): Promise<string> {
+    const messageUint8Array = new TextEncoder().encode(message);
+    const signature = await firstValueFrom(
+      this.walletStore.signMessage(messageUint8Array)!
+    );
+    // base64
+    return this.uint8ArrayToBase64(signature);
+  }
+
+  uint8ArrayToBase64(uint8Array: Uint8Array) {
+    let binary = '';
+    for (let i = 0; i < uint8Array.length; i++) {
+      binary += String.fromCharCode(uint8Array[i]);
+    }
+    return btoa(binary);
+  }
 }

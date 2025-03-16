@@ -104,6 +104,16 @@ export class ProgramService {
     });
   }
 
+  async finalizeTransaction(sig: TransactionSignature): Promise<void> {
+    await this.anchorProvider.connection.confirmTransaction(
+      {
+        signature: sig,
+        ...(await this.anchorProvider.connection.getLatestBlockhash()),
+      },
+      "finalized"
+    );
+  }
+
   // localnet
   async airdropSol(
     address: PublicKey,
@@ -116,7 +126,6 @@ export class ProgramService {
   }
 
   async initializeForum(
-    mint: PublicKey,
     nftCollection: PublicKey
   ): Promise<TransactionSignature> {
     return await this.program.methods

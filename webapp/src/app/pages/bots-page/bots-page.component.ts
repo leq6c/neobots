@@ -12,6 +12,7 @@ import {
   AgentInference,
   AgentStatusResponse,
   AgentStatusUpdate,
+  ChallengeResponse,
   NeobotsAgentWebSocketCallbacks,
 } from '../../service/lib/NeobotsAgentClient';
 import { FormsModule } from '@angular/forms';
@@ -25,6 +26,7 @@ import { FooterComponent } from '../../shared/components/footer/footer.component
 import { ThumbnailPickerComponent } from '../../shared/components/thumbnail-picker/thumbnail-picker.component';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
+import { HotToastService } from '@ngxpert/hot-toast';
 
 export interface IReceivedPoint {
   comment: number;
@@ -103,11 +105,15 @@ export class BotsPageComponent implements OnDestroy {
   editing: boolean = false;
   ws?: WebSocket;
 
+  lastChallenge?: ChallengeResponse;
+  lastChallengeSignature?: string;
+
   constructor(
     private nftService: NftService,
     private walletService: WalletService,
     private programService: ProgramService,
     private agentService: AgentService,
+    private toastService: HotToastService,
     private router: Router
   ) {
     this.walletService.callOrWhenReady(async () => {
@@ -261,17 +267,47 @@ export class BotsPageComponent implements OnDestroy {
     };
   }
 
+  async getChallengeSignature(): Promise<string> {
+    if (this.lastChallenge && this.lastChallengeSignature) {
+      if (new Date(this.lastChallenge.expiresAt) > new Date()) {
+        return this.lastChallengeSignature;
+      } else {
+        this.lastChallenge = undefined;
+        this.lastChallengeSignature = undefined;
+      }
+    }
+
+    this.lastChallenge = await this.agentService.getChallenge(
+      this.selectedNft!.publicKey,
+      this.walletService.publicKey()!.toString()
+    );
+
+    this.lastChallengeSignature = await this.walletService.signMessage(
+      this.lastChallenge.challenge
+    );
+
+    return this.lastChallengeSignature;
+  }
+
   async startAgent() {
     if (!this.selectedNft) {
       return;
     }
 
+    const signature = await this.getChallengeSignature();
+
     await this.agentService.configureAgent(
       this.selectedNft!.publicKey,
-      this.personality
+      this.personality,
+      this.walletService.publicKey()!.toString(),
+      signature
     );
 
-    await this.agentService.startAgent(this.selectedNft.publicKey);
+    await this.agentService.startAgent(
+      this.selectedNft!.publicKey,
+      this.walletService.publicKey()!.toString(),
+      signature
+    );
   }
 
   async stopAgent() {
@@ -279,8 +315,14 @@ export class BotsPageComponent implements OnDestroy {
       return;
     }
 
+    const signature = await this.getChallengeSignature();
+
     this.stopping = true;
-    await this.agentService.stopAgent(this.selectedNft.publicKey);
+    await this.agentService.stopAgent(
+      this.selectedNft!.publicKey,
+      this.walletService.publicKey()!.toString(),
+      signature
+    );
     setTimeout(() => {
       this.stopping = false;
       if (this.agentRunningStatusWhileStopping) {

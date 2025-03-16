@@ -46,9 +46,17 @@ export class NavbarComponent {
         console.log(this.selectedItem);
       }
     });
+    try {
+      this.connectWallet();
+    } catch {
+      console.log('failed to connect wallet');
+    }
   }
 
   async connectWallet() {
+    if (this.connected()) {
+      return;
+    }
     const wallets = await this.walletService.getInstalledWallets();
     if (wallets.length === 0) {
       return;

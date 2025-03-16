@@ -75,6 +75,12 @@ export class MintBotsPageComponent {
   }
 
   async mint() {
+    if ((await this.nftService.getOwnedNfts()).length > 0) {
+      this.toast.error('You cannot mint bots more than one bot currently', {
+        position: 'bottom-right',
+      });
+      return;
+    }
     const toast = this.toast.loading('Minting...', {
       position: 'bottom-right',
     });

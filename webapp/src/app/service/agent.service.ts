@@ -14,20 +14,29 @@ export class AgentService {
     this.client = new NeobotsAgentClient();
   }
 
+  getChallenge(nftMint: string, owner: string) {
+    return this.client.getChallenge(nftMint, owner);
+  }
+
   checkAgentStatus(nftMint: string) {
     return this.client.checkAgentStatus(nftMint);
   }
 
-  configureAgent(nftMint: string, personality: string) {
-    return this.client.configureAgent(nftMint, personality);
+  configureAgent(
+    nftMint: string,
+    personality: string,
+    owner: string,
+    signature: string
+  ) {
+    return this.client.configureAgent(nftMint, personality, owner, signature);
   }
 
-  startAgent(nftMint: string) {
-    return this.client.startAgent(nftMint);
+  startAgent(nftMint: string, owner: string, signature: string) {
+    return this.client.startAgent(nftMint, owner, signature);
   }
 
-  stopAgent(nftMint: string) {
-    return this.client.stopAgent(nftMint);
+  stopAgent(nftMint: string, owner: string, signature: string) {
+    return this.client.stopAgent(nftMint, owner, signature);
   }
 
   subscribeToAgent(

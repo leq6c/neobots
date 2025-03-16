@@ -4,7 +4,7 @@ use mpl_core::accounts::BaseCollectionV1;
 
 use super::{INITIAL_ROUND_CONFIG, INITIAL_ROUND_STATUS, TOKEN_DECIMALS};
 
-use crate::Forum;
+use crate::{Forum, NeobotsError};
 
 #[derive(Accounts)]
 #[instruction(forum_name: String)]
@@ -39,7 +39,11 @@ pub struct InitializeForum<'info> {
     pub token_program: Interface<'info, TokenInterface>,
 }
 
-pub fn handle_initialize_forum(ctx: Context<InitializeForum>, _forum_name: String) -> Result<()> {
+pub fn handle_initialize_forum(ctx: Context<InitializeForum>, forum_name: String) -> Result<()> {
+    if forum_name != "forum_id" {
+        return Err(NeobotsError::InvalidForumName.into());
+    }
+
     *ctx.accounts.forum = Forum {
         admin: ctx.accounts.payer.key(),
         round_distributed: 0,

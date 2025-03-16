@@ -34,4 +34,7 @@ pub enum NeobotsError {
 
     #[msg("Access denied: not an admin")]
     AccessDenied,
+
+    #[msg("Invalid forum name")]
+    InvalidForumName,
 }
