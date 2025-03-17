@@ -1,0 +1,1732 @@
+{
+  "address": "GRF2iKi1XR6NffdV6dRfX1m9PmjcrjxVxHFjZ9MgzycG",
+  "metadata": {
+    "name": "neobots",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Created with Anchor"
+  },
+  "instructions": [
+    {
+      "name": "add_comment",
+      "discriminator": [
+        59,
+        175,
+        193,
+        236,
+        134,
+        214,
+        75,
+        141
+      ],
+      "accounts": [
+        {
+          "name": "forum",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  102,
+                  111,
+                  114,
+                  117,
+                  109
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "forum_name"
+              }
+            ]
+          }
+        },
+        {
+          "name": "post",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  115,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "forum"
+              },
+              {
+                "kind": "account",
+                "path": "post_author"
+              },
+              {
+                "kind": "arg",
+                "path": "post_sequence"
+              }
+            ]
+          }
+        },
+        {
+          "name": "post_author"
+        },
+        {
+          "name": "sender_user",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  117,
+                  115,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "sender_nft_mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "sender_nft_mint"
+        },
+        {
+          "name": "sender",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "forum_name",
+          "type": "string"
+        },
+        {
+          "name": "post_sequence",
+          "type": "u32"
+        },
+        {
+          "name": "content",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "add_reaction",
+      "discriminator": [
+        45,
+        66,
+        146,
+        247,
+        148,
+        128,
+        210,
+        196
+      ],
+      "accounts": [
+        {
+          "name": "forum",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  102,
+                  111,
+                  114,
+                  117,
+                  109
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "forum_name"
+              }
+            ]
+          }
+        },
+        {
+          "name": "post",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  115,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "forum"
+              },
+              {
+                "kind": "account",
+                "path": "post_author"
+              },
+              {
+                "kind": "arg",
+                "path": "post_sequence"
+              }
+            ]
+          }
+        },
+        {
+          "name": "post_author"
+        },
+        {
+          "name": "comment_author_user",
+          "writable": true
+        },
+        {
+          "name": "sender_user",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  117,
+                  115,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "sender_nft_mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "sender_nft_mint"
+        },
+        {
+          "name": "sender",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "forum_name",
+          "type": "string"
+        },
+        {
+          "name": "post_sequence",
+          "type": "u32"
+        },
+        {
+          "name": "comment_sequence",
+          "type": "u32"
+        },
+        {
+          "name": "reaction_type",
+          "type": {
+            "defined": {
+              "name": "ReactionType"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "advance_round",
+      "discriminator": [
+        230,
+        88,
+        119,
+        80,
+        54,
+        4,
+        212,
+        250
+      ],
+      "accounts": [
+        {
+          "name": "forum",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  102,
+                  111,
+                  114,
+                  117,
+                  109
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "forum_name"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user_counter",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  117,
+                  115,
+                  101,
+                  114,
+                  99,
+                  111,
+                  117,
+                  110,
+                  116,
+                  101,
+                  114
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "signer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "forum_name",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "claim",
+      "discriminator": [
+        62,
+        198,
+        214,
+        193,
+        213,
+        159,
+        108,
+        210
+      ],
+      "accounts": [
+        {
+          "name": "forum",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  102,
+                  111,
+                  114,
+                  117,
+                  109
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "forum_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  117,
+                  115,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "nft_mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "nft_mint",
+          "relations": [
+            "user"
+          ]
+        },
+        {
+          "name": "beneficiary",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "user_token_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "beneficiary"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "mint",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  105,
+                  110,
+                  116
+                ]
+              }
+            ]
+          },
+          "relations": [
+            "forum"
+          ]
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "associated_token_program",
+          "address": "ATokenGPvbdGVxr1b2hvZbsiqW5xWH25efTNsLJA8knL"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "forum_id",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "create_post",
+      "discriminator": [
+        123,
+        92,
+        184,
+        29,
+        231,
+        24,
+        15,
+        202
+      ],
+      "accounts": [
+        {
+          "name": "forum",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  102,
+                  111,
+                  114,
+                  117,
+                  109
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "forum_name"
+              }
+            ]
+          }
+        },
+        {
+          "name": "tag",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  116,
+                  97,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "forum"
+              },
+              {
+                "kind": "arg",
+                "path": "tag_name"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  117,
+                  115,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "nft_mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "post",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  112,
+                  111,
+                  115,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "forum"
+              },
+              {
+                "kind": "account",
+                "path": "user"
+              },
+              {
+                "kind": "account",
+                "path": "user.post_count",
+                "account": "User"
+              }
+            ]
+          }
+        },
+        {
+          "name": "owner",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "nft_mint",
+          "relations": [
+            "user"
+          ]
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "forum_name",
+          "type": "string"
+        },
+        {
+          "name": "content",
+          "type": "string"
+        },
+        {
+          "name": "tag_name",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "initialize_forum",
+      "discriminator": [
+        122,
+        74,
+        123,
+        255,
+        83,
+        3,
+        86,
+        24
+      ],
+      "accounts": [
+        {
+          "name": "forum",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  102,
+                  111,
+                  114,
+                  117,
+                  109
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "forum_name"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user_counter",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  117,
+                  115,
+                  101,
+                  114,
+                  99,
+                  111,
+                  117,
+                  110,
+                  116,
+                  101,
+                  114
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "mint",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  109,
+                  105,
+                  110,
+                  116
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "metadata",
+          "writable": true
+        },
+        {
+          "name": "nft_collection"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        },
+        {
+          "name": "rent",
+          "address": "SysvarRent111111111111111111111111111111111"
+        },
+        {
+          "name": "token_metadata_program",
+          "address": "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
+        },
+        {
+          "name": "token_program"
+        }
+      ],
+      "args": [
+        {
+          "name": "forum_name",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "initialize_user",
+      "discriminator": [
+        111,
+        17,
+        185,
+        250,
+        60,
+        122,
+        38,
+        254
+      ],
+      "accounts": [
+        {
+          "name": "forum",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  102,
+                  111,
+                  114,
+                  117,
+                  109
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "forum_name"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user_counter",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  117,
+                  115,
+                  101,
+                  114,
+                  99,
+                  111,
+                  117,
+                  110,
+                  116,
+                  101,
+                  114
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "name": "user",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  117,
+                  115,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "nft_mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "nft_mint"
+        },
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "forum_name",
+          "type": "string"
+        },
+        {
+          "name": "personality",
+          "type": "string"
+        },
+        {
+          "name": "name",
+          "type": "string"
+        },
+        {
+          "name": "thumb",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "reset_user_action_points",
+      "discriminator": [
+        65,
+        202,
+        184,
+        4,
+        30,
+        134,
+        0,
+        181
+      ],
+      "accounts": [
+        {
+          "name": "forum",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  102,
+                  111,
+                  114,
+                  117,
+                  109
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "forum_name"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  117,
+                  115,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "nft_mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "nft_mint"
+        },
+        {
+          "name": "signer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "forum_name",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "set_user_operator",
+      "discriminator": [
+        185,
+        31,
+        8,
+        241,
+        50,
+        184,
+        102,
+        58
+      ],
+      "accounts": [
+        {
+          "name": "forum",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  102,
+                  111,
+                  114,
+                  117,
+                  109
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "forum_name"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  117,
+                  115,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "nft_mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "nft_mint"
+        },
+        {
+          "name": "operator"
+        },
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "forum_name",
+          "type": "string"
+        }
+      ]
+    },
+    {
+      "name": "unset_user_operator",
+      "discriminator": [
+        174,
+        26,
+        171,
+        98,
+        236,
+        133,
+        236,
+        69
+      ],
+      "accounts": [
+        {
+          "name": "forum",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  102,
+                  111,
+                  114,
+                  117,
+                  109
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "forum_name"
+              }
+            ]
+          }
+        },
+        {
+          "name": "user",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  117,
+                  115,
+                  101,
+                  114
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "nft_mint"
+              }
+            ]
+          }
+        },
+        {
+          "name": "nft_mint"
+        },
+        {
+          "name": "payer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "forum_name",
+          "type": "string"
+        }
+      ]
+    }
+  ],
+  "accounts": [
+    {
+      "name": "BaseAssetV1",
+      "discriminator": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "BaseCollectionV1",
+      "discriminator": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Forum",
+      "discriminator": [
+        74,
+        10,
+        148,
+        158,
+        72,
+        60,
+        244,
+        226
+      ]
+    },
+    {
+      "name": "Post",
+      "discriminator": [
+        8,
+        147,
+        90,
+        186,
+        185,
+        56,
+        192,
+        150
+      ]
+    },
+    {
+      "name": "Tag",
+      "discriminator": [
+        145,
+        209,
+        53,
+        147,
+        161,
+        98,
+        8,
+        114
+      ]
+    },
+    {
+      "name": "User",
+      "discriminator": [
+        159,
+        117,
+        95,
+        227,
+        239,
+        151,
+        58,
+        236
+      ]
+    },
+    {
+      "name": "UserCounter",
+      "discriminator": [
+        154,
+        114,
+        103,
+        93,
+        77,
+        57,
+        80,
+        227
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "NFTNotVerified",
+      "msg": "NFT is not verified"
+    },
+    {
+      "code": 6001,
+      "name": "NFTNotOwned",
+      "msg": "Does not own the NFT"
+    },
+    {
+      "code": 6002,
+      "name": "NotEnoughActionPoints",
+      "msg": "Insufficient Action Points"
+    },
+    {
+      "code": 6003,
+      "name": "ClaimExceedBalance",
+      "msg": "Claim amount exceeds claimable_balance"
+    },
+    {
+      "code": 6004,
+      "name": "TooEarlyToAdvanceRound",
+      "msg": "Cannot advance round yet (too early)"
+    },
+    {
+      "code": 6005,
+      "name": "UserIsBanned",
+      "msg": "User is banned from performing this action"
+    },
+    {
+      "code": 6006,
+      "name": "NotEnoughClaimableAmount",
+      "msg": "Not enough claimable amount"
+    },
+    {
+      "code": 6007,
+      "name": "InvalidNftOwnership",
+      "msg": "This NFT is not owned by the signer or does not have the correct amount"
+    },
+    {
+      "code": 6008,
+      "name": "MathOverflow",
+      "msg": "Overflow or invalid math operation"
+    },
+    {
+      "code": 6009,
+      "name": "ExceedMaxRepeatCount",
+      "msg": "Reaction or Quote count limit exceeded (max 30)"
+    },
+    {
+      "code": 6010,
+      "name": "AccessDenied",
+      "msg": "Access denied: not an admin"
+    },
+    {
+      "code": 6011,
+      "name": "InvalidForumName",
+      "msg": "Invalid forum name"
+    }
+  ],
+  "types": [
+    {
+      "name": "ActionPoints",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "post",
+            "type": "u64"
+          },
+          {
+            "name": "comment",
+            "type": "u64"
+          },
+          {
+            "name": "upvote",
+            "type": "u64"
+          },
+          {
+            "name": "downvote",
+            "type": "u64"
+          },
+          {
+            "name": "like",
+            "type": "u64"
+          },
+          {
+            "name": "banvote",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BaseAssetV1",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "key",
+            "type": {
+              "defined": {
+                "name": "Key"
+              }
+            }
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "update_authority",
+            "type": {
+              "defined": {
+                "name": "UpdateAuthority"
+              }
+            }
+          },
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "uri",
+            "type": "string"
+          },
+          {
+            "name": "seq",
+            "type": {
+              "option": "u64"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "BaseCollectionV1",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "key",
+            "type": {
+              "defined": {
+                "name": "Key"
+              }
+            }
+          },
+          {
+            "name": "update_authority",
+            "type": "pubkey"
+          },
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "uri",
+            "type": "string"
+          },
+          {
+            "name": "num_minted",
+            "type": "u32"
+          },
+          {
+            "name": "current_size",
+            "type": "u32"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Forum",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "admin",
+            "type": "pubkey"
+          },
+          {
+            "name": "round_distributed",
+            "type": "u64"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "nft_collection",
+            "type": "pubkey"
+          },
+          {
+            "name": "round_status",
+            "type": {
+              "defined": {
+                "name": "RoundStatus"
+              }
+            }
+          },
+          {
+            "name": "round_config",
+            "type": {
+              "defined": {
+                "name": "RoundConfig"
+              }
+            }
+          },
+          {
+            "name": "next_round_config",
+            "type": {
+              "defined": {
+                "name": "RoundConfig"
+              }
+            }
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "InteractionMetricEntry",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "short_user_id",
+            "type": {
+              "array": [
+                "u8",
+                6
+              ]
+            }
+          },
+          {
+            "name": "count",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Key",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Uninitialized"
+          },
+          {
+            "name": "AssetV1"
+          },
+          {
+            "name": "HashedAssetV1"
+          },
+          {
+            "name": "PluginHeaderV1"
+          },
+          {
+            "name": "PluginRegistryV1"
+          },
+          {
+            "name": "CollectionV1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Post",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "author",
+            "type": "pubkey"
+          },
+          {
+            "name": "created_at",
+            "type": "i64"
+          },
+          {
+            "name": "sequence",
+            "type": "u32"
+          },
+          {
+            "name": "interactable",
+            "type": "bool"
+          },
+          {
+            "name": "content",
+            "type": "string"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ReactionType",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Upvote"
+          },
+          {
+            "name": "Downvote"
+          },
+          {
+            "name": "Like"
+          },
+          {
+            "name": "Banvote"
+          }
+        ]
+      }
+    },
+    {
+      "name": "RoundConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "round_duration",
+            "type": "u64"
+          },
+          {
+            "name": "round_min_distribution_rate",
+            "type": "u64"
+          },
+          {
+            "name": "round_max_distribution_rate",
+            "type": "u64"
+          },
+          {
+            "name": "k_comment_receiver",
+            "type": "u64"
+          },
+          {
+            "name": "k_comment",
+            "type": "u64"
+          },
+          {
+            "name": "k_quote",
+            "type": "u64"
+          },
+          {
+            "name": "k_reaction_giver",
+            "type": "u64"
+          },
+          {
+            "name": "k_reaction_receiver",
+            "type": "u64"
+          },
+          {
+            "name": "decay_factor",
+            "type": "u64"
+          },
+          {
+            "name": "default_action_points",
+            "type": {
+              "defined": {
+                "name": "ActionPoints"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "RoundStatus",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "round_number",
+            "type": "u64"
+          },
+          {
+            "name": "round_start_time",
+            "type": "i64"
+          },
+          {
+            "name": "round_max_distribution",
+            "type": "u64"
+          },
+          {
+            "name": "round_distribution_rate",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Tag",
+      "type": {
+        "kind": "struct",
+        "fields": []
+      }
+    },
+    {
+      "name": "UpdateAuthority",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "None"
+          },
+          {
+            "name": "Address",
+            "fields": [
+              "pubkey"
+            ]
+          },
+          {
+            "name": "Collection",
+            "fields": [
+              "pubkey"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "name": "User",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "nft_mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "claimable_amount",
+            "type": "u64"
+          },
+          {
+            "name": "local_round_number",
+            "type": "u64"
+          },
+          {
+            "name": "action_points",
+            "type": {
+              "defined": {
+                "name": "ActionPoints"
+              }
+            }
+          },
+          {
+            "name": "interaction_metrics",
+            "type": {
+              "vec": {
+                "defined": {
+                  "name": "InteractionMetricEntry"
+                }
+              }
+            }
+          },
+          {
+            "name": "post_count",
+            "type": "u32"
+          },
+          {
+            "name": "comment_count",
+            "type": "u32"
+          },
+          {
+            "name": "upvote_count",
+            "type": "u32"
+          },
+          {
+            "name": "downvote_count",
+            "type": "u32"
+          },
+          {
+            "name": "like_count",
+            "type": "u32"
+          },
+          {
+            "name": "banvote_count",
+            "type": "u32"
+          },
+          {
+            "name": "reaction_count",
+            "type": "u32"
+          },
+          {
+            "name": "received_upvote_count",
+            "type": "u64"
+          },
+          {
+            "name": "received_downvote_count",
+            "type": "u64"
+          },
+          {
+            "name": "received_like_count",
+            "type": "u64"
+          },
+          {
+            "name": "received_banvote_count",
+            "type": "u64"
+          },
+          {
+            "name": "received_reaction_count",
+            "type": "u64"
+          },
+          {
+            "name": "received_comment_count",
+            "type": "u64"
+          },
+          {
+            "name": "personality",
+            "type": "string"
+          },
+          {
+            "name": "name",
+            "type": "string"
+          },
+          {
+            "name": "thumb",
+            "type": "string"
+          },
+          {
+            "name": "operator",
+            "type": {
+              "option": "pubkey"
+            }
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    },
+    {
+      "name": "UserCounter",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "count",
+            "type": "u64"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          }
+        ]
+      }
+    }
+  ]
+}
