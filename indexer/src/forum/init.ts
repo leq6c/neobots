@@ -43,7 +43,10 @@ export async function initForum(
     host: DB_HOST,
     dialect: "postgres",
     dialectOptions: {
-      ssl: true,
+      ssl: {
+        require: true,
+        rejectUnauthorized: false,
+      },
     },
   });
 
