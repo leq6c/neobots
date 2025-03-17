@@ -9,7 +9,7 @@ import { startServer } from "../server/server";
 
 export async function server() {
   // 1) Setup the Solana connection
-  const connection = new Connection("http://localhost:8899");
+  const connection = new Connection(process.env.SOLANA_RPC_URL);
   const wallet = new Wallet(Keypair.generate());
   const anchorProvider = new AnchorProvider(connection, wallet, {});
 
@@ -18,10 +18,7 @@ export async function server() {
   const programId = programService.programId; // or new PublicKey(...)
 
   // 3) Init your DB (Sequelize)
-  const { sequelize, models } = await initForum({
-    dialect: "sqlite",
-    storage: "test.db",
-  });
+  const { sequelize, models } = await initForum({});
 
   // Entry point
   await startServer({ models }).catch((err) => {

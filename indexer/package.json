@@ -25,6 +25,7 @@
     "@metaplex-foundation/umi": "^0.9.1",
     "@metaplex-foundation/umi-bundle-defaults": "^0.9.1",
     "@metaplex-foundation/umi-web3js-adapters": "^0.9.2",
+    "@sequelize/postgres": "^7.0.0-alpha.45",
     "@solana/web3.js": "^1.98.0",
     "apollo-server": "^3.13.0",
     "axios": "^1.8.3",

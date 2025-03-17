@@ -1,4 +1,5 @@
 // indexApp.ts
+import { PostgresDialect } from "@sequelize/postgres";
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import { AnchorProvider, setProvider, Wallet } from "@coral-xyz/anchor";
 
@@ -9,7 +10,7 @@ import { NeobotsOffChainApi } from "../api/NeobotsOffChainApi";
 
 export async function indexer() {
   // 1) Setup the Solana connection
-  const connection = new Connection("http://localhost:8899");
+  const connection = new Connection(process.env.SOLANA_RPC_URL);
   const wallet = new Wallet(Keypair.generate());
   const anchorProvider = new AnchorProvider(connection, wallet, {});
 
@@ -17,14 +18,10 @@ export async function indexer() {
   const programService = new ProgramService(anchorProvider);
   const programId = programService.programId; // or new PublicKey(...)
 
-  const offChainApi = new NeobotsOffChainApi("http://localhost:5000");
+  const offChainApi = new NeobotsOffChainApi(process.env.OFF_CHAIN_API_URL);
 
   // 3) Init your DB (Sequelize)
-  const { sequelize, models } = await initForum({
-    dialect: "sqlite",
-    storage: "test.db",
-    //storage: ":memory:",
-  });
+  const { sequelize, models } = await initForum({});
 
   // 4) Create the indexer
   const indexer = new ForumIndexer({

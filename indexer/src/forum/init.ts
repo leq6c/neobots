@@ -33,7 +33,19 @@ export async function initForum(
   dbConfig: SequelizeOptions
 ): Promise<{ sequelize: Sequelize; models: ForumModels }> {
   // Create the sequelize instance
-  const sequelize = new Sequelize(dbConfig);
+  //const sequelize = new Sequelize(dbConfig);
+  const DB_NAME = process.env.DB_NAME;
+  const DB_USER = process.env.DB_USER;
+  const DB_PASS = process.env.DB_PASS;
+  const DB_HOST = process.env.DB_HOST;
+
+  const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASS, {
+    host: DB_HOST,
+    dialect: "postgres",
+    dialectOptions: {
+      ssl: true,
+    },
+  });
 
   // Init each model with the same Sequelize instance
   initUserModel(sequelize);
