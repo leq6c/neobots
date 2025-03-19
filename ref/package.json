@@ -23,5 +23,10 @@
   },
   "devDependencies": {
     "typescript": "^5.1.6"
+  },
+  "browser": {
+	  "process": false,
+	  "fs": false,
+	  "util": false
   }
 }

@@ -3,6 +3,8 @@
     "module": "CommonJS",
     "target": "es6",
     "esModuleInterop": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "outDir": "dist",
+    "skipLibCheck": true
   }
 }

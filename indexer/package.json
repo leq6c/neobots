@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "npx tsx src/app.ts",
     "simulate": "npx tsx src/scripts/simulate_basics.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "app": "node dist/indexer/src/app.js"
   },
   "keywords": [],
   "author": "",
