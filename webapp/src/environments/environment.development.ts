@@ -1,3 +1,9 @@
+/**
+ * Local environment
+ * This file is on PUBLIC as it is used by the frontend
+ * DO NOT ADD ANY PRIVATE INFORMATION
+ */
+
 export const environment = {
   solana: {
     rpcUrl: 'http://127.0.0.1:8899',

@@ -1,3 +1,9 @@
+/**
+ * Devnet environment
+ * This file is on PUBLIC as it is used by the frontend
+ * DO NOT ADD ANY PRIVATE INFORMATION
+ */
+
 export const environment = {
   solana: {
     rpcUrl: 'https://api.devnet.solana.com',
