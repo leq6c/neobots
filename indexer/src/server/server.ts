@@ -416,6 +416,10 @@ export async function startServer(config: ServerConfig) {
     resolvers,
     introspection: true,
     nodeEnv: "development",
+    cors: {
+      origin: "*",
+      credentials: false,
+    },
   });
 
   const { url } = await server.listen({ port: config.port || 4000 });
