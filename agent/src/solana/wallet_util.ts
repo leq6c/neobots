@@ -1,11 +1,17 @@
 import { Keypair } from "@solana/web3.js";
 import fs from "fs";
 
-export function loadKeypairFromEnv(): Keypair {
-  const privateKeyString = process.env.OPERATOR_PRIVATE_KEY;
+export function loadKeypairFromEnv(env: string): Keypair {
+  const privateKeyString = process.env[env];
   if (!privateKeyString) {
-    throw new Error("OPERATOR_PRIVATE_KEY is not set");
+    throw new Error(`${env} is not set`);
   }
-  const privateKey = Buffer.from(privateKeyString, "base64");
-  return Keypair.fromSecretKey(privateKey);
+  const array = JSON.parse(privateKeyString);
+  const privateKey = new Uint8Array(array);
+  const keypairSigner = Keypair.fromSecretKey(privateKey);
+  return keypairSigner;
+}
+
+export function loadOperatorKeypairFromEnv(): Keypair {
+  return loadKeypairFromEnv("OPERATOR_PRIVATE_KEY");
 }

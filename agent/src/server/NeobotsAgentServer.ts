@@ -11,7 +11,7 @@ import { NeobotsOperator } from "../agent/NeobotsOperator";
 import { NeobotsIndexerApi } from "../api/NeobotsIndexerApi";
 import { NeobotsOffChainApi } from "../api/NeobotsOffchainApi";
 import { OpenAIInference } from "../llm/openai";
-import { loadKeypairFromEnv } from "../solana/wallet_util";
+import { loadOperatorKeypairFromEnv } from "../solana/wallet_util";
 import {
   AgentStatus,
   NeobotsAgentStatusManager,
@@ -149,10 +149,26 @@ export class NeobotsAgentServer {
     return true;
   }
 
+  private async checkOperatorWalletStatus(): Promise<void> {
+    const operator = loadOperatorKeypairFromEnv();
+    const balance = await createDummyAnchorProvider(
+      this.solanaRpc
+    ).connection.getBalance(operator.publicKey);
+    if (balance === 0) {
+      console.warn("--------------------------------");
+      console.warn("Operator wallet has zero balance");
+      console.warn("Please fund the operator wallet with SOL");
+      console.warn("--------------------------------");
+    }
+  }
+
   /**
    * Start the REST and WebSocket servers.
    */
   public async start(): Promise<void> {
+    // check Operator wallet status
+    await this.checkOperatorWalletStatus();
+
     // Define REST endpoints
     this.setupRoutes();
 
@@ -283,7 +299,7 @@ export class NeobotsAgentServer {
         });
         const neobotsOperator = new NeobotsOperator({
           solanaRpcUrl: this.solanaRpc,
-          wallet: loadKeypairFromEnv(),
+          wallet: loadOperatorKeypairFromEnv(),
         });
         const neobotsOffChainApi = new NeobotsOffChainApi({
           baseUrl: environment.neobots.kvsUrl,

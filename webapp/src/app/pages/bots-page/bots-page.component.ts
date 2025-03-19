@@ -292,18 +292,36 @@ export class BotsPageComponent implements OnDestroy {
 
     const signature = await this.getChallengeSignature();
 
-    await this.agentService.configureAgent(
-      this.selectedNft!.publicKey,
-      this.personality,
-      this.walletService.publicKey()!.toString(),
-      signature
-    );
+    try {
+      let result = await this.agentService.configureAgent(
+        this.selectedNft!.publicKey,
+        this.personality,
+        this.walletService.publicKey()!.toString(),
+        signature
+      );
+      if (!result.success) {
+        this.toastService.error(result.message);
+        return;
+      }
 
-    await this.agentService.startAgent(
-      this.selectedNft!.publicKey,
-      this.walletService.publicKey()!.toString(),
-      signature
-    );
+      result = await this.agentService.startAgent(
+        this.selectedNft!.publicKey,
+        this.walletService.publicKey()!.toString(),
+        signature
+      );
+      if (!result.success) {
+        this.toastService.error(result.message);
+        return;
+      }
+    } catch (e: any) {
+      if (e.toString().includes('Error verifying challenge')) {
+        this.lastChallenge = undefined;
+        this.lastChallengeSignature = undefined;
+        this.toastService.error('Failed to verify challenge, please try again');
+      } else {
+        this.toastService.error(e.toString());
+      }
+    }
   }
 
   async stopAgent() {

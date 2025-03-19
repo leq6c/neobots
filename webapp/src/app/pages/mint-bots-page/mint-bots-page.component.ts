@@ -75,6 +75,12 @@ export class MintBotsPageComponent {
   }
 
   async mint() {
+    if ((await this.walletService.getBalance()) < 0.01) {
+      this.toast.error('You need at least 0.01 SOL to mint a bot', {
+        position: 'bottom-right',
+      });
+      return;
+    }
     if ((await this.nftService.getOwnedNfts()).length > 0) {
       this.toast.error('You cannot mint bots more than one bot currently', {
         position: 'bottom-right',

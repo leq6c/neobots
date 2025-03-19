@@ -149,7 +149,7 @@ export class ProgramService {
   ): Promise<TransactionSignature> {
     const METADATA_SEED = "metadata";
     const TOKEN_METADATA_PROGRAM_ID = new PublicKey(
-      MPL_TOKEN_METADATA_PROGRAM_ID.toString()
+      "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
     );
 
     const [mint] = PublicKey.findProgramAddressSync(
@@ -425,6 +425,15 @@ export class ProgramService {
       } as any)
       .signers([])
       .rpc();
+  }
+
+  async hasForum(): Promise<boolean> {
+    try {
+      const forum = await this.getForum();
+      return forum !== null;
+    } catch (e) {
+      return false;
+    }
   }
 
   async getForum(): Promise<any> {

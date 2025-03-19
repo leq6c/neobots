@@ -116,10 +116,14 @@ export class CoreNFTBuilder {
   }
 
   async hasCollection(): Promise<boolean> {
-    const collection = await this.umi.programs.get(
-      this.collectionMint.publicKey
-    );
-    return collection !== null;
+    try {
+      const collection = await this.provider.connection.getAccountInfo(
+        toWeb3JsKeypair(this.collectionMint).publicKey
+      );
+      return collection !== null;
+    } catch (error) {
+      return false;
+    }
   }
 
   async createCollection(): Promise<void> {
@@ -134,14 +138,19 @@ export class CoreNFTBuilder {
       );
     } catch (error) {
       console.log("2. ❌ - Error creating collection.");
+      throw error;
     }
   }
 
   async hasCandyMachine(): Promise<boolean> {
-    const candyMachine = await this.umi.programs.get(
-      this.candyMachine.publicKey
-    );
-    return candyMachine !== null;
+    try {
+      const candyMachine = await this.provider.connection.getAccountInfo(
+        toWeb3JsKeypair(this.candyMachine).publicKey
+      );
+      return candyMachine !== null;
+    } catch (error) {
+      return false;
+    }
   }
 
   async createCandyMachine(): Promise<void> {
@@ -177,6 +186,7 @@ export class CoreNFTBuilder {
     } catch (error) {
       console.log("3. ❌ - Error creating Candy Machine.");
       console.log(error);
+      throw error;
     }
   }
 
@@ -196,6 +206,7 @@ export class CoreNFTBuilder {
       );
     } catch (error) {
       console.log("4. ❌ - Error adding items to the Candy Machine.");
+      throw error;
     }
   }
 

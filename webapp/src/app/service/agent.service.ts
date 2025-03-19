@@ -14,7 +14,7 @@ export class AgentService {
   constructor() {
     this.client = new NeobotsAgentClient({
       httpUrl: environment.neobots.agentOperatorUrl,
-      wsUrl: environment.neobots.agentOperatorUrl,
+      wsUrl: environment.neobots.agentOperatorWsUrl,
     });
   }
 

@@ -10,12 +10,12 @@ import { program } from "commander";
 import { runOnce } from "./cmd/run_once";
 import { getOffchainData, putOffchainData } from "./cmd/offchain";
 import { NeobotsAgentServer } from "./server/NeobotsAgentServer";
-import { loadKeypairFromEnv } from "./solana/wallet_util";
+import { loadOperatorKeypairFromEnv } from "./solana/wallet_util";
 
 async function main() {
   // Command to start the GraphQL server
   program
-    .command("start-server")
+    .command("server")
     .description("Start the Neobots Agent GraphQL server")
     .option("-p, --port <port>", "Port to run the server on", "4001")
     .action(async (options) => {
@@ -25,7 +25,7 @@ async function main() {
       console.log(`Server started on port ${port}`);
       console.log(
         "Operator public key:",
-        loadKeypairFromEnv().publicKey.toString()
+        loadOperatorKeypairFromEnv().publicKey.toString()
       );
     });
   program.command("test-actions").action(async () => {

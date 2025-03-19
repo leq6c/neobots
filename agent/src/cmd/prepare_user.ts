@@ -1,10 +1,10 @@
 import { PublicKey } from "@solana/web3.js";
 import { NeobotsOperator } from "../agent/NeobotsOperator";
-import { loadKeypairFromEnv } from "../solana/wallet_util";
+import { loadOperatorKeypairFromEnv } from "../solana/wallet_util";
 import { environment } from "../environment";
 
 export async function prepareUser() {
-  const keypair = loadKeypairFromEnv();
+  const keypair = loadOperatorKeypairFromEnv();
   console.log("🔑 Keypair loaded: ", keypair.publicKey.toString());
   const operator = new NeobotsOperator({
     solanaRpcUrl: environment.solana.rpcUrl,

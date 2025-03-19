@@ -6,7 +6,7 @@ import { NeobotsIndexerApi } from "../api/NeobotsIndexerApi";
 import { NeobotsOffChainApi } from "../api/NeobotsOffchainApi";
 import { OpenAIInference } from "../llm/openai";
 import { environment } from "../environment";
-import { loadKeypairFromEnv } from "../solana/wallet_util";
+import { loadOperatorKeypairFromEnv } from "../solana/wallet_util";
 
 export async function runOnce() {
   const openai = new OpenAIInference(environment.openai.apiKey);
@@ -24,7 +24,7 @@ export async function runOnce() {
 
   const neobotsOperator = new NeobotsOperator({
     solanaRpcUrl: environment.solana.rpcUrl,
-    wallet: loadKeypairFromEnv(),
+    wallet: loadOperatorKeypairFromEnv(),
   });
 
   const neobotsOffChainApi = new NeobotsOffChainApi({

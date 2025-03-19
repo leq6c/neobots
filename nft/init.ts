@@ -37,9 +37,13 @@ async function main() {
 
   // for localnet
   if (getSolanaRpcUrl() === "http://127.0.0.1:8899") {
-    console.log("Localnet detected, airdropping SOL to deployer account...");
-    const sig = await program.airdropSol(keypair.publicKey, 10);
-    await program.confirmTransaction(sig);
+    if ((await provider.connection.getBalance(keypair.publicKey)) === 0) {
+      console.log("Localnet detected, airdropping SOL to deployer account...");
+      const sig = await program.airdropSol(keypair.publicKey, 10);
+      await program.confirmTransaction(sig);
+    } else {
+      console.log("Deployer account already has SOL, skipping airdrop...");
+    }
   } else {
     console.log(
       "Non-localnet detected, transaction would fail if no SOL is in the deployer account"
@@ -101,7 +105,7 @@ async function main() {
 
   console.log("=>Initialize Forum");
   {
-    if (await program.getForum()) {
+    if (await program.hasForum()) {
       console.log("Forum already exists, skipping initialization...");
     } else {
       console.log("Initializing Forum...");

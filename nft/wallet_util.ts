@@ -1,3 +1,4 @@
+import { bs58 } from "@coral-xyz/anchor/dist/cjs/utils/bytes";
 import { Keypair } from "@solana/web3.js";
 import fs from "fs";
 
@@ -6,8 +7,10 @@ export function loadKeypairFromEnv(env: string): Keypair {
   if (!privateKeyString) {
     throw new Error(`${env} is not set`);
   }
-  const privateKey = Buffer.from(privateKeyString, "base64");
-  return Keypair.fromSecretKey(privateKey);
+  const array = JSON.parse(privateKeyString);
+  const privateKey = new Uint8Array(array);
+  const keypairSigner = Keypair.fromSecretKey(privateKey);
+  return keypairSigner;
 }
 
 export function loadDeployerKeypairFromEnv(): Keypair {

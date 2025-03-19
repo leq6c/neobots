@@ -5,7 +5,7 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-neobots = "GRF2iKi1XR6NffdV6dRfX1m9PmjcrjxVxHFjZ9MgzycG"
+neobots = "GgK4DtmLSJjEcJza9wdpvnT6H3ASsqkW3firn7fzyCW7"
 
 [registry]
 url = "https://api.apr.dev"
@@ -16,6 +16,11 @@ wallet = "~/.config/solana/id.json"
 
 [scripts]
 test = "yarn run ts-mocha -p ./tsconfig.json -t 1000000 tests/**/*.ts"
+
+[test]
+startup_wait = 5000
+shutdown_wait = 2000
+upgradeable = false
 
 [[test.genesis]]
 address = "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"

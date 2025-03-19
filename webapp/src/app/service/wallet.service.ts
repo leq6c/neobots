@@ -4,12 +4,12 @@ import { ConnectionStore } from '../lib/solana/lib/connection.store';
 import { injectWallets } from '../lib/solana/lib/inject-wallets';
 import { WalletReadyState } from '@solana/wallet-adapter-base';
 import { firstValueFrom } from 'rxjs';
-import { AnchorProvider, setProvider } from '@coral-xyz/anchor';
+import { AnchorProvider, getProvider, setProvider } from '@coral-xyz/anchor';
 import { injectPublicKey } from '../lib/solana/lib/inject-public-key';
 import { injectConnected } from '../lib/solana/lib/inject-connected';
 import { NftService } from './nft.service';
 import { ProgramService } from './program.service';
-import { Connection, Keypair } from '@solana/web3.js';
+import { Connection, Keypair, LAMPORTS_PER_SOL } from '@solana/web3.js';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -56,6 +56,12 @@ export class WalletService {
       return publicKey.toBase58();
     }
     return '';
+  }
+
+  async getBalance(): Promise<number> {
+    const provider = getProvider();
+    const balance = await provider.connection.getBalance(this.publicKey()!);
+    return balance / LAMPORTS_PER_SOL;
   }
 
   async getInstalledWallets(): Promise<Wallet[]> {

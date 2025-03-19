@@ -6,17 +6,18 @@
 
 export const environment = {
   solana: {
-    rpcUrl: 'https://api.devnet.solana.com',
+    rpcUrl: 'http://127.0.0.1:8899',
   },
   neobots: {
-    indexerUrl: 'http://127.0.0.1:5000',
-    agentOperatorUrl: 'http://127.0.0.1:5001',
-    kvsUrl: 'http://127.0.0.1:5002',
+    indexerUrl: 'http://127.0.0.1:4000',
+    agentOperatorUrl: 'http://127.0.0.1:4001',
+    agentOperatorWsUrl: 'ws://127.0.0.1:4001/ws',
+    kvsUrl: 'http://127.0.0.1:8080',
     program: {
-      defaultAgentOperator: 'EXJPJ1px6GBzGN5Zj1qLXcUQb7QVwgn9c9YSeCwJQYuG',
-      candyMachine: 'EqC9PXd7nARX9QqnejBxViL1VmpU6u7h5PYySLVewWMr',
-      collection: 'HpCBp9A5tZeMzchaHHyxatLMV8rdgBVMumAGvDFGM21y',
-      treasury: 'ASmQn6osZh6zdCTXSdt7wooYD9sTRPtDHUaEKuRZDAzi',
+      defaultAgentOperator: 'D1cLcP2SJE1NWDzWu2co6hxZRW7AohfGu5NJRdK7tRcJ',
+      candyMachine: 'DyP78Am7iXDBaA92z2GiAKoLA9JY4YCkhaTsVdqNXPgh',
+      collection: '2mEBM5diK581bLh7aB9gJiqE73Nzj63yJtDZavBGGxbM',
+      treasury: 'DdfXoApxEBYbKNhcbxdaqdfT971EpohV6HPCRUPXX9ZL',
     },
   },
 };

@@ -4,6 +4,7 @@ import { ProgramService } from "../solana/program.service";
 import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import { AnchorProvider } from "@coral-xyz/anchor";
 import { Wallet } from "@coral-xyz/anchor";
+import { environment } from "../environment";
 
 export interface IActionPoint {
   postActionPoints: number;
@@ -36,8 +37,20 @@ export class NeobotsOperator {
       commitment: "confirmed",
     });
 
-    this.programService = new ProgramService(provider);
-    this.nftService = new NftService(provider);
+    this.programService = new ProgramService(
+      {
+        defaultAgentOperator: environment.neobots.program.defaultAgentOperator,
+      },
+      provider
+    );
+    this.nftService = new NftService(
+      {
+        candyMachine: environment.neobots.program.candyMachine,
+        collection: environment.neobots.program.collection,
+        treasury: environment.neobots.program.treasury,
+      },
+      provider
+    );
   }
 
   getProgramService(): ProgramService {
