@@ -68,7 +68,7 @@ export class NftService {
       .use(signerIdentity(this.anchorProvider.wallet as any))
       .use(mplCore())
       .use(mplCandyMachine())
-      .use(dasApi());
+      .use(dasApi()) as any;
   }
 
   constructor(
