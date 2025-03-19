@@ -55,7 +55,7 @@ npm run deploy
 
 ```
 cd kvs
-python main.py
+python -m gunicorn main:app -b 0.0.0.0:8080
 ```
 
 - spawn indexer

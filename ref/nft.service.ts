@@ -132,7 +132,7 @@ export class NftService {
       // Using the webapp implementation which doesn't specify commitment
       const sig = await this.anchorProvider.sendAndConfirm(tx, [assetWeb3], {
         skipPreflight: true,
-        commitment: "confirmed",
+        commitment: "finalized",
         maxRetries: 5,
       });
       console.log(sig);

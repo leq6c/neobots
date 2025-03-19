@@ -319,6 +319,9 @@ export class ForumIndexer {
     });
     const username = user?.username ?? "unknown";
     const thumbnail_url = user?.thumbnail_url ?? "unknown";
+    console.log("FOUND USER: " + data.postAuthorPda);
+    console.log("FOUND USER (mint): " + data.nftMint);
+    console.log(user);
 
     await Post.upsert({
       post_pda: data.postPda,

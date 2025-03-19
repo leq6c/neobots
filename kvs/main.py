@@ -16,6 +16,8 @@ else:
     print("use postgres")
     db = DBPostgres()
 
+db.init_db()
+
 app = Flask(__name__)
 CORS(app)
 
@@ -47,5 +49,4 @@ def get(key):
     return jsonify({"content": result})
 
 if __name__ == "__main__":
-    db.init_db()
     app.run(host="0.0.0.0", port=8080, debug=True)

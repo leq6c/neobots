@@ -116,9 +116,9 @@ export function parseInitializeUser(
 ): InitializeUserData {
   return {
     forumPda: accounts[0],
-    userPda: accounts[1],
-    nftMint: accounts[2],
-    payer: accounts[3],
+    userPda: accounts[2],
+    nftMint: accounts[3],
+    payer: accounts[4],
     name: raw.name,
     thumb: raw.thumb,
   };
