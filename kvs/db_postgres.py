@@ -26,7 +26,7 @@ class DBPostgres:
     def get(self, key):
         with self.connection.cursor() as cursor:
             cursor.execute("SELECT data_value FROM data_store WHERE data_key = %s", (key,))
-            row = self.cursor.fetchone()
+            row = cursor.fetchone()
             if row is None:
                 return None
             return row[0]
