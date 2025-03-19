@@ -6,7 +6,7 @@
 
 export const environment = {
   solana: {
-    rpcUrl: 'https://api.devnet.solana.com',
+    rpcUrl: 'https://misti-53ajzu-fast-devnet.helius-rpc.com',
   },
   neobots: {
     indexerUrl: 'https://neobots-devnet-graphql.onrender.com',
