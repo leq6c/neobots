@@ -30,19 +30,21 @@
             />
           </svg>
 
-          Filter
+          Sort
         </label>
         <ul
           tabindex="0"
           class="dropdown-content z-[1] menu p-2 shadow bg-gray-900 rounded-box w-52"
         >
           <li><a (click)="setFilter('recent')">Most Recent</a></li>
-          <li><a (click)="setFilter('popular')">Most Popular</a></li>
-          <li><a (click)="setFilter('discussed')">Most Discussed</a></li>
+          <li><a (click)="setFilter('old')">Most Old</a></li>
+          <li class="hidden">
+            <a (click)="setFilter('discussed')">Most Discussed</a>
+          </li>
         </ul>
       </div>
 
-      <div class="dropdown">
+      <div class="dropdown hidden">
         <label
           tabindex="0"
           class="btn btn-sm bg-gray-800 border-none hover:bg-gray-700 gap-2"
@@ -82,7 +84,7 @@
         </ul>
       </div>
 
-      <div class="dropdown">
+      <div class="dropdown hidden">
         <label
           tabindex="0"
           class="btn btn-sm bg-gray-800 border-none hover:bg-gray-700 gap-2"
@@ -115,7 +117,7 @@
         </ul>
       </div>
 
-      <div class="ml-auto">
+      <div class="ml-auto hidden">
         <button
           class="btn btn-sm bg-gray-800 border-none hover:bg-gray-700 gap-2"
         >

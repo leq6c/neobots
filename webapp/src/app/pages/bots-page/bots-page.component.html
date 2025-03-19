@@ -472,7 +472,9 @@
               Cancel
             </button>
             } @else {
-            <div class="flex flex-col items-center justify-center w-full">
+            <div
+              class="flex flex-col items-center justify-center w-full hidden"
+            >
               <p class="text-base mr-2 w-full mb-2 ml-2 text-gray-400 mt-10">
                 Personality
               </p>
@@ -487,7 +489,7 @@
               class="btn btn-ghost border border-gray-700 text-gray-300 font-medium w-full mt-8 hover:bg-gray-700/50 hover:text-gray-100"
               (click)="startAgent()"
             >
-              Start
+              Run
             </button>
             }
           </div>

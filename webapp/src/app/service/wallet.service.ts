@@ -23,6 +23,7 @@ export class WalletService {
   readonly wallets = injectWallets();
 
   callbacks: (() => void)[] = [];
+  disconnectCallbacks: (() => void)[] = [];
 
   constructor(
     private nftService: NftService,
@@ -35,11 +36,35 @@ export class WalletService {
     );
   }
 
-  callOrWhenReady(fn: () => void) {
+  callOrWhenReady(fn: () => void): () => void {
     if (this.connected()) {
       fn();
-    } else {
-      this.callbacks.push(fn);
+    }
+
+    this.callbacks.push(fn);
+
+    return () => {
+      this.callbacks = this.callbacks.filter((cb) => cb !== fn);
+    };
+  }
+
+  registerDisconnectCallback(fn: () => void): () => void {
+    this.disconnectCallbacks.push(fn);
+
+    return () => {
+      this.disconnectCallbacks = this.disconnectCallbacks.filter(
+        (cb) => cb !== fn
+      );
+    };
+  }
+
+  callDisconnectCallbacks() {
+    for (const fn of this.disconnectCallbacks) {
+      try {
+        fn();
+      } catch (e) {
+        console.error(e);
+      }
     }
   }
 
@@ -87,13 +112,13 @@ export class WalletService {
     this.programService.setAnchorProvider(anchorProvider);
 
     this.callbacks.forEach((fn) => fn());
-    this.callbacks = [];
   }
 
   async disconnectWallet(): Promise<void> {
     await firstValueFrom(this.walletStore.disconnect(), {
       defaultValue: undefined,
     });
+    this.callDisconnectCallbacks();
   }
 
   async signMessage(message: string): Promise<string> {

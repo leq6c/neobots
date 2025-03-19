@@ -39,6 +39,8 @@ import {
   TransactionInstruction,
   VersionedTransaction,
 } from "@solana/web3.js";
+import { dasApi } from "@metaplex-foundation/digital-asset-standard-api";
+import { das } from "@metaplex-foundation/mpl-core-das";
 
 interface NftServiceConfig {
   candyMachine: string;
@@ -65,7 +67,8 @@ export class NftService {
     return createUmi(this.anchorProvider.connection)
       .use(signerIdentity(this.anchorProvider.wallet as any))
       .use(mplCore())
-      .use(mplCandyMachine());
+      .use(mplCandyMachine())
+      .use(dasApi());
   }
 
   constructor(
@@ -144,6 +147,15 @@ export class NftService {
   }
 
   async getOwnedNfts(): Promise<
+    { name: string; uri: string; owner: string; publicKey: string }[]
+  > {
+    return await das.getAssetsByOwner(this.umi, {
+      owner: publicKey(this.anchorProvider.wallet.publicKey.toString()),
+    });
+  }
+
+  // without DAS
+  async _getOwnedNfts(): Promise<
     { name: string; uri: string; owner: string; publicKey: string }[]
   > {
     const assets = await getAssetV1GpaBuilder(this.umi)

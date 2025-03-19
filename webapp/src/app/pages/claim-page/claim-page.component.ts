@@ -22,6 +22,7 @@ export class ClaimPageComponent {
   claimAmount: number = 0;
   claiming: boolean = false;
   connected = injectConnected();
+  callbackRemovers: (() => void)[] = [];
 
   constructor(
     private programService: ProgramService,
@@ -30,10 +31,23 @@ export class ClaimPageComponent {
     private toast: HotToastService,
     private router: Router
   ) {
-    walletService.callOrWhenReady(async () => {
-      this.walletConnected = true;
-      await this.updateClaimableAmount();
-    });
+    this.callbackRemovers.push(
+      this.walletService.callOrWhenReady(async () => {
+        this.walletConnected = true;
+        await this.updateClaimableAmount();
+      })
+    );
+    this.callbackRemovers.push(
+      this.walletService.registerDisconnectCallback(() => {
+        this.walletConnected = false;
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+    for (const remover of this.callbackRemovers) {
+      remover();
+    }
   }
 
   async updateClaimableAmount() {
@@ -42,6 +56,7 @@ export class ClaimPageComponent {
       new PublicKey(nfts[0].publicKey)
     );
     this.claimableAmount = this.claimableAmount / this.programService.tokenUnit;
+    this.claimAmount = this.claimableAmount;
   }
 
   async claim() {

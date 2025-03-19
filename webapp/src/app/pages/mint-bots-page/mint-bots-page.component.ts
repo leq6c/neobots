@@ -31,6 +31,7 @@ export class MintBotsPageComponent {
   name: string = 'neo';
   configureMintAddress?: PublicKey;
   configured: boolean = false;
+  callbackRemovers: (() => void)[] = [];
 
   constructor(
     private programService: ProgramService,
@@ -50,20 +51,32 @@ export class MintBotsPageComponent {
       this.step = 0;
     }
 
-    walletService.callOrWhenReady(async () => {
-      if (this.configureMintAddress) {
-        const isInitialized = await this.programService.isUserInitialized(
-          this.configureMintAddress
-        );
-        if (isInitialized) {
-          this.configured = true;
+    this.callbackRemovers.push(
+      this.walletService.callOrWhenReady(async () => {
+        if (this.configureMintAddress) {
+          const isInitialized = await this.programService.isUserInitialized(
+            this.configureMintAddress
+          );
+          if (isInitialized) {
+            this.configured = true;
+          }
         }
-      }
-      this.walletConnected = true;
-      this.updateMaxMint();
-    });
+        this.walletConnected = true;
+        this.updateMaxMint();
+      })
+    );
+    this.callbackRemovers.push(
+      this.walletService.registerDisconnectCallback(() => {
+        this.walletConnected = false;
+      })
+    );
   }
 
+  ngOnDestroy(): void {
+    for (const remover of this.callbackRemovers) {
+      remover();
+    }
+  }
   async updateMaxMint() {
     const candyMachine = await this.nftService.getCandyMachine();
     this.maxMint = candyMachine.itemsLoaded;

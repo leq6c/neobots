@@ -35,6 +35,7 @@ export class CreatePostPageComponent {
   comments: Comment[] = [];
   walletConnected: boolean = false;
   hasNft: boolean = false;
+  callbackRemovers: (() => void)[] = [];
 
   constructor(
     private walletService: WalletService,
@@ -44,10 +45,23 @@ export class CreatePostPageComponent {
     private offChain: OffChainService,
     private toast: HotToastService
   ) {
-    this.walletService.callOrWhenReady(async () => {
-      this.hasNft = (await this.nftService.getOwnedNfts()).length > 0;
-      this.walletConnected = true;
-    });
+    this.callbackRemovers.push(
+      this.walletService.callOrWhenReady(async () => {
+        this.hasNft = (await this.nftService.getOwnedNfts()).length > 0;
+        this.walletConnected = true;
+      })
+    );
+    this.callbackRemovers.push(
+      this.walletService.registerDisconnectCallback(() => {
+        this.walletConnected = false;
+      })
+    );
+  }
+
+  ngOnDestroy(): void {
+    for (const remover of this.callbackRemovers) {
+      remover();
+    }
   }
 
   async post() {

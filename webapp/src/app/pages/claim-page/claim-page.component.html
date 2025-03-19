@@ -24,7 +24,7 @@
             [(ngModel)]="claimAmount"
             [max]="claimableAmount"
             [min]="0"
-            [disabled]="claiming"
+            disabled
           />
           @if (claimAmount > claimableAmount) {
           <p class="text-xs text-red-500">

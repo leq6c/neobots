@@ -108,6 +108,8 @@ export class BotsPageComponent implements OnDestroy {
   lastChallenge?: ChallengeResponse;
   lastChallengeSignature?: string;
 
+  callbackRemovers: (() => void)[] = [];
+
   constructor(
     private nftService: NftService,
     private walletService: WalletService,
@@ -116,65 +118,76 @@ export class BotsPageComponent implements OnDestroy {
     private toastService: HotToastService,
     private router: Router
   ) {
-    this.walletService.callOrWhenReady(async () => {
-      console.log(Number((await this.programService.getUserCounter()).count));
-      this.nfts = await this.nftService.getOwnedNfts();
+    this.callbackRemovers.push(
+      this.walletService.callOrWhenReady(async () => {
+        console.log(Number((await this.programService.getUserCounter()).count));
+        this.nfts = await this.nftService.getOwnedNfts();
 
-      if (this.nfts.length == 0) {
-        this.loaded = true;
-        return;
-      }
-
-      this.selectedNft = this.nfts![0];
-
-      if (
-        !(await this.programService.isUserInitialized(
-          new PublicKey(this.selectedNft!.publicKey)
-        ))
-      ) {
-        this.router.navigate(['/mint', this.selectedNft!.publicKey]);
-        return;
-      }
-
-      const user = await this.programService.getUser(
-        new PublicKey(this.selectedNft!.publicKey)
-      );
-
-      this.name = user.name;
-
-      await this.updateActionPoints();
-
-      this.receivedPoints = await this.getReceivedPoints(
-        new PublicKey(this.selectedNft!.publicKey)
-      );
-
-      this.agentConfiguredStatus = await this.agentService.checkAgentStatus(
-        this.selectedNft!.publicKey
-      );
-
-      this.personality = this.agentConfiguredStatus?.personality || '';
-
-      this.ws = this.agentService.subscribeToAgent(
-        this.selectedNft!.publicKey,
-        {
-          onStatus: (status) => {
-            if (this.stopping) {
-              this.agentRunningStatusWhileStopping = status;
-              return;
-            }
-            this.onAgentStatus(status);
-          },
-          onInference: (inference) => {
-            this.onAgentInference(inference);
-          },
+        if (this.nfts.length == 0) {
+          this.loaded = true;
+          return;
         }
-      );
 
-      this.loaded = true;
-    });
+        this.selectedNft = this.nfts![0];
+
+        if (
+          !(await this.programService.isUserInitialized(
+            new PublicKey(this.selectedNft!.publicKey)
+          ))
+        ) {
+          this.router.navigate(['/mint', this.selectedNft!.publicKey]);
+          return;
+        }
+
+        const user = await this.programService.getUser(
+          new PublicKey(this.selectedNft!.publicKey)
+        );
+
+        this.name = user.name;
+
+        await this.updateActionPoints();
+
+        this.receivedPoints = await this.getReceivedPoints(
+          new PublicKey(this.selectedNft!.publicKey)
+        );
+
+        this.agentConfiguredStatus = await this.agentService.checkAgentStatus(
+          this.selectedNft!.publicKey
+        );
+
+        this.personality = this.agentConfiguredStatus?.personality || 'default';
+
+        this.ws = this.agentService.subscribeToAgent(
+          this.selectedNft!.publicKey,
+          {
+            onStatus: (status) => {
+              if (this.stopping) {
+                this.agentRunningStatusWhileStopping = status;
+                return;
+              }
+              this.onAgentStatus(status);
+            },
+            onInference: (inference) => {
+              this.onAgentInference(inference);
+            },
+          }
+        );
+
+        this.loaded = true;
+      })
+    );
+
+    this.callbackRemovers.push(
+      this.walletService.registerDisconnectCallback(() => {
+        this.loaded = false;
+      })
+    );
   }
 
   ngOnDestroy(): void {
+    for (const remover of this.callbackRemovers) {
+      remover();
+    }
     if (this.ws) {
       this.agentService.unsubscribeFromAgent(
         this.ws,
@@ -268,16 +281,29 @@ export class BotsPageComponent implements OnDestroy {
       }
     }
 
-    this.lastChallenge = await this.agentService.getChallenge(
-      this.selectedNft!.publicKey,
-      this.walletService.publicKey()!.toString()
-    );
+    const toast = this.toastService.loading('Requesting challenge...', {
+      position: 'bottom-right',
+    });
 
-    this.lastChallengeSignature = await this.walletService.signMessage(
-      this.lastChallenge.challenge
-    );
+    try {
+      this.lastChallenge = await this.agentService.getChallenge(
+        this.selectedNft!.publicKey,
+        this.walletService.publicKey()!.toString()
+      );
 
-    return this.lastChallengeSignature;
+      this.lastChallengeSignature = await this.walletService.signMessage(
+        this.lastChallenge.challenge
+      );
+
+      return this.lastChallengeSignature;
+    } catch (e: any) {
+      this.toastService.error('Failed to request challenge, please try again', {
+        position: 'bottom-right',
+      });
+      throw e;
+    } finally {
+      toast.close();
+    }
   }
 
   async startAgent() {
@@ -291,6 +317,10 @@ export class BotsPageComponent implements OnDestroy {
     }
 
     const signature = await this.getChallengeSignature();
+
+    const toast = this.toastService.loading('Configuring agent...', {
+      position: 'bottom-right',
+    });
 
     try {
       let result = await this.agentService.configureAgent(
@@ -313,6 +343,10 @@ export class BotsPageComponent implements OnDestroy {
         this.toastService.error(result.message);
         return;
       }
+
+      this.toastService.success('Agent configured successfully', {
+        position: 'bottom-right',
+      });
     } catch (e: any) {
       if (e.toString().includes('Error verifying challenge')) {
         this.lastChallenge = undefined;
@@ -321,6 +355,8 @@ export class BotsPageComponent implements OnDestroy {
       } else {
         this.toastService.error(e.toString());
       }
+    } finally {
+      toast.close();
     }
   }
 
