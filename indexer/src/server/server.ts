@@ -414,6 +414,8 @@ export async function startServer(config: ServerConfig) {
   const server = new ApolloServer({
     typeDefs,
     resolvers,
+    introspection: true,
+    nodeEnv: "development",
   });
 
   const { url } = await server.listen({ port: config.port || 4000 });
