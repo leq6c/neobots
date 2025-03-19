@@ -3,22 +3,24 @@ import { Program } from "@coral-xyz/anchor";
 import { Neobots } from "../program/target/types/neobots";
 import { PublicKey, Keypair } from "@solana/web3.js";
 import { TOKEN_PROGRAM_ID } from "@solana/spl-token";
-import { CoreNFTBuilder } from "./CoreNFTBuilder";
+import { CoreNFTBuilder } from "./utils/CoreNFTBuilder";
 import { ProgramService } from "../ref/program.service";
-import { getTestKeypair } from "./wallet_util";
+import {
+  loadCandyMachineKeypairFromEnv,
+  loadCollectionMintKeypairFromEnv,
+  loadDeployerKeypairFromEnv,
+  loadTreasuryKeypairFromEnv,
+  getSolanaRpcUrl,
+} from "./wallet_util";
 
 async function main() {
-  // pub const TOKEN_UNIT: u64 = 1_000_000_000;
-  // pub const RATIO_SCALE: u64 = 1_000_000;
-  const TOKEN_UNIT = 1_000_000_000;
-  const RATIO_SCALE = 1_000_000;
+  const keypair = loadDeployerKeypairFromEnv();
+  const collectionMintKeypair = loadCollectionMintKeypairFromEnv();
+  const treasuryKeypair = loadTreasuryKeypairFromEnv();
+  const candyMachineKeypair = loadCandyMachineKeypairFromEnv();
 
-  // Configure the client to use the local cluster.
-  // anchor
-  console.log("=>Start");
-  const keypair = getTestKeypair();
   const provider = new anchor.AnchorProvider(
-    new anchor.web3.Connection("http://127.0.0.1:8899"),
+    new anchor.web3.Connection(getSolanaRpcUrl()),
     new anchor.Wallet(keypair),
     {
       commitment: "confirmed",
@@ -26,15 +28,26 @@ async function main() {
   );
   anchor.setProvider(provider);
 
-  const program = new ProgramService(provider);
+  const program = new ProgramService(
+    {
+      defaultAgentOperator: "11111111111111111111111111111111", // we dont use agent operator here
+    },
+    provider
+  );
 
   // for localnet
-  console.log("=>Airdrop SOL");
-  const sig = await program.airdropSol(keypair.publicKey, 10);
-  await program.confirmTransaction(sig);
+  if (getSolanaRpcUrl() === "http://127.0.0.1:8899") {
+    console.log("Localnet detected, airdropping SOL to deployer account...");
+    const sig = await program.airdropSol(keypair.publicKey, 10);
+    await program.confirmTransaction(sig);
+  } else {
+    console.log(
+      "Non-localnet detected, transaction would fail if no SOL is in the deployer account"
+    );
+  }
 
+  // forum
   let forumPda: PublicKey;
-
   let splTokenMint: PublicKey;
 
   // NFT Builder
@@ -58,22 +71,46 @@ async function main() {
 
   console.log("=>Create Candy Machine");
   {
-    coreNftBuilder = new CoreNFTBuilder(provider, keypair);
-    await coreNftBuilder.createCollection();
-    await coreNftBuilder.createCandyMachine();
-    await coreNftBuilder.addItemsToCandyMachine();
-    await coreNftBuilder.checkCandyMachine();
+    coreNftBuilder = new CoreNFTBuilder(
+      provider,
+      keypair,
+      collectionMintKeypair,
+      treasuryKeypair,
+      candyMachineKeypair
+    );
+
+    if (await coreNftBuilder.hasCollection()) {
+      console.log("Collection already exists, skipping creation...");
+    } else {
+      await coreNftBuilder.createCollection();
+    }
+    if (await coreNftBuilder.hasCandyMachine()) {
+      console.log("Candy Machine already exists, skipping creation...");
+    } else {
+      console.log("Creating Candy Machine...");
+      await coreNftBuilder.createCandyMachine();
+      console.log("Adding items to Candy Machine...");
+      await coreNftBuilder.addItemsToCandyMachine();
+      console.log("Checking Candy Machine...");
+      await coreNftBuilder.checkCandyMachine();
+    }
+
     // get collection mint
     collection = coreNftBuilder.getCollectionMint();
   }
 
   console.log("=>Initialize Forum");
   {
-    const tx = await program.initializeForum(collection.publicKey);
-    console.log("transaction signature", tx);
+    if (await program.getForum()) {
+      console.log("Forum already exists, skipping initialization...");
+    } else {
+      console.log("Initializing Forum...");
+      const tx = await program.initializeForum(collection.publicKey);
+      console.log("transaction signature", tx);
 
-    console.log("Wait till transaction is finalized...");
-    await program.finalizeTransaction(tx);
+      console.log("Wait till transaction is finalized...");
+      await program.finalizeTransaction(tx);
+    }
 
     const forum = await program.getForum();
     console.log("Forum:", forum);

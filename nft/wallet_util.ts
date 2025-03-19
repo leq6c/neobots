@@ -1,21 +1,35 @@
 import { Keypair } from "@solana/web3.js";
 import fs from "fs";
 
-export function getTestKeypair(): Keypair {
-  if (!fs.existsSync("tmpkeypair.json")) {
-    const keypair = Keypair.generate();
-    // save
-    const privateKey = Buffer.from(keypair.secretKey).toJSON();
-    fs.writeFileSync(
-      "tmpkeypair.json",
-      JSON.stringify({
-        privateKey: privateKey,
-      })
-    );
-    return keypair;
-  } else {
-    const data = fs.readFileSync("tmpkeypair.json", "utf8");
-    const privateKey = Buffer.from(JSON.parse(data).privateKey, "base64");
-    return Keypair.fromSecretKey(privateKey);
+export function loadKeypairFromEnv(env: string): Keypair {
+  const privateKeyString = process.env[env];
+  if (!privateKeyString) {
+    throw new Error(`${env} is not set`);
   }
+  const privateKey = Buffer.from(privateKeyString, "base64");
+  return Keypair.fromSecretKey(privateKey);
+}
+
+export function loadDeployerKeypairFromEnv(): Keypair {
+  return loadKeypairFromEnv("DEPLOYER_PRIVATE_KEY");
+}
+
+export function loadCollectionMintKeypairFromEnv(): Keypair {
+  return loadKeypairFromEnv("COLLECTION_MINT_PRIVATE_KEY");
+}
+
+export function loadTreasuryKeypairFromEnv(): Keypair {
+  return loadKeypairFromEnv("TREASURY_PRIVATE_KEY");
+}
+
+export function loadCandyMachineKeypairFromEnv(): Keypair {
+  return loadKeypairFromEnv("CANDY_MACHINE_PRIVATE_KEY");
+}
+
+export function getSolanaRpcUrl(): string {
+  const url = process.env.SOLANA_RPC_URL;
+  if (!url) {
+    throw new Error("SOLANA_RPC_URL is not set");
+  }
+  return url;
 }

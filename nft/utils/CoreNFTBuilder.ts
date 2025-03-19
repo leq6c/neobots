@@ -47,7 +47,10 @@ export class CoreNFTBuilder {
 
   constructor(
     private provider: AnchorProvider,
-    private authority: Web3Keypair
+    private authority: Web3Keypair,
+    private collectionMintKeypair: Web3Keypair,
+    private treasuryKeypair: Web3Keypair,
+    private candyMachineKeypair: Web3Keypair
   ) {
     this.keypair = fromWeb3JsKeypair(authority);
 
@@ -55,9 +58,18 @@ export class CoreNFTBuilder {
       .use(mplCoreCandyMachine())
       .use(keypairIdentity(this.keypair));
 
-    this.collectionMint = generateSigner(this.umi);
-    this.treasury = generateSigner(this.umi);
-    this.candyMachine = generateSigner(this.umi);
+    this.collectionMint = createSignerFromKeypair(
+      this.umi,
+      fromWeb3JsKeypair(this.collectionMintKeypair)
+    );
+    this.treasury = createSignerFromKeypair(
+      this.umi,
+      fromWeb3JsKeypair(this.treasuryKeypair)
+    );
+    this.candyMachine = createSignerFromKeypair(
+      this.umi,
+      fromWeb3JsKeypair(this.candyMachineKeypair)
+    );
 
     console.log(`Testing Candy Machine Core...`);
     console.log(`Important account information:`);
@@ -90,6 +102,26 @@ export class CoreNFTBuilder {
     }
   }
 
+  async deleteCandyMachine(): Promise<void> {
+    try {
+      await deleteCandyMachine(this.umi, {
+        candyMachine: this.candyMachine.publicKey,
+      }).sendAndConfirm(this.umi, this.options);
+      console.log(
+        `8. ✅ - Deleted the Candy Machine: ${this.candyMachine.publicKey.toString()}`
+      );
+    } catch (error) {
+      console.log("8. ❌ - Error deleting the Candy Machine.");
+    }
+  }
+
+  async hasCollection(): Promise<boolean> {
+    const collection = await this.umi.programs.get(
+      this.collectionMint.publicKey
+    );
+    return collection !== null;
+  }
+
   async createCollection(): Promise<void> {
     try {
       await createCollectionV1(this.umi, {
@@ -103,6 +135,13 @@ export class CoreNFTBuilder {
     } catch (error) {
       console.log("2. ❌ - Error creating collection.");
     }
+  }
+
+  async hasCandyMachine(): Promise<boolean> {
+    const candyMachine = await this.umi.programs.get(
+      this.candyMachine.publicKey
+    );
+    return candyMachine !== null;
   }
 
   async createCandyMachine(): Promise<void> {
