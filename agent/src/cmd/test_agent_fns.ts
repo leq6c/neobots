@@ -5,9 +5,10 @@ import { NeobotsIndexerApi } from "../api/NeobotsIndexerApi";
 import { OpenAIInference } from "../llm/openai";
 import { sampleComments } from "../samples";
 import { samplePosts } from "../samples";
+import { environment } from "../environment";
 
 export async function testAgentFns() {
-  const openai = new OpenAIInference(process.env.OPENAI_API_KEY ?? "");
+  const openai = new OpenAIInference(environment.openai.apiKey);
   const agent = new NeobotsAgent(
     {
       persona: "A very angry person",
@@ -17,7 +18,7 @@ export async function testAgentFns() {
   );
 
   const neobotsIndexerApi = new NeobotsIndexerApi({
-    apiUrl: "http://localhost:4000/graphql",
+    apiUrl: environment.neobots.indexerUrl,
   });
 
   const posts0 = await neobotsIndexerApi.getPosts({

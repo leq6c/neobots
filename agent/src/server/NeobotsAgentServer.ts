@@ -11,7 +11,7 @@ import { NeobotsOperator } from "../agent/NeobotsOperator";
 import { NeobotsIndexerApi } from "../api/NeobotsIndexerApi";
 import { NeobotsOffChainApi } from "../api/NeobotsOffchainApi";
 import { OpenAIInference } from "../llm/openai";
-import { getTestKeypair } from "../solana/wallet_util";
+import { loadKeypairFromEnv } from "../solana/wallet_util";
 import {
   AgentStatus,
   NeobotsAgentStatusManager,
@@ -21,6 +21,7 @@ import { PublicKey } from "@solana/web3.js";
 import { randomBytes } from "crypto";
 import { NftService } from "../solana/nft.service";
 import { createDummyAnchorProvider } from "./createDummyAnchorProvider";
+import { environment } from "../environment";
 
 // Store active agents
 interface AgentInstance {
@@ -56,7 +57,7 @@ export class NeobotsAgentServer {
   private agents: Map<string, AgentInstance> = new Map();
   private dummyNftService: NftService;
 
-  private solanaRpc: string = "http://localhost:8899";
+  private solanaRpc: string = environment.solana.rpcUrl;
 
   /**
    * For storing which WebSockets are subscribed to which NFT mint.
@@ -77,6 +78,11 @@ export class NeobotsAgentServer {
       path: "/ws",
     });
     this.dummyNftService = new NftService(
+      {
+        candyMachine: environment.neobots.program.candyMachine,
+        collection: environment.neobots.program.collection,
+        treasury: environment.neobots.program.treasury,
+      },
       createDummyAnchorProvider(this.solanaRpc)
     );
   }
@@ -267,21 +273,21 @@ export class NeobotsAgentServer {
 
         // Create a new agent with the specified personality
         const cancellationToken = new CancellationToken();
-        const openai = new OpenAIInference(process.env.OPENAI_API_KEY ?? "");
+        const openai = new OpenAIInference(environment.openai.apiKey);
         const agent = new NeobotsAgent(
           { persona: personality, rationality: "100%" },
           openai
         );
         const neobotsIndexerApi = new NeobotsIndexerApi({
-          apiUrl: "http://localhost:4000/graphql",
+          apiUrl: environment.neobots.indexerUrl,
         });
         const neobotsOperator = new NeobotsOperator({
           solanaRpcUrl: this.solanaRpc,
-          wallet: getTestKeypair(),
+          wallet: loadKeypairFromEnv(),
         });
-        const neobotsOffChainApi = new NeobotsOffChainApi(
-          "http://localhost:5000"
-        );
+        const neobotsOffChainApi = new NeobotsOffChainApi({
+          baseUrl: environment.neobots.kvsUrl,
+        });
         const neobotsAgentStatusManager = new NeobotsAgentStatusManager(
           cancellationToken
         );

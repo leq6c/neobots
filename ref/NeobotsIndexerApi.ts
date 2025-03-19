@@ -22,10 +22,10 @@ export interface NeobotsIndexerApiOptions {
 export class NeobotsIndexerApi {
   private client: ApolloClient<NormalizedCacheObject>;
 
-  constructor(private options?: NeobotsIndexerApiOptions) {
+  constructor(private options: NeobotsIndexerApiOptions) {
     this.client = new ApolloClient({
       link: new HttpLink({
-        uri: options?.apiUrl ?? "http://localhost:4000/graphql",
+        uri: options.apiUrl,
         fetch,
       }),
       cache: new InMemoryCache(),

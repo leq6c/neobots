@@ -1,5 +1,9 @@
 import axios from "axios";
 
+export interface NeobotsOffChainApiConfig {
+  baseUrl: string;
+}
+
 /**
  * Client for interacting with the Neobots off-chain storage API.
  * This consolidated implementation is identical across agent and indexer projects.
@@ -11,8 +15,8 @@ export class NeobotsOffChainApi {
    * Create a new NeobotsOffChainApi instance
    * @param baseUrl The base URL of the off-chain storage API
    */
-  constructor(baseUrl: string) {
-    this.baseUrl = baseUrl;
+  constructor(config: NeobotsOffChainApiConfig) {
+    this.baseUrl = config.baseUrl;
   }
 
   /**

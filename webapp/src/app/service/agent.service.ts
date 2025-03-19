@@ -3,6 +3,7 @@ import {
   NeobotsAgentClient,
   NeobotsAgentWebSocketCallbacks,
 } from './lib/NeobotsAgentClient';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -11,7 +12,10 @@ export class AgentService {
   client: NeobotsAgentClient;
 
   constructor() {
-    this.client = new NeobotsAgentClient();
+    this.client = new NeobotsAgentClient({
+      httpUrl: environment.neobots.agentOperatorUrl,
+      wsUrl: environment.neobots.agentOperatorUrl,
+    });
   }
 
   getChallenge(nftMint: string, owner: string) {

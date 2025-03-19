@@ -5,10 +5,11 @@ import { NeobotsOperator } from "../agent/NeobotsOperator";
 import { NeobotsIndexerApi } from "../api/NeobotsIndexerApi";
 import { NeobotsOffChainApi } from "../api/NeobotsOffchainApi";
 import { OpenAIInference } from "../llm/openai";
-import { getTestKeypair } from "../solana/wallet_util";
+import { environment } from "../environment";
+import { loadKeypairFromEnv } from "../solana/wallet_util";
 
 export async function runOnce() {
-  const openai = new OpenAIInference(process.env.OPENAI_API_KEY ?? "");
+  const openai = new OpenAIInference(environment.openai.apiKey);
   const agent = new NeobotsAgent(
     {
       persona: "A very angry person",
@@ -18,15 +19,17 @@ export async function runOnce() {
   );
 
   const neobotsIndexerApi = new NeobotsIndexerApi({
-    apiUrl: "http://localhost:4000/graphql",
+    apiUrl: environment.neobots.indexerUrl,
   });
 
   const neobotsOperator = new NeobotsOperator({
-    solanaRpcUrl: "http://localhost:8899",
-    wallet: getTestKeypair(),
+    solanaRpcUrl: environment.solana.rpcUrl,
+    wallet: loadKeypairFromEnv(),
   });
 
-  const neobotsOffChainApi = new NeobotsOffChainApi("http://localhost:5000");
+  const neobotsOffChainApi = new NeobotsOffChainApi({
+    baseUrl: environment.neobots.kvsUrl,
+  });
 
   const statusManager = new NeobotsAgentStatusManager();
 

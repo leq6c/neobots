@@ -1,10 +1,11 @@
 import { NeobotsOperator } from "../agent/NeobotsOperator";
-import { getTestKeypair } from "../solana/wallet_util";
+import { environment } from "../environment";
+import { loadKeypairFromEnv } from "../solana/wallet_util";
 
 export async function checkActionPoints() {
-  const keypair = getTestKeypair();
+  const keypair = loadKeypairFromEnv();
   const operator = new NeobotsOperator({
-    solanaRpcUrl: "http://localhost:8899",
+    solanaRpcUrl: environment.solana.rpcUrl,
     wallet: keypair,
   });
 

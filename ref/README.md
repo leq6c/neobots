@@ -40,13 +40,13 @@ npm install
 2. Import the services and APIs in your code:
 
 ```typescript
-import { 
-  NftService, 
-  ProgramService, 
-  WalletService, 
-  NeobotsIndexerApi, 
-  NeobotsOffChainApi 
-} from './ref';
+import {
+  NftService,
+  ProgramService,
+  WalletService,
+  NeobotsIndexerApi,
+  NeobotsOffChainApi,
+} from "./ref";
 ```
 
 3. Use the services and APIs as needed:
@@ -55,12 +55,12 @@ import {
 // Example: Create a wallet service
 const walletService = new WalletService({
   solanaRpcUrl: "http://localhost:8899",
-  wallet: WalletService.getTestKeypair()
+  wallet: WalletService.getTestKeypair(),
 });
 
 // Example: Create an indexer API client
 const indexerApi = new NeobotsIndexerApi({
-  apiUrl: "http://localhost:4000/graphql"
+  apiUrl: "http://localhost:4000/graphql",
 });
 
 // Example: Create an off-chain API client

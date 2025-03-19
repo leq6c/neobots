@@ -105,25 +105,18 @@ export interface NeobotsAgentWebSocketCallbacks {
 // =========================
 //   Neobots Agent Client
 // =========================
+export interface NeobotsAgentClientConfig {
+  httpUrl: string;
+  wsUrl: string;
+}
 
 export class NeobotsAgentClient {
-  /**
-   * You may need to adjust these defaults depending on your setup.
-   * Make sure you include the correct protocol (http/https, ws/wss)
-   * and ports.
-   */
   private readonly baseHttpUrl: string; // e.g. http://localhost:4001
   private readonly baseWsUrl: string; // e.g.  ws://localhost:4001/ws
 
-  constructor({
-    httpUrl = "http://localhost:4001",
-    wsUrl = "ws://localhost:4001/ws",
-  }: {
-    httpUrl?: string;
-    wsUrl?: string;
-  } = {}) {
-    this.baseHttpUrl = httpUrl.replace(/\/+$/, ""); // trim trailing slashes
-    this.baseWsUrl = wsUrl;
+  constructor(config: NeobotsAgentClientConfig) {
+    this.baseHttpUrl = config.httpUrl.replace(/\/+$/, ""); // trim trailing slashes
+    this.baseWsUrl = config.wsUrl;
   }
 
   /**

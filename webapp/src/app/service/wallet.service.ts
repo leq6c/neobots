@@ -10,6 +10,7 @@ import { injectConnected } from '../lib/solana/lib/inject-connected';
 import { NftService } from './nft.service';
 import { ProgramService } from './program.service';
 import { Connection, Keypair } from '@solana/web3.js';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
@@ -28,7 +29,7 @@ export class WalletService {
     private programService: ProgramService
   ) {
     setProvider(
-      new AnchorProvider(new Connection('http://127.0.0.1:8899'), {} as any, {
+      new AnchorProvider(new Connection(environment.solana.rpcUrl), {} as any, {
         commitment: 'confirmed',
       })
     );
@@ -64,7 +65,7 @@ export class WalletService {
   }
 
   async connectWallet(wallet: Wallet): Promise<void> {
-    this.connectionStore.setEndpoint('http://127.0.0.1:8899');
+    this.connectionStore.setEndpoint(environment.solana.rpcUrl);
 
     this.walletStore.selectWallet(wallet.adapter.name);
     await firstValueFrom(this.walletStore.connect(), {

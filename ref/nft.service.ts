@@ -7,6 +7,7 @@ import {
   generateSigner,
   some,
   KeypairSigner,
+  PublicKey,
 } from "@metaplex-foundation/umi";
 import { AnchorProvider, Program, web3 } from "@coral-xyz/anchor";
 import {
@@ -39,18 +40,26 @@ import {
   VersionedTransaction,
 } from "@solana/web3.js";
 
+interface NftServiceConfig {
+  candyMachine: string;
+  collection: string;
+  treasury: string;
+}
+
 /**
  * Service for interacting with NFTs on the Solana blockchain.
  * This consolidated implementation combines features from agent, indexer, and webapp versions.
  */
 export class NftService {
-  private candyMachine = publicKey(
-    "EqC9PXd7nARX9QqnejBxViL1VmpU6u7h5PYySLVewWMr"
-  );
-  private collection = publicKey(
-    "HpCBp9A5tZeMzchaHHyxatLMV8rdgBVMumAGvDFGM21y"
-  );
-  private treasury = publicKey("ASmQn6osZh6zdCTXSdt7wooYD9sTRPtDHUaEKuRZDAzi");
+  private get candyMachine(): PublicKey {
+    return publicKey(this.config.candyMachine);
+  }
+  private get collection(): PublicKey {
+    return publicKey(this.config.collection);
+  }
+  private get treasury(): PublicKey {
+    return publicKey(this.config.treasury);
+  }
 
   private get umi(): Umi {
     return createUmi(this.anchorProvider.connection)
@@ -59,7 +68,10 @@ export class NftService {
       .use(mplCandyMachine());
   }
 
-  constructor(protected anchorProvider: AnchorProvider) {
+  constructor(
+    private config: NftServiceConfig,
+    protected anchorProvider: AnchorProvider
+  ) {
     // polyfill Buffer for anchor if in browser environment
     try {
       if (typeof window !== "undefined" && Buffer) {

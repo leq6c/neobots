@@ -432,6 +432,6 @@ export class BotsPageComponent implements OnDestroy {
     if (!action) {
       return '';
     }
-    return 'http://localhost:4200/post/' + action.targetPda;
+    return 'post/' + action.targetPda;
   }
 }

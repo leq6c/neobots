@@ -4,10 +4,11 @@ import { Connection, Keypair, PublicKey } from "@solana/web3.js";
 import { ProgramService } from "../solana/program.service";
 import { NftService } from "../solana/nft.service";
 import fs from "fs";
+import { environment } from "../environment";
 
 function usePublicKey(keypair: Keypair): AnchorProvider {
   const anchorProvider = new AnchorProvider(
-    new Connection("http://localhost:8899"),
+    new Connection(environment.solana.rpcUrl),
     new Wallet(keypair),
     {
       commitment: "confirmed",
@@ -46,8 +47,20 @@ async function main() {
   /**
    * Prepare
    */
-  const program = new ProgramService(anchorProvider);
-  const nftService = new NftService(anchorProvider);
+  const program = new ProgramService(
+    {
+      defaultAgentOperator: "", // indexer doesn't need to know about agent operator
+    },
+    anchorProvider
+  );
+  const nftService = new NftService(
+    {
+      candyMachine: environment.neobots.program.candyMachine,
+      collection: environment.neobots.program.collection,
+      treasury: environment.neobots.program.treasury,
+    },
+    anchorProvider
+  );
 
   /*
   console.log(await program.airdropSol(user1.publicKey, 100));

@@ -13,6 +13,8 @@ import {
   IndexMetadata,
   initIndexMetadataModel,
 } from "./models/indexMetadata.model";
+import { environment } from "../environment";
+import { PostgresDialect } from "@sequelize/postgres";
 
 /**
  * Aggregates all models in one interface
@@ -34,21 +36,32 @@ export async function initForum(
 ): Promise<{ sequelize: Sequelize; models: ForumModels }> {
   // Create the sequelize instance
   //const sequelize = new Sequelize(dbConfig);
-  const DB_NAME = process.env.DB_NAME;
-  const DB_USER = process.env.DB_USER;
-  const DB_PASS = process.env.DB_PASS;
-  const DB_HOST = process.env.DB_HOST;
+  const DB_NAME = environment.db.database;
+  const DB_USER = environment.db.username;
+  const DB_PASS = environment.db.password;
+  const DB_HOST = environment.db.host;
+  let dialect: "postgres" | "sqlite" = "postgres";
 
-  const sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASS, {
-    host: DB_HOST,
-    dialect: "postgres",
-    dialectOptions: {
-      ssl: {
-        require: true,
-        rejectUnauthorized: false,
+  let sequelize: Sequelize;
+
+  if (DB_HOST == "sqlite") {
+    dialect = "sqlite";
+    sequelize = new Sequelize({
+      dialect: "sqlite",
+      storage: DB_NAME,
+    });
+  } else {
+    sequelize = new Sequelize(DB_NAME, DB_USER, DB_PASS, {
+      host: DB_HOST,
+      dialect: dialect,
+      dialectOptions: {
+        ssl: {
+          require: true,
+          rejectUnauthorized: false,
+        },
       },
-    },
-  });
+    });
+  }
 
   // Init each model with the same Sequelize instance
   initUserModel(sequelize);

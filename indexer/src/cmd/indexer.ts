@@ -7,18 +7,24 @@ import { ForumIndexer } from "../indexing/forum_indexer";
 import { initForum } from "../forum/init"; // our DB init
 import { ProgramService } from "../solana/program.service"; // your custom code
 import { NeobotsOffChainApi } from "../api/NeobotsOffChainApi";
+import { environment } from "../environment";
 
 export async function indexer() {
   // 1) Setup the Solana connection
-  const connection = new Connection(process.env.SOLANA_RPC_URL);
+  const connection = new Connection(environment.solana.rpcUrl);
   const wallet = new Wallet(Keypair.generate());
   const anchorProvider = new AnchorProvider(connection, wallet, {});
 
   // 2) Setup your program
-  const programService = new ProgramService(anchorProvider);
+  const programService = new ProgramService(
+    {
+      defaultAgentOperator: "", // indexer doesn't need to know about agent operator
+    },
+    anchorProvider
+  );
   const programId = programService.programId; // or new PublicKey(...)
 
-  const offChainApi = new NeobotsOffChainApi(process.env.OFF_CHAIN_API_URL);
+  const offChainApi = new NeobotsOffChainApi(environment.neobots.kvsUrl);
 
   // 3) Init your DB (Sequelize)
   const { sequelize, models } = await initForum({});

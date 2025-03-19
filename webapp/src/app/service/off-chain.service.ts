@@ -1,11 +1,14 @@
 import { Injectable } from '@angular/core';
 import { NeobotsOffChainApi } from '../../../../ref/NeobotsOffChainApi';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root',
 })
 export class OffChainService extends NeobotsOffChainApi {
   constructor() {
-    super('http://localhost:5000');
+    super({
+      baseUrl: environment.neobots.kvsUrl,
+    });
   }
 }

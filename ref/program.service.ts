@@ -25,6 +25,11 @@ import { SYSTEM_PROGRAM_ID } from "@coral-xyz/anchor/dist/cjs/native/system";
 import { parseAny } from "./parser/parseTx";
 import { CreatePostData, ParsedInstruction } from "./parser/parser.types";
 import { extractProgramLogs } from "./parser/parseLogs";
+import { MPL_TOKEN_METADATA_PROGRAM_ID } from "@metaplex-foundation/mpl-token-metadata";
+
+export interface ProgramServiceConfig {
+  defaultAgentOperator: string;
+}
 
 export interface ActionPoints {
   post: number;
@@ -47,14 +52,17 @@ export class ProgramService {
   }
 
   get defaultOperator(): PublicKey {
-    return new PublicKey("EXJPJ1px6GBzGN5Zj1qLXcUQb7QVwgn9c9YSeCwJQYuG");
+    return new PublicKey(this.config.defaultAgentOperator);
   }
 
   get tokenUnit(): number {
     return 1_000_000_000;
   }
 
-  constructor(protected anchorProvider: AnchorProvider) {
+  constructor(
+    private config: ProgramServiceConfig,
+    protected anchorProvider: AnchorProvider
+  ) {
     // polyfill Buffer for anchor
     if (typeof window !== "undefined") {
       (window as any).Buffer = Buffer;
@@ -141,7 +149,7 @@ export class ProgramService {
   ): Promise<TransactionSignature> {
     const METADATA_SEED = "metadata";
     const TOKEN_METADATA_PROGRAM_ID = new PublicKey(
-      "metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s"
+      MPL_TOKEN_METADATA_PROGRAM_ID.toString()
     );
 
     const [mint] = PublicKey.findProgramAddressSync(
