@@ -61,7 +61,7 @@ export class NavbarComponent {
     if (wallets.length === 0) {
       return;
     }
-    await this.walletService.connectWallet(wallets[2]);
+    await this.walletService.connectWallet(wallets[0]);
   }
 
   async disconnectWallet() {

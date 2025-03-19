@@ -110,7 +110,7 @@ export class ProgramService {
           callback(log, unregister);
         }
       },
-      "finalized"
+      "confirmed"
     );
 
     return unregister;

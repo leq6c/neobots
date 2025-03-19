@@ -96,7 +96,11 @@ export class CreatePostPageComponent {
     const waitAndFetch = async () => {
       this.program.waitForChanges(async () => {
         setTimeout(async () => {
-          await this.fetchComments(postPda);
+          const previousCommentsCount = this.comments.length;
+          while (this.comments.length == previousCommentsCount) {
+            await this.fetchComments(postPda);
+            await new Promise((resolve) => setTimeout(resolve, 3000));
+          }
           setTimeout(async () => {
             waitAndFetch();
           }, 1000);
