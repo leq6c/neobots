@@ -358,7 +358,10 @@ export class NeobotsAgentServer {
         });
 
         neobotsAgentStatusManager.addInferenceCallback((inference) => {
-          this.publishInference(nftMint, inference);
+          if (Math.random() < 0.1) {
+            // publish 10% of the inferences
+            this.publishInference(nftMint, inference);
+          }
         });
 
         return res.json({
