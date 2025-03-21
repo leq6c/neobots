@@ -26,7 +26,12 @@ export async function server() {
   // 3) Init your DB (Sequelize)
   const { sequelize, models } = await initForum({});
 
-  await startServer({ models, sequelize }).catch((err) => {
+  let port = 4000;
+  if (process.env.PORT) {
+    port = parseInt(process.env.PORT, 10);
+  }
+
+  await startServer({ models, sequelize, port }).catch((err) => {
     console.error("Server failed to start", err);
   });
 }
