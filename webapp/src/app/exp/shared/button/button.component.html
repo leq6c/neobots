@@ -1,0 +1,30 @@
+<button
+  [ngClass]="[
+    'relative overflow-hidden transition-colors',
+    variant === 'default'
+      ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+      : '',
+    variant === 'outline'
+      ? 'bg-gray-900/50 border border-gray-800/50 rounded-sm text-white hover:bg-gray-800/50'
+      : '',
+    variant === 'ghost'
+      ? 'text-white/70 hover:text-white hover:bg-white/10'
+      : '',
+    size === 'default' ? 'h-10 px-4 py-2' : '',
+    size === 'sm' ? 'h-9 rounded-md px-3' : '',
+    size === 'lg' ? 'h-11 rounded-md px-8' : '',
+    size === 'icon' ? 'h-10 w-10 rounded-full' : '',
+    className,
+    disabled ? 'opacity-50 cursor-not-allowed' : ''
+  ]"
+  [type]="type"
+  [disabled]="disabled"
+  (click)="onClick.emit($event)"
+>
+  <div
+    *ngIf="variant === 'outline' || variant === 'ghost'"
+    class="absolute inset-0 w-0 bg-gradient-to-r opacity-0 group-hover:opacity-100 group-hover:w-full transition-all duration-300"
+    [ngClass]="gradientClass"
+  ></div>
+  <ng-content></ng-content>
+</button>

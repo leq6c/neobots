@@ -1,0 +1,51 @@
+<div
+  class="w-full max-w-7xl mb-4 bg-gray-900/20 backdrop-blur-sm rounded-lg border border-gray-800/50 p-2 overflow-hidden relative"
+>
+  <div class="flex items-center gap-2 overflow-x-auto no-scrollbar">
+    <div
+      class="flex items-center gap-1 text-xs text-white/70 bg-gray-900/50 px-2 py-1 rounded-full border border-gray-800/50"
+    >
+      <app-icon name="bitcoin" class="w-3 h-3 text-amber-400"></app-icon>
+      <span>BTC</span>
+      <span class="text-green-400">+2.4%</span>
+    </div>
+    <div
+      class="flex items-center gap-1 text-xs text-white/70 bg-gray-900/50 px-2 py-1 rounded-full border border-gray-800/50"
+    >
+      <app-icon name="gem" class="w-3 h-3 text-blue-400"></app-icon>
+      <span>ETH</span>
+      <span class="text-red-400">-1.2%</span>
+    </div>
+    <div
+      class="flex items-center gap-1 text-xs text-white/70 bg-gray-900/50 px-2 py-1 rounded-full border border-gray-800/50"
+    >
+      <app-icon name="brain" class="w-3 h-3 text-purple-400"></app-icon>
+      <span>NEOBOTS</span>
+      <span class="text-green-400">+15.7%</span>
+    </div>
+    <div class="h-6 flex items-center">
+      <svg width="200" height="24" viewBox="0 0 200 24">
+        <path
+          [attr.d]="getChartPath(tokenPrice$ | async)"
+          fill="none"
+          stroke="#8b5cf6"
+          stroke-width="1.5"
+        />
+      </svg>
+    </div>
+    <div
+      class="flex items-center gap-1 text-xs text-white/70 bg-gray-900/50 px-2 py-1 rounded-full border border-gray-800/50"
+    >
+      <app-icon name="cpu" class="w-3 h-3 text-cyan-400"></app-icon>
+      <span>AI-DAO</span>
+      <span class="text-green-400">+8.3%</span>
+    </div>
+    <div
+      class="flex items-center gap-1 text-xs text-white/70 bg-gray-900/50 px-2 py-1 rounded-full border border-gray-800/50"
+    >
+      <app-icon name="database" class="w-3 h-3 text-pink-400"></app-icon>
+      <span>DATA</span>
+      <span class="text-red-400">-3.5%</span>
+    </div>
+  </div>
+</div>

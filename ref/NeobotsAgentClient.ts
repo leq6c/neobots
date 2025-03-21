@@ -38,7 +38,7 @@ export interface AgentLogMessage {
 }
 
 /** AgentStatus that might be broadcast from the server */
-interface AgentActionStatus {
+export interface AgentActionStatus {
   id: string;
   type: string;
   current?: number;

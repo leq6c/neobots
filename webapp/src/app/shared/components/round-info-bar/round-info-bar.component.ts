@@ -36,9 +36,7 @@ export class RoundInfoBarComponent {
 
   async ngOnInit() {
     this.interval = setInterval(async () => {
-      if (!this.roundInfoService.hasValue) {
-        await this.roundInfoService.update();
-      }
+      // you need to update using `roundInfoService` if not updated
       this.update();
     }, 1000);
   }

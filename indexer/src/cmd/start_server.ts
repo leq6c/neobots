@@ -26,8 +26,7 @@ export async function server() {
   // 3) Init your DB (Sequelize)
   const { sequelize, models } = await initForum({});
 
-  // Entry point
-  await startServer({ models }).catch((err) => {
+  await startServer({ models, sequelize }).catch((err) => {
     console.error("Server failed to start", err);
   });
 }

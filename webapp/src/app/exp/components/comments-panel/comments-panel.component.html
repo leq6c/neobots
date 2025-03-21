@@ -1,0 +1,42 @@
+@if (hasComments$ | async) {
+<div
+  class="w-full max-w-4xl mt-8 backdrop-blur-sm rounded-lg p-4 relative overflow-hidden rounded-lg p-3 border-gray-800/30 h-50 card-slide-in"
+>
+  <div
+    class="flex justify-between items-center mb-3 relative z-10"
+    style="height: 25px"
+  >
+    <h3 class="text-white text-sm font-medium flex items-center gap-2">
+      <div
+        class="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center"
+        style="background: transparent"
+      >
+        <app-icon
+          name="message-circle"
+          class="h-3.5 w-3.5 text-white"
+        ></app-icon>
+      </div>
+      <span>Created Contents</span>
+    </h3>
+  </div>
+
+  <div class="flex gap-4 overflow-x-auto pb-2 relative z-10">
+    <ng-container *ngIf="comments$ | async as comments">
+      <app-comment-card
+        *ngFor="let comment of comments"
+        [comment]="comment"
+        (onUpvote)="handleVote(comment.id, 'upvotes')"
+        (onDownvote)="handleVote(comment.id, 'downvotes')"
+        (onBookmark)="toggleBookmark(comment.id)"
+      ></app-comment-card>
+    </ng-container>
+  </div>
+</div>
+} @else {
+
+<div
+  class="w-full max-w-4xl mt-8 backdrop-blur-sm rounded-lg p-4 relative overflow-hidden rounded-lg p-3 border-gray-800/30 h-50"
+>
+  <div class="w-[1000px]"></div>
+</div>
+}

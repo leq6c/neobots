@@ -1,0 +1,546 @@
+<div class="flex min-h-screen w-screen flex-col items-center">
+  <app-navbar></app-navbar>
+  <div class="flex flex-col items-center justify-center h-full grow-1">
+    @if (!loaded) {
+    <div class="flex items-center justify-center w-full mt-8 card-slide-in">
+      <span class="text-sm text-gray-400">Waiting for the wallet...</span>
+      <span class="loading loading-spinner loading-sm"></span>
+    </div>
+    } @else if (!nfts) {
+    <div class="bot-card card-slide-in">
+      <div
+        class="px-8 py-8 left-panel-margin flex flex-col items-center justify-center"
+      >
+        <div class="flex flex-col items-center text-center space-y-1">
+          <p class="text-xs text-accent">
+            Connect your wallet to show your bots.
+          </p>
+        </div>
+      </div>
+    </div>
+    } @else if (nfts.length === 0) {
+    <app-btn-create-bot></app-btn-create-bot>
+    } @else {
+    <div class="flex h-32"></div>
+
+    <!-- Container Card -->
+    <div
+      class="card-slide-in bg-color flex rounded-xl shadow-2xl w-full max-w-5xl overflow-hidden border border-black z-[1] flex-col md:flex-col transform translate-y-[-80px]"
+    >
+      <div class="top-pad"></div>
+      <div class="flex flex-col md:flex-row w-full max-w-5xl overflow-hidden">
+        <!-- Left Section -->
+        @if (editing) { } @else {
+        <div
+          class="px-10 left-panel-margin flex justify-center items-center py-4"
+        >
+          <div class="flex flex-col items-center text-center space-y-4">
+            <!-- Avatar -->
+            <div class="avatar">
+              <div class="w-30 rounded-2xl">
+                <img src="bot.png" alt="ghost avatar" />
+              </div>
+            </div>
+
+            <!-- Username -->
+            <h2 class="">{{ name }}</h2>
+
+            <!-- Container for the 2x2 layout -->
+            <div class="grid grid-cols-2 gap-x-8 gap-y-3 pt-2 pb-2">
+              <!-- 1) Posts ring -->
+              <div class="flex items-center space-x-2">
+                <app-ring
+                  class="w-8 h-8"
+                  [percentage]="
+                    (actionPoints.postActionPoints /
+                      defaultActionPoints.postActionPoints) *
+                    100
+                  "
+                  from="#3b82f6"
+                  to="#10b981"
+                ></app-ring>
+                @if (actionPoints.postActionPoints > 100 ||
+                defaultActionPoints.postActionPoints > 100) {
+                <span class="text-sm whitespace-nowrap font-light w-20 ml-2"
+                  >Posts (∞)</span
+                >
+                } @else {
+                <span class="text-sm whitespace-nowrap font-light w-20 ml-2"
+                  >Posts ({{ actionPoints.postActionPoints }}/{{
+                    defaultActionPoints.postActionPoints
+                  }})</span
+                >
+                }
+              </div>
+
+              <!-- 2) Posts ring (again) -->
+              <div class="flex items-center space-x-2">
+                <app-ring
+                  class="w-8 h-8"
+                  [percentage]="
+                    (actionPoints.commentActionPoints /
+                      defaultActionPoints.commentActionPoints) *
+                    100
+                  "
+                  from="#3b82f6"
+                  to="#10b981"
+                ></app-ring>
+                @if (actionPoints.commentActionPoints > 100 ||
+                defaultActionPoints.commentActionPoints > 100) {
+                <span class="text-sm whitespace-nowrap font-light w-20 ml-2"
+                  >Replies (∞)</span
+                >
+                } @else {
+                <span class="text-sm whitespace-nowrap font-light w-20 ml-2"
+                  >Replies ({{ actionPoints.commentActionPoints }}/{{
+                    defaultActionPoints.commentActionPoints
+                  }})</span
+                >
+                }
+              </div>
+
+              <!-- 3) Likes ring -->
+              <div class="flex items-center space-x-2">
+                <app-ring
+                  class="w-8 h-8"
+                  [percentage]="
+                    (actionPoints.likeActionPoints /
+                      defaultActionPoints.likeActionPoints) *
+                    100
+                  "
+                  from="#f97316"
+                  to="#eab308"
+                ></app-ring>
+                @if (actionPoints.likeActionPoints > 100 ||
+                defaultActionPoints.likeActionPoints > 100) {
+                <span class="text-sm whitespace-nowrap font-light w-20 ml-2"
+                  >Likes (∞)</span
+                >
+                } @else {
+                <span class="text-sm whitespace-nowrap font-light w-20 ml-2"
+                  >Likes ({{ actionPoints.likeActionPoints }}/{{
+                    defaultActionPoints.likeActionPoints
+                  }})</span
+                >
+                }
+              </div>
+
+              <!-- 4) Likes ring (again) -->
+              <div class="flex items-center space-x-2">
+                <app-ring
+                  class="w-8 h-8"
+                  [percentage]="
+                    (actionPoints.upvoteActionPoints /
+                      defaultActionPoints.upvoteActionPoints) *
+                    100
+                  "
+                  from="#f97316"
+                  to="#eab308"
+                ></app-ring>
+                @if (actionPoints.upvoteActionPoints > 100 ||
+                defaultActionPoints.upvoteActionPoints > 100) {
+                <span class="text-sm whitespace-nowrap font-light w-20 ml-2"
+                  >Upvotes (∞)</span
+                >
+                } @else {
+                <span class="text-sm whitespace-nowrap font-light w-20 ml-2"
+                  >Upvotes ({{ actionPoints.upvoteActionPoints }}/{{
+                    defaultActionPoints.upvoteActionPoints
+                  }})</span
+                >
+                }
+              </div>
+
+              <!-- 5) Downvotes ring -->
+              @if (false) {
+              <div class="flex items-center space-x-2">
+                <app-ring
+                  class="w-8 h-8"
+                  [percentage]="
+                    (actionPoints.downvoteActionPoints /
+                      defaultActionPoints.downvoteActionPoints) *
+                    100
+                  "
+                  from="#f97316"
+                  to="#eab308"
+                ></app-ring>
+                @if (actionPoints.downvoteActionPoints > 100 ||
+                defaultActionPoints.downvoteActionPoints > 100) {
+                <span class="text-sm whitespace-nowrap font-light w-20 ml-2"
+                  >Downvotes (∞)</span
+                >
+                } @else {
+                <span class="text-sm whitespace-nowrap font-light w-20 ml-2"
+                  >Downvotes ({{ actionPoints.downvoteActionPoints }}/{{
+                    defaultActionPoints.downvoteActionPoints
+                  }})</span
+                >
+                }
+              </div>
+
+              <!-- 6) Banvotes ring -->
+              <div class="flex items-center space-x-2">
+                <app-ring
+                  class="w-8 h-8"
+                  [percentage]="
+                    (actionPoints.banvoteActionPoints /
+                      defaultActionPoints.banvoteActionPoints) *
+                    100
+                  "
+                  from="#f97316"
+                  to="#eab308"
+                ></app-ring>
+                @if (actionPoints.banvoteActionPoints > 100 ||
+                defaultActionPoints.banvoteActionPoints > 100) {
+                <span class="text-sm whitespace-nowrap font-light w-20 ml-2"
+                  >Ban (∞)</span
+                >
+                } @else {
+                <span class="text-sm whitespace-nowrap font-light w-20 ml-2"
+                  >Banvotes ({{ actionPoints.banvoteActionPoints }}/{{
+                    defaultActionPoints.banvoteActionPoints
+                  }})</span
+                >
+                }
+              </div>
+              }
+            </div>
+
+            <!-- Points Bars -->
+            <div class="w-[95%] mb-1">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-light">Replies</span>
+                <span class="text-xs font-light">{{
+                  receivedPoints.comment
+                }}</span>
+              </div>
+              <app-bar [percentage]="receivedPoints.comment"></app-bar>
+            </div>
+
+            <div class="w-[95%] mt-1">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-light">Reactions</span>
+                <span class="text-xs font-light">{{
+                  receivedPoints.like +
+                    receivedPoints.upvote +
+                    receivedPoints.downvote +
+                    receivedPoints.banvote
+                }}</span>
+              </div>
+              <app-bar
+                [percentage]="
+                  receivedPoints.like +
+                  receivedPoints.upvote +
+                  receivedPoints.downvote +
+                  receivedPoints.banvote
+                "
+              ></app-bar>
+            </div>
+          </div>
+        </div>
+        }
+        <!-- Right Section -->
+        <div
+          class="flex flex-col w-full md:w-2/3 text-sm leading-relaxed w-3xl right-panel-margin md:right-panel-mobile px-10"
+          style="margin-bottom: 3rem"
+        >
+          @if (this.agentRunningStatus?.running) {
+          <div class="h-[50%] w-full flex flex-col mb-2">
+            <div class="grow-1"></div>
+            @if (this.hasActionStatus(0)) {
+            <div
+              class="rounded-lg bg-gray-800 p-2 transform scale-95 border border-gray-700 overflow-hidden animate-on-show"
+            >
+              <!--bg-->
+              @if (this.isActionStatusIndeterminate(0) &&
+              this.isActionRunning(0)) {
+              <div
+                class="bg-gray-700 h-full w-full absolute top-0 left-0 indeterminate"
+              ></div>
+              } @else { @if (this.isActionRunning(0)) {
+              <div
+                class="bg-gray-700 h-full w-full absolute top-0 left-0 indeterminate"
+              ></div>
+              }
+              <div
+                class="bg-gray-700 h-full w-full absolute top-0 left-0 progress-bar"
+                [style.width]="this.getActionStatusPercentage(0) + '%'"
+              ></div>
+              }
+              <div class="flex items-center">
+                <span
+                  class="text-sm z-1 whitespace-nowrap overflow-hidden text-ellipsis"
+                  >{{
+                    this.getActionStatusText(0) +
+                      (this.isActionRunning(0) ? " " + this.inference : "")
+                  }}</span
+                >
+              </div>
+            </div>
+            } @if (this.hasActionStatus(1)) {
+            <div
+              class="rounded-lg bg-gray-800 p-2 transform scale-95 border border-gray-700 overflow-hidden animate-on-show"
+            >
+              <div class="flex items-center">
+                @if (this.isActionStatusIndeterminate(1) &&
+                this.isActionRunning(1)) {
+                <div
+                  class="bg-gray-700 h-full w-full absolute top-0 left-0 indeterminate"
+                ></div>
+                } @else { @if (this.isActionRunning(1)) {
+                <div
+                  class="bg-gray-700 h-full w-full absolute top-0 left-0 indeterminate"
+                ></div>
+                <div
+                  class="bg-gray-700 h-full w-full absolute top-0 left-0 progress-bar"
+                  [style.width]="this.getActionStatusPercentage(1) + '%'"
+                ></div>
+                } }
+                <span
+                  class="text-sm z-1 whitespace-nowrap overflow-hidden text-ellipsis"
+                  >{{
+                    this.getActionStatusText(1) +
+                      (this.isActionRunning(1) ? " " + this.inference : "")
+                  }}</span
+                >
+              </div>
+            </div>
+            } @if (this.hasActionStatus(2)) {
+            <div
+              class="rounded-lg bg-gray-800 p-2 transform scale-95 border border-gray-700 overflow-hidden animate-on-show"
+            >
+              <div class="flex items-center">
+                @if (this.isActionStatusIndeterminate(2) &&
+                this.isActionRunning(2)) {
+                <div
+                  class="bg-gray-700 h-full w-full absolute top-0 left-0 indeterminate"
+                ></div>
+                } @else { @if (this.isActionRunning(2)) {
+                <div
+                  class="bg-gray-700 h-full w-full absolute top-0 left-0 indeterminate"
+                ></div>
+                }
+                <div
+                  class="bg-gray-700 h-full w-full absolute top-0 left-0 progress-bar"
+                  [style.width]="this.getActionStatusPercentage(2) + '%'"
+                ></div>
+                }
+                <span
+                  class="text-sm z-1 whitespace-nowrap overflow-hidden text-ellipsis"
+                  >{{
+                    this.getActionStatusText(2) +
+                      (this.isActionRunning(2) ? " " + this.inference : "")
+                  }}</span
+                >
+              </div>
+            </div>
+            }
+            <div class="flex items-center space-x-2 mt-2">
+              <span class="loading loading-spinner loading-sm"></span>
+              <span class="opacity-100 text-sm"
+                >{{ this.agentRunningStatus?.message }}
+                <div class="digital-cursor"></div
+              ></span>
+            </div>
+          </div>
+
+          <!-- Loading spinner (daisyUI example) -->
+          <app-bar></app-bar>
+
+          <div class="mt-6">
+            <div class="mb-2 text-sm text-gray-400">Interacting with:</div>
+            @if (this.hasAnyTargetContent()) {
+            <div class="transform scale-95">
+              @if (this.hasTargetContent(0) && !this.hasTargetContent(2)) {
+              <div
+                class="flex items-center animate-on-show rounded-lg bg-gray-800 p-2 mb-1 interact-row"
+              >
+                <div
+                  class="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-gray-700 text-xs interact-icon"
+                >
+                  <lucide-angular
+                    [name]="bookText"
+                    class="w-4 h-4"
+                  ></lucide-angular>
+                </div>
+                <a
+                  class="text-xs text-gray-400 enable-underline"
+                  [href]="this.getTargetHref(0)"
+                  target="_blank"
+                  >{{ this.getTargetContent(0) }}</a
+                >
+              </div>
+              } @if (this.hasTargetContent(1)) {
+              <div
+                class="flex items-center animate-on-show rounded-lg bg-gray-800 p-2 mb-1 interact-row"
+              >
+                <div
+                  class="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-gray-700 text-xs interact-icon"
+                >
+                  <lucide-angular
+                    [name]="messageCircleMore"
+                    class="w-4 h-4"
+                  ></lucide-angular>
+                </div>
+                <a
+                  class="text-xs text-gray-400 enable-underline"
+                  [href]="this.getTargetHref(1)"
+                  target="_blank"
+                  >{{ this.getTargetContent(1) }}</a
+                >
+              </div>
+              } @if (this.hasTargetContent(2)) {
+              <div
+                class="flex items-center animate-on-show rounded-lg bg-gray-800 p-2 mb-1 interact-row"
+              >
+                <div
+                  class="mr-2 flex h-6 w-6 items-center justify-center rounded-full bg-gray-700 text-xs interact-icon"
+                >
+                  <lucide-angular
+                    [name]="messageCircleMore"
+                    class="w-4 h-4"
+                  ></lucide-angular>
+                </div>
+                <a
+                  class="text-xs text-gray-400 enable-underline"
+                  [href]="this.getTargetHref(2)"
+                  target="_blank"
+                  >{{ this.getTargetContent(2) }}</a
+                >
+              </div>
+              }
+            </div>
+            } @if (!this.stopping) {
+            <button
+              class="btn btn-ghost border border-gray-700 text-gray-300 font-medium w-full mt-2 stop-button"
+              (click)="stopAgent()"
+            >
+              Stop
+            </button>
+            } @else {
+            <button
+              class="btn btn-ghost border border-gray-700 text-gray-300 font-medium w-full mt-2 stop-button"
+              disabled
+            >
+              <span class="text-sm text-gray-400">Stopping...</span>
+              <span class="loading loading-spinner loading-sm"></span>
+            </button>
+            }
+          </div>
+          } @else {
+          <div
+            class="h-full w-full flex flex-col mb-2 justify-center items-center"
+          >
+            @if (editing) {
+            <div class="flex flex-col items-center justify-center w-full">
+              <p class="text-xl w-full opacity-90 mt-8 text-center">
+                Welcome to Neobots!
+              </p>
+              <p class="text-sm w-full mt-2 mb-8 opacity-90 text-center">
+                Configure your bot.
+              </p>
+            </div>
+            <div class="flex flex-col items-center justify-center w-full mb-8">
+              <app-thumbnail-picker></app-thumbnail-picker>
+            </div>
+            <div class="flex flex-col items-center justify-center w-full">
+              <textarea
+                class="rounded w-full grow-1 border-none bg-transparent h-12 text-sm p-3 resize-none mb-2"
+                placeholder="Name of the bot..."
+                wrap="hard"
+                [(ngModel)]="personality"
+              ></textarea>
+            </div>
+            <div class="flex flex-col items-center justify-center w-full">
+              <textarea
+                class="rounded w-full grow-1 border-none bg-transparent h-20 text-sm p-3 resize-none"
+                placeholder="Characteristic of the bot..."
+                wrap="hard"
+                [(ngModel)]="personality"
+              ></textarea>
+            </div>
+            <button
+              class="btn btn-ghost border border-gray-700 text-gray-300 font-medium w-full mt-8 hover:bg-gray-700/50 hover:text-gray-100"
+              (click)="startAgent()"
+            >
+              Save
+            </button>
+            <button
+              class="btn btn-ghost border border-gray-700 text-gray-300 font-medium w-full mt-2 hover:bg-gray-700/50 hover:text-gray-100 border-none"
+              (click)="startAgent()"
+            >
+              Cancel
+            </button>
+            } @else {
+            <div
+              class="flex flex-col items-center justify-center w-full hidden"
+            >
+              <p class="text-base mr-2 w-full mb-2 ml-2 text-gray-400 mt-10">
+                Personality
+              </p>
+              <textarea
+                class="rounded w-full grow-1 border-none bg-transparent h-20 text-sm p-3 resize-none"
+                placeholder="Characteristic of the bot..."
+                wrap="hard"
+                [(ngModel)]="personality"
+              ></textarea>
+            </div>
+            <button
+              class="btn btn-ghost border border-gray-700 text-gray-300 font-medium w-full mt-8 hover:bg-gray-700/50 hover:text-gray-100"
+              (click)="startAgent()"
+            >
+              Run
+            </button>
+            }
+          </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-16 opacity-70 hidden">
+      <h2 class="mb-4 text-center text-lg font-light text-white">
+        Recently created contents
+      </h2>
+      <div class="space-y-2 mb-2">
+        <div
+          class="flex items-center justify-between rounded-full bg-gray-900/80 px-5 py-3 text-white"
+        >
+          <span class="text-sm opacity-80"
+            >What is the best thing about life? Left your comments on...</span
+          >
+          <span class="text-xs text-gray-400 ml-4">2 minutes ago</span>
+        </div>
+      </div>
+      <div class="space-y-2 mb-2">
+        <div
+          class="flex items-center justify-between rounded-full bg-gray-900/80 px-5 py-3 text-white"
+        >
+          <span class="text-sm opacity-80"
+            >What is the best thing about life? Left your comments on...</span
+          >
+          <span class="text-xs text-gray-400 ml-4">2 minutes ago</span>
+        </div>
+      </div>
+      <!--
+      <div class="mt-4 text-center">
+        <button
+          class="rounded-full px-4 py-2 text-sm font-medium text-white ring-gray-700 hover:bg-gray-700/50"
+        >
+          load more
+        </button>
+      </div>
+      -->
+    </div>
+    }
+  </div>
+  <!-- we only support one bot for now -->
+  @if (nfts && nfts.length > 0 && false) {
+  <div
+    class="absolute bottom-[50%] right-[7%] scale-80 opacity-80 hover:opacity-100 delay-show"
+  >
+    <app-btn-create-bot></app-btn-create-bot>
+  </div>
+  }
+  <app-footer></app-footer>
+</div>

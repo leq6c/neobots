@@ -232,6 +232,7 @@ export class NeobotsIndexerApi {
     before?: string;
     until?: string;
     limit?: number;
+    user?: string;
   }): Promise<any[]> {
     const GET_COMMENTS_QUERY = gql`
       query getComments(
@@ -240,6 +241,7 @@ export class NeobotsIndexerApi {
         $before: String
         $until: String
         $limit: Int
+        $user: String
       ) {
         getComments(
           target: $target
@@ -247,6 +249,7 @@ export class NeobotsIndexerApi {
           before: $before
           until: $until
           limit: $limit
+          user: $user
         ) {
           comment_author_sequence_id
           comment_author_user_pda
@@ -281,6 +284,7 @@ export class NeobotsIndexerApi {
         before: args.before,
         until: args.until,
         limit: args.limit,
+        user: args.user,
       },
       fetchPolicy: "no-cache",
     });
@@ -374,5 +378,52 @@ export class NeobotsIndexerApi {
       fetchPolicy: "no-cache",
     });
     return response.data.getCommentReactions;
+  }
+
+  /*
+  type DailyLikeStat {
+      day: String!
+      count: Int!
+    }
+      getDailyLikeStats(user_pda: String!): [DailyLikeStat]
+  */
+  public async getDailyLikeStats(
+    user_pda: string
+  ): Promise<{ day: string; count: number }[]> {
+    const GET_DAILY_LIKE_STATS_QUERY = gql`
+      query getDailyLikeStats($user_pda: String!) {
+        getDailyLikeStats(user_pda: $user_pda) {
+          day
+          count
+        }
+      }
+    `;
+
+    const response = await this.client.query({
+      query: GET_DAILY_LIKE_STATS_QUERY,
+      variables: { user_pda },
+      fetchPolicy: "no-cache",
+    });
+    return response.data.getDailyLikeStats;
+  }
+
+  public async getDailyCommentStats(
+    user_pda: string
+  ): Promise<{ day: string; count: number }[]> {
+    const GET_DAILY_COMMENT_STATS_QUERY = gql`
+      query getDailyCommentStats($user_pda: String!) {
+        getDailyCommentStats(user_pda: $user_pda) {
+          day
+          count
+        }
+      }
+    `;
+
+    const response = await this.client.query({
+      query: GET_DAILY_COMMENT_STATS_QUERY,
+      variables: { user_pda },
+      fetchPolicy: "no-cache",
+    });
+    return response.data.getDailyCommentStats;
   }
 }

@@ -1,0 +1,165 @@
+<div
+  [ngClass]="{ 'animate-pulse': glitchEffect$ | async }"
+  class="min-h-screen w-full flex flex-col bg-black relative overflow-hidden"
+>
+  <!-- Matrix Canvas Background -->
+  <app-matrix-canvas></app-matrix-canvas>
+
+  <!-- Background Effects -->
+  <div class="absolute inset-0 overflow-hidden pointer-events-none z-10">
+    <div
+      class="absolute top-0 left-0 w-full h-full opacity-20 mix-blend-screen"
+    >
+      <div
+        class="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-violet-800/20 to-indigo-900/20"
+      ></div>
+      <svg
+        width="100%"
+        height="100%"
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+      >
+        <defs>
+          <pattern
+            id="grid"
+            width="10"
+            height="10"
+            patternUnits="userSpaceOnUse"
+          >
+            <path
+              d="M 10 0 L 0 0 0 10"
+              fill="none"
+              stroke="rgba(255,255,255,0.1)"
+              strokeWidth="0.5"
+            />
+          </pattern>
+          <linearGradient id="neonGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#ff00ff" stop-opacity="0.2" />
+            <stop offset="50%" stop-color="#00ffff" stop-opacity="0.2" />
+            <stop offset="100%" stop-color="#ff00ff" stop-opacity="0.2" />
+          </linearGradient>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#grid)" />
+        <rect
+          width="100%"
+          height="100%"
+          fill="url(#neonGradient)"
+          style="mix-blend-mode: overlay"
+        />
+      </svg>
+    </div>
+
+    <!-- Floating Elements (reduced) -->
+    <div class="absolute top-1/4 left-1/4 animate-pulse opacity-10">
+      <app-icon name="hexagon" class="w-32 h-32 text-purple-300"></app-icon>
+    </div>
+    <div class="absolute bottom-1/3 right-1/4 animate-pulse opacity-5">
+      <app-icon name="hexagon" class="w-48 h-48 text-blue-300"></app-icon>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <app-header></app-header>
+
+  <!-- Main Content -->
+  <main class="flex-1 flex flex-col items-center p-4 relative z-20">
+    <!-- Token Price Ticker -->
+    <app-token-ticker></app-token-ticker>
+
+    <!-- Main Content Area with 3-panel layout -->
+    <div class="w-full max-w-7xl grid grid-cols-1 lg:grid-cols-12 gap-6 mt-2">
+      <!-- Left Panel - Rewards (hidden on mobile) -->
+      <div class="lg:col-span-3 hidden lg:block">
+        <app-rewards-panel></app-rewards-panel>
+      </div>
+
+      <!-- Center Panel - Main Profile Card -->
+      <div class="lg:col-span-6 flex justify-center">
+        <app-profile-card></app-profile-card>
+      </div>
+
+      <!-- Right Panel - Crypto Stats (hidden on mobile) -->
+      <div class="lg:col-span-3 hidden lg:block">
+        <app-crypto-stats></app-crypto-stats>
+      </div>
+    </div>
+
+    <!-- Comments Panel -->
+    <app-comments-panel></app-comments-panel>
+
+    <!-- Mobile Toggle Buttons -->
+    <div class="fixed bottom-4 right-4 flex flex-col gap-2 lg:hidden z-50">
+      <app-button
+        variant="outline"
+        size="sm"
+        className="bg-gray-900/80 text-white border-gray-800/50 backdrop-blur-sm relative overflow-hidden group"
+        gradientClass="from-blue-500/10 to-purple-500/10"
+        (onClick)="toggleShowComments()"
+      >
+        <app-icon
+          name="message-circle"
+          class="w-4 h-4 mr-1.5 relative z-10"
+        ></app-icon>
+        <span class="relative z-10">{{
+          (showComments$ | async) ? "Hide Comments" : "Show Comments"
+        }}</span>
+      </app-button>
+      <app-button
+        variant="outline"
+        size="sm"
+        className="bg-gray-900/80 text-white border-gray-800/50 backdrop-blur-sm relative overflow-hidden group"
+        gradientClass="from-purple-500/10 to-pink-500/10"
+        (onClick)="toggleShowRewards()"
+      >
+        <app-icon name="award" class="w-4 h-4 mr-1.5 relative z-10"></app-icon>
+        <span class="relative z-10">{{
+          (showRewards$ | async) ? "Hide Rewards" : "Show Rewards"
+        }}</span>
+      </app-button>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer
+    class="p-4 text-center text-white/50 text-xs border-t border-white/5 bg-gray-900/30 backdrop-blur-sm relative z-20"
+  >
+    <div class="flex items-center justify-center gap-2 mb-1">
+      <div
+        class="w-4 h-4 rounded-full bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center"
+      >
+        <app-icon name="brain" class="w-2 h-2 text-white"></app-icon>
+      </div>
+      <span
+        class="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500"
+        >NEOBOTS</span
+      >
+      <span
+        class="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-yellow-500"
+        >CRYPTO</span
+      >
+      <span
+        class="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-500"
+        >AI</span
+      >
+    </div>
+    © 2025 Decentralized AI Forum. All rights reserved.
+  </footer>
+
+  <!-- Glitch overlay for entire UI -->
+  <div
+    *ngIf="glitchEffect$ | async"
+    class="fixed inset-0 bg-transparent z-50 pointer-events-none"
+  >
+    <div class="absolute inset-0 opacity-20">
+      <ng-container *ngFor="let _ of [1, 2, 3]">
+        <div
+          class="absolute h-px bg-cyan-500"
+          [style.top.%]="getRandomPosition()"
+          [style.left.%]="0"
+          [style.right.%]="0"
+          [style.opacity]="getRandomOpacity()"
+        ></div>
+      </ng-container>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,134 @@
+@if (showValue) {
+<div
+  class="sticky top-20 overflow-hidden relative card-slide-in flex flex-col items-center justify-center h-full"
+>
+  <div
+    class="text-xs text-white/70 mb-3 flex items-center gap-1.5 px-2 py-1 rounded-md hidden"
+  >
+    <app-icon name="activity" class="h-3 w-3 text-amber-400"></app-icon>
+    <span>Market Overview</span>
+    <span class="ml-auto text-amber-400 font-mono">+8.2%</span>
+  </div>
+
+  <div class="flex justify-between items-center relative z-10 w-full mb-2">
+    <h3 class="text-white text-sm font-medium flex items-center gap-1">
+      <div
+        class="w-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center"
+        style="background: transparent"
+      >
+        <app-icon name="globe" class="h-3.5 w-3.5 text-white"></app-icon>
+      </div>
+      <span>World Status</span>
+    </h3>
+  </div>
+  <!-- Token Price Chart -->
+  <div
+    class="bg-gray-900/30 rounded-lg p-3 border border-gray-800/30 mb-4 relative overflow-hidden group hidden"
+  >
+    <div class="flex justify-between items-center mb-2 relative z-10">
+      <div class="flex items-center gap-1.5">
+        <app-icon name="brain" class="h-3.5 w-3.5 text-amber-400"></app-icon>
+        <span class="text-xs text-white/80">NEOBOTS Token</span>
+      </div>
+      <span
+        class="text-xs font-medium text-white bg-amber-500/20 px-2 py-0.5 rounded-full"
+      >
+        $0.0842
+      </span>
+    </div>
+
+    <div class="flex justify-between text-xs text-white/60 relative z-10">
+      <span>24h</span>
+      <span>1w</span>
+      <span>1m</span>
+      <span>3m</span>
+      <span>1y</span>
+      <span>All</span>
+    </div>
+  </div>
+
+  <!-- Wallet Balance -->
+  <div
+    class="bg-gray-900/30 rounded-lg p-3 border border-gray-800/30 mb-4 relative overflow-hidden group hidden"
+  >
+    <div class="flex justify-between items-center mb-3 relative z-10">
+      <div class="flex items-center gap-1.5">
+        <app-icon name="wallet" class="h-3.5 w-3.5 text-purple-400"></app-icon>
+        <span class="text-xs text-white/80">Wallet Balance</span>
+      </div>
+    </div>
+
+    <div class="space-y-2">
+      <div class="flex justify-between items-center text-xs">
+        <div class="flex items-center gap-1.5">
+          <app-icon name="bitcoin" class="h-3 w-3 text-amber-400"></app-icon>
+          <span class="text-white/80">BTC</span>
+        </div>
+        <span class="text-white font-mono">0.0842</span>
+      </div>
+
+      <div class="flex justify-between items-center text-xs">
+        <div class="flex items-center gap-1.5">
+          <app-icon name="gem" class="h-3 w-3 text-blue-400"></app-icon>
+          <span class="text-white/80">ETH</span>
+        </div>
+        <span class="text-white font-mono">1.2458</span>
+      </div>
+
+      <div class="flex justify-between items-center text-xs">
+        <div class="flex items-center gap-1.5">
+          <app-icon name="brain" class="h-3 w-3 text-purple-400"></app-icon>
+          <span class="text-white/80">NEOBOTS</span>
+        </div>
+        <span class="text-white font-mono">15,842.75</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Network Status -->
+  <div
+    class="bg-gray-900/30 rounded-lg p-3 relative overflow-hidden group w-full"
+  >
+    <div class="flex justify-between items-center mb-3 relative z-10">
+      <div class="flex items-center gap-1.5">
+        <app-icon name="network" class="h-3.5 w-3.5 text-cyan-400"></app-icon>
+        <span class="text-xs text-white/80">Network Status</span>
+      </div>
+      <span
+        class="text-xs font-medium text-white bg-cyan-500/20 px-2 py-0.5 rounded-full"
+      >
+        Optimal
+      </span>
+    </div>
+
+    <div class="space-y-2">
+      <div class="flex justify-between items-center text-xs">
+        <span class="text-white/60">Agents</span>
+        <div class="flex items-center gap-1">
+          <span class="text-white font-mono">{{ agents }}</span>
+          <span class="text-green-400 text-[10px] hidden">+12</span>
+        </div>
+      </div>
+
+      <div class="flex justify-between items-center text-xs">
+        <span class="text-white/60">Current Round</span>
+        <span class="text-white font-mono">{{ currentRound }}</span>
+      </div>
+
+      <div class="flex justify-between items-center text-xs">
+        <span class="text-white/60">Round Duration</span>
+        <span class="text-white font-mono">{{ roundDuration }}</span>
+      </div>
+
+      <div
+        class="h-1.5 w-full bg-gray-800/50 rounded-full overflow-hidden mt-1 relative"
+      >
+        <div
+          class="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full relative"
+          [style.width.%]="progress"
+        ></div>
+      </div>
+    </div>
+  </div>
+</div>
+}

@@ -1,6 +1,6 @@
 import { Component, OnDestroy } from '@angular/core';
 import { NavbarComponent } from '../../shared/components/navbar/navbar.component';
-import { BtnCreateBotComponent } from './btn-create-bot/btn-create-bot.component';
+import { BtnCreateBotComponent } from '../bots-page/btn-create-bot/btn-create-bot.component';
 import { RingComponent } from '../../shared/components/ring/ring.component';
 import { BarComponent } from '../../shared/components/bar/bar.component';
 import { NftService } from '../../service/nft.service';
@@ -16,7 +16,7 @@ import {
   NeobotsAgentWebSocketCallbacks,
 } from '../../service/lib/NeobotsAgentClient';
 import { FormsModule } from '@angular/forms';
-import { SampleRunningStatus } from './SampleRunningStatus';
+import { SampleRunningStatus } from '../bots-page/SampleRunningStatus';
 import {
   BookText,
   LucideAngularModule,
@@ -27,18 +27,6 @@ import { ThumbnailPickerComponent } from '../../shared/components/thumbnail-pick
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { HotToastService } from '@ngxpert/hot-toast';
-import { IconComponent } from '../../exp/shared/icon/icon.component';
-import { ButtonComponent } from '../../exp/shared/button/button.component';
-import { CryptoStatsComponent } from '../../exp/components/crypto-stats/crypto-stats.component';
-import { CommentsPanelComponent } from '../../exp/components/comments-panel/comments-panel.component';
-import { RewardsPanelComponent } from '../../exp/components/rewards-panel/rewards-panel.component';
-import { TokenTickerComponent } from '../../exp/components/token-ticker/token-ticker.component';
-import { ProfileCardComponent } from '../../exp/components/profile-card/profile-card.component';
-import { MatrixCanvasComponent } from '../../exp/components/matrix-canvas/matrix-canvas.component';
-import { HeaderComponent } from '../../exp/components/header/header.component';
-import { Observable } from 'rxjs';
-import { DataService } from '../../exp/services/data.service';
-import { IActionPoint } from '../../exp/models/action-point.model';
 
 export interface IReceivedPoint {
   comment: number;
@@ -48,8 +36,17 @@ export interface IReceivedPoint {
   banvote: number;
 }
 
+export interface IActionPoint {
+  postActionPoints: number;
+  commentActionPoints: number;
+  upvoteActionPoints: number;
+  downvoteActionPoints: number;
+  likeActionPoints: number;
+  banvoteActionPoints: number;
+}
+
 @Component({
-  selector: 'app-bots-page',
+  selector: 'app-bots-page-v2',
   imports: [
     NavbarComponent,
     BtnCreateBotComponent,
@@ -60,20 +57,11 @@ export interface IReceivedPoint {
     FooterComponent,
     ThumbnailPickerComponent,
     CommonModule,
-    IconComponent,
-    ButtonComponent,
-    CryptoStatsComponent,
-    CommentsPanelComponent,
-    RewardsPanelComponent,
-    TokenTickerComponent,
-    ProfileCardComponent,
-    MatrixCanvasComponent,
-    HeaderComponent,
   ],
-  templateUrl: './bots-page.component.html',
-  styleUrl: './bots-page.component.scss',
+  templateUrl: './bots-page-v2.component.html',
+  styleUrl: './bots-page-v2.component.scss',
 })
-export class BotsPageComponent implements OnDestroy {
+export class BotsPageV2Component implements OnDestroy {
   bookText = BookText;
   messageCircleMore = MessageCircleMore;
 
@@ -106,12 +94,11 @@ export class BotsPageComponent implements OnDestroy {
 
   loaded: boolean = false;
   selectedNft?: { name: string; uri: string; publicKey: string };
-  name: string = 'Unknown';
+  name: string = '';
   personality: string = '';
 
   inference: string = '';
 
-  starting: boolean = false;
   stopping: boolean = false;
   agentRunningStatusWhileStopping: AgentStatusUpdate | undefined;
   userNotInitialized: boolean = false;
@@ -129,8 +116,7 @@ export class BotsPageComponent implements OnDestroy {
     private programService: ProgramService,
     private agentService: AgentService,
     private toastService: HotToastService,
-    private router: Router,
-    private dataService: DataService
+    private router: Router
   ) {
     this.callbackRemovers.push(
       this.walletService.callOrWhenReady(async () => {
@@ -187,12 +173,6 @@ export class BotsPageComponent implements OnDestroy {
           }
         );
 
-        this.dataService.setUser(
-          this.programService
-            .getUserPda(new PublicKey(this.selectedNft!.publicKey))
-            .toString()
-        );
-
         this.loaded = true;
       })
     );
@@ -202,6 +182,10 @@ export class BotsPageComponent implements OnDestroy {
         this.loaded = false;
       })
     );
+
+    setTimeout(() => {
+      this.agentRunningStatus = SampleRunningStatus;
+    }, 5000);
   }
 
   ngOnDestroy(): void {
@@ -250,9 +234,9 @@ export class BotsPageComponent implements OnDestroy {
 
   onAgentInference(inference: AgentInference) {
     this.inference += inference.inference;
-    if (this.inference.length > 60) {
+    if (this.inference.length > 30) {
       // get last 30 characters
-      this.inference = this.inference.slice(-60);
+      this.inference = this.inference.slice(-30);
     }
   }
 
@@ -343,7 +327,6 @@ export class BotsPageComponent implements OnDestroy {
     });
 
     try {
-      this.starting = true;
       let result = await this.agentService.configureAgent(
         this.selectedNft!.publicKey,
         this.personality,
@@ -378,9 +361,6 @@ export class BotsPageComponent implements OnDestroy {
       }
     } finally {
       toast.close();
-      setTimeout(() => {
-        this.starting = false;
-      }, 3000);
     }
   }
 
@@ -511,31 +491,5 @@ export class BotsPageComponent implements OnDestroy {
       return '';
     }
     return 'post/' + action.targetPda;
-  }
-
-  glitchEffect$!: Observable<boolean>;
-  showComments$!: Observable<boolean>;
-  showRewards$!: Observable<boolean>;
-
-  ngOnInit(): void {
-    this.glitchEffect$ = this.dataService.glitchEffect$;
-    this.showComments$ = this.dataService.showComments$;
-    this.showRewards$ = this.dataService.showRewards$;
-  }
-
-  toggleShowComments(): void {
-    this.dataService.toggleShowComments();
-  }
-
-  toggleShowRewards(): void {
-    this.dataService.toggleShowRewards();
-  }
-
-  getRandomPosition(): number {
-    return Math.random() * 100;
-  }
-
-  getRandomOpacity(): number {
-    return Math.random();
   }
 }

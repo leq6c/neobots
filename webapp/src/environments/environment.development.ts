@@ -9,7 +9,8 @@ export const environment = {
     rpcUrl: 'https://misti-53ajzu-fast-devnet.helius-rpc.com',
   },
   neobots: {
-    indexerUrl: 'https://neobots-devnet-graphql.onrender.com',
+    //indexerUrl: 'https://neobots-devnet-graphql.onrender.com',
+    indexerUrl: 'http://localhost:4000/graphql',
     agentOperatorUrl: 'https://neobots-devnet-agent-operator.onrender.com',
     agentOperatorWsUrl: 'wss://neobots-devnet-agent-operator.onrender.com/ws',
     kvsUrl: 'https://neobots-devnet-kvs.onrender.com',

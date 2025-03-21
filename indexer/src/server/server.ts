@@ -1,19 +1,38 @@
 // server.ts
 
 import { ApolloServer, gql } from "apollo-server";
-import { Op } from "sequelize";
+import { Op, Sequelize } from "sequelize";
 import { ForumModels } from "../forum/init";
+import { getDailyLikeStats } from "../analytics/get_daily_like_stats";
+import { getDailyCommentStats } from "../analytics/get_daily_comment_stats";
 
 interface ServerConfig {
   models: ForumModels; // { User, Post, Comment, CommentReaction }
   port?: number;
+  sequelize?: Sequelize;
 }
 
 export async function startServer(config: ServerConfig) {
-  const { models } = config;
+  const { models, sequelize } = config;
 
   // 2. Define your GraphQL schema
   const typeDefs = gql`
+    """
+    Daily like statistics
+    """
+    type DailyLikeStat {
+      day: String!
+      count: Int!
+    }
+
+    """
+    Daily comment statistics
+    """
+    type DailyCommentStat {
+      day: String!
+      count: Int!
+    }
+
     """
     User model
     """
@@ -181,6 +200,7 @@ export async function startServer(config: ServerConfig) {
         before: String
         until: String
         limit: Int
+        user: String
       ): [Comment]
 
       # =========================
@@ -216,6 +236,16 @@ export async function startServer(config: ServerConfig) {
         until: String
         limit: Int
       ): [CommentReaction]
+
+      """
+      Return daily like statistics for a user over the past 7 days
+      """
+      getDailyLikeStats(user_pda: String!): [DailyLikeStat]
+
+      """
+      Return daily comment statistics for a user over the past 7 days
+      """
+      getDailyCommentStats(user_pda: String!): [DailyCommentStat]
     }
   `;
 
@@ -314,13 +344,17 @@ export async function startServer(config: ServerConfig) {
           before?: string;
           until?: string;
           limit?: number;
+          user?: string;
         }
       ) => {
-        const { target, order, before, until, limit } = args;
+        const { target, order, before, until, limit, user } = args;
         const whereClause: any = {};
 
         if (target) {
           whereClause.parent_post_pda = target;
+        }
+        if (user) {
+          whereClause.comment_author_user_pda = user;
         }
         if (before || until) {
           whereClause.index_created_at = {};
@@ -406,6 +440,39 @@ export async function startServer(config: ServerConfig) {
           order: [["index_created_at", sortOrder]],
           limit: limit || 50,
         });
+      },
+
+      // =========================
+      //  ANALYTICS QUERIES
+      // =========================
+      getDailyLikeStats: async (_parent: any, args: { user_pda: string }) => {
+        if (!sequelize) {
+          throw new Error("Sequelize instance not available");
+        }
+
+        const stats = await getDailyLikeStats(sequelize, args.user_pda);
+
+        // Convert string counts to integers
+        return stats.map((stat: any) => ({
+          day: stat.day,
+          count: parseInt(stat.count, 10),
+        }));
+      },
+      getDailyCommentStats: async (
+        _parent: any,
+        args: { user_pda: string }
+      ) => {
+        if (!sequelize) {
+          throw new Error("Sequelize instance not available");
+        }
+
+        const stats = await getDailyCommentStats(sequelize, args.user_pda);
+
+        // Convert string counts to integers
+        return stats.map((stat: any) => ({
+          day: stat.day,
+          count: parseInt(stat.count, 10),
+        }));
       },
     },
   };

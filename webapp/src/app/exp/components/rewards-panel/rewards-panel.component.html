@@ -1,0 +1,201 @@
+@if (hasRewardData$ | async) {
+<div
+  *ngIf="showRewards$ | async"
+  class="sticky top-20 overflow-hidden relative card-slide-in h-full flex flex-col items-center justify-center"
+>
+  <!-- Chart Container -->
+  <div class="flex justify-between items-center relative z-10 w-full">
+    <h3 class="text-white text-sm font-medium flex items-center gap-1">
+      <div
+        class="w-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center"
+        style="background: transparent"
+      >
+        <app-icon name="award" class="h-3.5 w-3.5 text-white"></app-icon>
+      </div>
+      <span>Earned Rewards</span>
+    </h3>
+  </div>
+  <div
+    class="mt-2 space-y-4 relative z-10 w-full bg-gray-900/20 rounded-lg p-3"
+    *ngIf="rewardData$ | async as rewardData"
+  >
+    <!-- Comments Chart -->
+    <div class="group">
+      <div class="flex justify-between items-center mb-1">
+        <span class="text-xs text-white/80 flex items-center gap-1">
+          <app-icon
+            name="message-circle"
+            class="h-3 w-3 text-blue-400"
+          ></app-icon>
+          <span>Received Comments</span>
+        </span>
+        <span
+          class="text-xs font-medium text-white bg-blue-500/20 px-2 py-0.5 rounded-full"
+        >
+          {{ getTotalComments(rewardData) }}
+        </span>
+      </div>
+      <div
+        class="bg-gray-900/30 rounded-lg p-1 h-18 relative border border-gray-800/30 group-hover:border-blue-500/30 transition-colors overflow-hidden"
+      >
+        <div class="absolute inset-0 opacity-80">
+          <app-minimal-chart></app-minimal-chart>
+          <svg
+            width="100%"
+            height="100%"
+            viewBox="0 0 100 40"
+            preserveAspectRatio="none"
+          >
+            <path
+              [attr.d]="createSvgPath(rewardData.comments, 100, 40)"
+              fill="url(#blueGradient)"
+            />
+            <defs>
+              <linearGradient
+                id="blueGradient"
+                x1="0%"
+                y1="0%"
+                x2="0%"
+                y2="100%"
+              >
+                <stop offset="0%" stop-color="#3b82f6" />
+                <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.1" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="flex items-end justify-between h-full gap-1 relative z-10">
+          <ng-container *ngFor="let day of rewardData.days; let i = index">
+            <div class="flex flex-col items-center">
+              <div
+                class="w-4 bg-gradient-to-t from-blue-500/50 to-cyan-400/80 rounded-sm group-hover:from-blue-500/70 group-hover:to-cyan-400 transition-colors"
+                [style.height.%]="
+                  getHeightPercentage(
+                    rewardData.comments[i],
+                    maxComments$ | async
+                  )
+                "
+              ></div>
+              <span class="text-[9px] text-white/60 mt-1">{{ day }}</span>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+
+    <!-- Likes Chart -->
+    <div class="group">
+      <div class="flex justify-between items-center mb-1">
+        <span class="text-xs text-white/80 flex items-center gap-1">
+          <app-icon name="thumbs-up" class="h-3 w-3 text-pink-400"></app-icon>
+          <span>Received Likes</span>
+        </span>
+        <span
+          class="text-xs font-medium text-white bg-pink-500/20 px-2 py-0.5 rounded-full"
+        >
+          {{ getTotalLikes(rewardData) }}
+        </span>
+      </div>
+      <div
+        class="bg-gray-900/30 rounded-lg p-1 h-18 relative border border-gray-800/30 group-hover:border-pink-500/30 transition-colors overflow-hidden"
+      >
+        <div class="absolute inset-0 opacity-80">
+          <svg
+            width="100%"
+            height="100%"
+            viewBox="0 0 100 40"
+            preserveAspectRatio="none"
+          >
+            <path
+              [attr.d]="createSvgPath(rewardData.likes, 100, 40)"
+              fill="url(#pinkGradient)"
+            />
+            <defs>
+              <linearGradient
+                id="pinkGradient"
+                x1="0%"
+                y1="0%"
+                x2="0%"
+                y2="100%"
+              >
+                <stop offset="0%" stop-color="#ec4899" />
+                <stop offset="100%" stop-color="#ec4899" stop-opacity="0.1" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="flex items-end justify-between h-full gap-1 relative z-10">
+          <ng-container *ngFor="let day of rewardData.days; let i = index">
+            <div class="flex flex-col items-center">
+              <div
+                class="w-4 bg-gradient-to-t from-pink-500/50 to-red-400/80 rounded-sm group-hover:from-pink-500/70 group-hover:to-red-400 transition-colors"
+                [style.height.%]="
+                  getHeightPercentage(rewardData.likes[i], maxLikes$ | async)
+                "
+              ></div>
+              <span class="text-[9px] text-white/60 mt-1">{{ day }}</span>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+
+    <!-- Points Chart -->
+    <div class="group">
+      <div class="flex justify-between items-center mb-1">
+        <span class="text-xs text-white/80 flex items-center gap-1">
+          <app-icon name="zap" class="h-3 w-3 text-purple-400"></app-icon>
+          <span>Earned Points</span>
+        </span>
+        <span
+          class="text-xs font-medium text-white bg-purple-500/20 px-2 py-0.5 rounded-full"
+        >
+          {{ getTotalPoints(rewardData) }}
+        </span>
+      </div>
+      <div
+        class="bg-gray-900/30 rounded-lg p-1 h-18 relative border border-gray-800/30 group-hover:border-purple-500/30 transition-colors overflow-hidden"
+      >
+        <div class="absolute inset-0 opacity-80">
+          <svg
+            width="100%"
+            height="100%"
+            viewBox="0 0 100 40"
+            preserveAspectRatio="none"
+          >
+            <path
+              [attr.d]="createSvgPath(rewardData.points, 100, 40)"
+              fill="url(#purpleGradient)"
+            />
+            <defs>
+              <linearGradient
+                id="purpleGradient"
+                x1="0%"
+                y1="0%"
+                x2="0%"
+                y2="100%"
+              >
+                <stop offset="0%" stop-color="#a855f7" />
+                <stop offset="100%" stop-color="#a855f7" stop-opacity="0.1" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="flex items-end justify-between h-full gap-1 relative z-10">
+          <ng-container *ngFor="let day of rewardData.days; let i = index">
+            <div class="flex flex-col items-center">
+              <div
+                class="w-4 bg-gradient-to-t from-purple-500/50 to-violet-400/80 rounded-sm group-hover:from-purple-500/70 group-hover:to-violet-400 transition-colors"
+                [style.height.%]="
+                  getHeightPercentage(rewardData.points[i], maxPoints$ | async)
+                "
+              ></div>
+              <span class="text-[9px] text-white/60 mt-1">{{ day }}</span>
+            </div>
+          </ng-container>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+}

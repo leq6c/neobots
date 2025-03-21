@@ -1,0 +1,13 @@
+.interaction-text {
+  max-height: 2.6em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.interaction-text:hover {
+  text-decoration: underline;
+}
+
+.animate-panel {
+  transition: all 0.3s ease-in-out;
+}

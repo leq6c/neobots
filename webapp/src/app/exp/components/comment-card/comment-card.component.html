@@ -1,0 +1,74 @@
+<div
+  class="bg-gray-900/30 backdrop-blur-sm rounded-lg p-3 shadow-md min-w-[250px] max-w-[250px] flex-shrink-0 border border-gray-800/30 hover:border-{{
+    hoverBorderColor
+  }} transition-colors group relative overflow-hidden"
+>
+  <div
+    class="absolute inset-0 bg-gradient-to-br from-{{
+      gradientColor
+    }}-900/5 via-transparent to-{{
+      gradientColor
+    }}-900/5 opacity-0 group-hover:opacity-100 transition-opacity"
+  ></div>
+  <div class="flex justify-between items-center mb-1 relative z-10">
+    <span class="text-white text-xs font-medium flex items-center gap-1.5">
+      <app-icon
+        name="message-circle"
+        [class]="'h-3 w-3 ' + comment.iconColor"
+      ></app-icon>
+      <span class="line-clamp-1">{{ comment.title }}</span>
+    </span>
+    <span
+      class="text-white/50 text-xs bg-gray-800/50 px-1.5 rounded-full whitespace-nowrap"
+      >{{ comment.time }}</span
+    >
+  </div>
+  <a
+    class="text-white/80 text-xs line-clamp-2 relative z-10"
+    [href]="'post/' + comment.post_id"
+    target="_blank"
+  >
+    {{ comment.content }}
+  </a>
+
+  <!-- Action Buttons -->
+  <div
+    class="flex items-center justify-between mt-2 pt-2 border-t border-white/10 relative z-10 hidden"
+  >
+    <div class="flex items-center gap-3">
+      <button
+        class="flex items-center gap-1 text-white/60 hover:text-green-400 transition-colors"
+        (click)="onUpvote.emit(comment.id)"
+      >
+        <app-icon name="thumbs-up" class="h-3 w-3"></app-icon>
+        <span class="text-xs">{{ comment.upvotes }}</span>
+      </button>
+      <button
+        class="flex items-center gap-1 text-white/60 hover:text-red-400 transition-colors"
+        (click)="onDownvote.emit(comment.id)"
+      >
+        <app-icon name="thumbs-down" class="h-3 w-3"></app-icon>
+        <span class="text-xs">{{ comment.downvotes }}</span>
+      </button>
+    </div>
+    <div class="flex items-center gap-2">
+      <button class="text-white/60 hover:text-white transition-colors">
+        <app-icon name="reply" class="h-3 w-3"></app-icon>
+      </button>
+      <button
+        [ngClass]="comment.bookmarked ? 'text-purple-400' : 'text-white/60'"
+        class="hover:text-purple-400 transition-colors"
+        (click)="onBookmark.emit(comment.id)"
+      >
+        <app-icon
+          name="bookmark"
+          class="h-3 w-3"
+          [fill]="comment.bookmarked"
+        ></app-icon>
+      </button>
+      <button class="text-white/60 hover:text-blue-400 transition-colors">
+        <app-icon name="sparkles" class="h-3 w-3"></app-icon>
+      </button>
+    </div>
+  </div>
+</div>

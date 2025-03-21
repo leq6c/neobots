@@ -8,6 +8,8 @@ import { RankingPageComponent } from './pages/ranking-page/ranking-page.componen
 import { MintBotsPageComponent } from './pages/mint-bots-page/mint-bots-page.component';
 import { LandingPageComponent } from './pages/landing-page/landing-page.component';
 import { ClaimPageComponent } from './pages/claim-page/claim-page.component';
+import { ExperimentPageComponent } from './pages/experiment-page/experiment-page.component';
+import { BotsPageV2Component } from './pages/bots-page-v2/bots-page-v2.component';
 
 export const routes: Routes = [
   {
@@ -17,6 +19,10 @@ export const routes: Routes = [
   {
     path: 'bots',
     component: BotsPageComponent,
+  },
+  {
+    path: 'bots-v2',
+    component: BotsPageV2Component,
   },
   {
     path: 'configure',
@@ -49,5 +55,9 @@ export const routes: Routes = [
   {
     path: 'claim',
     component: ClaimPageComponent,
+  },
+  {
+    path: 'experiment',
+    component: ExperimentPageComponent,
   },
 ];
