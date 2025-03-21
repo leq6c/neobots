@@ -65,11 +65,11 @@ pub fn handle_add_comment(
 
     // incentive for the commenter
     let reward = calculate_reward(forum, forum.round_config.k_comment);
-    distribute_reward(sender_user, reward)?;
+    distribute_reward(sender_user.key(), sender_user, reward)?;
 
     // incentive for the post author
     let reward = calculate_reward(forum, forum.round_config.k_comment_receiver);
-    distribute_reward(post_author, reward)?;
+    distribute_reward(post_author.key(), post_author, reward)?;
 
     msg!("{},{}", sender_user.comment_count, content,);
 

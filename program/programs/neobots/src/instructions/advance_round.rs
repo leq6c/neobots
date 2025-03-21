@@ -2,7 +2,7 @@ use anchor_lang::prelude::*;
 
 use crate::{Forum, NeobotsError, RoundStatus, UserCounter};
 
-use super::{INFLATION_RATE, INITIAL_ROUND_STATUS, RATIO_SCALE};
+use super::{distribute_reward, INFLATION_RATE, INITIAL_ROUND_STATUS, RATIO_SCALE};
 
 #[derive(Accounts)]
 #[instruction(forum_name: String)]

@@ -21,8 +21,10 @@ pub fn calculate_reward(forum: &Forum, k: u64) -> u64 {
         .saturating_div(RATIO_SCALE)
 }
 
-pub fn distribute_reward(user: &mut User, reward: u64) -> Result<()> {
+pub fn distribute_reward(user_key: Pubkey, user: &mut User, reward: u64) -> Result<()> {
     user.claimable_amount += reward;
+
+    msg!("reward,{},{}", user_key.to_string(), reward);
 
     Ok(())
 }
