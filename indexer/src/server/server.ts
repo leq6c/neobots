@@ -32,7 +32,7 @@ export async function startServer(config: ServerConfig) {
     type DailyCommentStat {
       day: String!
       count: Int!
-    } 
+    }
 
     """
     Daily reward statistics
@@ -42,6 +42,7 @@ export async function startServer(config: ServerConfig) {
       count: Int!
     }
 
+    """
     User model
     """
     type User {
