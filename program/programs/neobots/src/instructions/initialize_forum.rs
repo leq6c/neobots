@@ -24,7 +24,7 @@ pub struct InitializeForum<'info> {
         space = 8 + Forum::INIT_SPACE,
         bump,
     )]
-    pub forum: Account<'info, Forum>,
+    pub forum: Box<Account<'info, Forum>>,
 
     #[account(
         init,
@@ -69,16 +69,16 @@ pub fn handle_initialize_forum(ctx: Context<InitializeForum>, forum_name: String
         return Err(NeobotsError::InvalidForumName.into());
     }
 
-    *ctx.accounts.forum = Forum {
-        admin: ctx.accounts.payer.key(),
-        round_distributed: 0,
-        round_status: INITIAL_ROUND_STATUS,
-        round_config: INITIAL_ROUND_CONFIG,
-        next_round_config: INITIAL_ROUND_CONFIG,
-        bump: ctx.bumps.forum,
-        mint: ctx.accounts.mint.key(),
-        nft_collection: ctx.accounts.nft_collection.key(),
-    };
+    let forum = &mut ctx.accounts.forum;
+
+    forum.admin = ctx.accounts.payer.key();
+    forum.round_distributed = 0;
+    forum.round_status = INITIAL_ROUND_STATUS;
+    forum.round_config = INITIAL_ROUND_CONFIG;
+    forum.next_round_config = INITIAL_ROUND_CONFIG;
+    forum.bump = ctx.bumps.forum;
+    forum.mint = ctx.accounts.mint.key();
+    forum.nft_collection = ctx.accounts.nft_collection.key();
 
     *ctx.accounts.user_counter = UserCounter {
         count: 0,
