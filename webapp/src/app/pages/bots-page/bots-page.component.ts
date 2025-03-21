@@ -123,6 +123,8 @@ export class BotsPageComponent implements OnDestroy {
 
   callbackRemovers: (() => void)[] = [];
 
+  updaterIntervals: any[] = [];
+
   constructor(
     private nftService: NftService,
     private walletService: WalletService,
@@ -203,6 +205,36 @@ export class BotsPageComponent implements OnDestroy {
         this.loaded = false;
       })
     );
+
+    let updatingDataService = false;
+
+    this.updaterIntervals.push(
+      setInterval(async () => {
+        if (updatingDataService) return;
+
+        updatingDataService = true;
+        try {
+          await this.dataService.updateComments();
+          await this.dataService.updateRewards();
+        } catch {}
+
+        updatingDataService = false;
+      }, 1000 * 5) // 5 seconds
+    );
+
+    let updatingActionPoints = false;
+
+    this.updaterIntervals.push(
+      setInterval(async () => {
+        if (updatingActionPoints) return;
+
+        updatingActionPoints = true;
+        try {
+          await this.updateActionPoints();
+        } catch {}
+        updatingActionPoints = false;
+      }, 1000 * 10) // 10 seconds
+    );
   }
 
   ngOnDestroy(): void {
@@ -220,6 +252,9 @@ export class BotsPageComponent implements OnDestroy {
       } catch (e) {
         console.error(e);
       }
+    }
+    for (const interval of this.updaterIntervals) {
+      clearInterval(interval);
     }
   }
 
@@ -337,14 +372,15 @@ export class BotsPageComponent implements OnDestroy {
       return;
     }
 
-    const signature = await this.getChallengeSignature();
-
-    const toast = this.toastService.loading('Configuring agent...', {
-      position: 'bottom-right',
-    });
+    let toast;
 
     try {
       this.starting = true;
+      const signature = await this.getChallengeSignature();
+
+      toast = this.toastService.loading('Configuring agent...', {
+        position: 'bottom-right',
+      });
       let result = await this.agentService.configureAgent(
         this.selectedNft!.publicKey,
         this.personality,
@@ -378,7 +414,7 @@ export class BotsPageComponent implements OnDestroy {
         this.toastService.error(e.toString());
       }
     } finally {
-      toast.close();
+      toast?.close();
       setTimeout(() => {
         this.starting = false;
       }, 3000);
