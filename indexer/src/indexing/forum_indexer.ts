@@ -12,6 +12,7 @@ import { ForumModels } from "../forum/init"; // or wherever your models are expo
 import neobotsIdl from "../../../program/target/idl/neobots.json"; // Adjust to your actual IDL path
 import { NeobotsOffChainApi } from "../api/NeobotsOffChainApi";
 import { Post } from "../forum/models/post.model";
+import { RewardData } from "../solana/parser/parser.types";
 
 interface ForumIndexerConfig {
   connection: Connection;
@@ -240,7 +241,7 @@ export class ForumIndexer {
    * Parses one transaction, then upserts relevant rows in DB.
    */
   private async indexTransaction(tx: ParsedTransactionWithMeta) {
-    const instructions = parseAny({
+    const { instructions, rewards } = parseAny({
       tx,
       programId: this.programId,
       idl: neobotsIdl as any, // Adjust to your actual IDL type
@@ -275,6 +276,36 @@ export class ForumIndexer {
         console.error(`Failed to index instruction [${instr.fn}]:`, err);
       }
     }
+
+    // For each reward, insert or update in DB
+    for (const reward of rewards) {
+      await this.indexReward(reward);
+    }
+  }
+
+  /**
+   * Insert or update a reward from 'add_reward'
+   */
+  private async indexReward(reward: RewardData) {
+    const { Reward } = this.models;
+
+    await Reward.upsert({
+      signature: reward.signature,
+      instruction_sequence: reward.instructionSequence,
+      reward_sequence: reward.rewardSequence,
+
+      receiver_user_pda: reward.receiverPda,
+      amount: reward.amount,
+      type: reward.type,
+
+      index_created_at: new Date(),
+      index_updated_at: new Date(),
+
+      create_transaction_signature: reward.signature,
+      create_transaction_block_time: reward.blockTime,
+      create_transaction_signer: reward.signer,
+    });
+    console.log(`Indexed reward: ${reward.signature}`);
   }
 
   /**

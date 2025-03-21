@@ -4,6 +4,7 @@ import {
   AddReactionData,
   CreatePostData,
   InitializeUserData,
+  RewardData,
 } from "./parser.types";
 
 export function parseCreatePost(
@@ -77,6 +78,22 @@ export function parseAddReaction(
   baseData.reactionSequence = parseInt(reactionSequence, 10);
   baseData.targetCommentSequence = parseInt(targetCommentSequence, 10);
   return baseData;
+}
+
+export function parseRewards(programLogs: string[]): RewardData[] {
+  const rewards: RewardData[] = [];
+  const rewardLogs = programLogs.filter((log) => log.startsWith("reward,"));
+  for (const log of rewardLogs) {
+    const sp = log.split(",");
+    if (sp.length < 4) {
+      continue;
+    }
+    const receiverPda = sp[1];
+    const amount = sp[2];
+    const type = sp[3];
+    rewards.push({ receiverPda, amount: parseInt(amount, 10), type });
+  }
+  return rewards;
 }
 
 export function parseTwoValuesFromLogs(

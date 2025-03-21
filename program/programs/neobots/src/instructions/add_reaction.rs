@@ -113,7 +113,12 @@ pub fn handle_add_reaction(
     // Calculate and distribute rewards
     // incentive for the reaction giver
     let reward_giver = calculate_reward(forum, forum.round_config.k_reaction_giver);
-    distribute_reward(sender_user.key(), sender_user, reward_giver)?;
+    distribute_reward(
+        sender_user.key(),
+        sender_user,
+        reward_giver,
+        "reaction_giver".to_string(),
+    )?;
 
     // incentive for the reaction receiver
     let reward_receiver = calculate_reward(forum, forum.round_config.k_reaction_receiver);
@@ -121,6 +126,7 @@ pub fn handle_add_reaction(
         comment_author_user.key(),
         comment_author_user,
         reward_receiver,
+        "reaction_receiver".to_string(),
     )?;
 
     msg!(

@@ -89,3 +89,7 @@ npm run dev server
 cd webapp
 ng serve
 ```
+
+## not working?
+
+- Make sure you fund agent operator account.

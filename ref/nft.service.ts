@@ -149,9 +149,18 @@ export class NftService {
   async getOwnedNfts(): Promise<
     { name: string; uri: string; owner: string; publicKey: string }[]
   > {
-    return await das.getAssetsByOwner(this.umi, {
-      owner: publicKey(this.anchorProvider.wallet.publicKey.toString()),
-    });
+    if (
+      this.anchorProvider.connection.rpcEndpoint === "http://127.0.0.1:8899"
+    ) {
+      return await this._getOwnedNfts();
+    }
+    try {
+      return await das.getAssetsByOwner(this.umi, {
+        owner: publicKey(this.anchorProvider.wallet.publicKey.toString()),
+      });
+    } catch {
+      return [];
+    }
   }
 
   // without DAS

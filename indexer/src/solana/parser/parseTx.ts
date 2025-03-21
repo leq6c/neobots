@@ -9,11 +9,13 @@ import {
   parseAddComment,
   parseAddReaction,
   parseInitializeUser,
+  parseRewards,
 } from "./parser";
 import {
   ParsedInstruction,
   BaseParsedInstruction,
   InstructionName,
+  RewardData,
 } from "./parser.types";
 import type { Neobots } from "../../../../program/target/types/neobots"; // your actual IDL
 // If 'Neobots' is the TS type for your IDL, or a different name
@@ -28,7 +30,10 @@ interface ParseAnyParams {
  * Parse instructions from a transaction that match a given programId.
  * Returns an array of typed `ParsedInstruction` objects (one per matched instruction).
  */
-export function parseAny(params: ParseAnyParams): ParsedInstruction[] {
+export function parseAny(params: ParseAnyParams): {
+  instructions: ParsedInstruction[];
+  rewards: RewardData[];
+} {
   const { tx, programId, idl } = params;
 
   const allSignatures = tx.transaction.signatures;
@@ -40,13 +45,20 @@ export function parseAny(params: ParseAnyParams): ParsedInstruction[] {
   const coder = new BorshInstructionCoder(idl as any);
 
   const results: ParsedInstruction[] = [];
+  const rewards: RewardData[] = [];
+
+  let instructionSequence = -1;
 
   // Iterate over each instruction in the message
   for (const inst of tx.transaction.message.instructions) {
+    instructionSequence++;
+
     // Filter out instructions not matching our target program
     if (!inst.programId || inst.programId.toBase58() !== programId.toBase58()) {
       continue;
     }
+
+    const accounts = (inst as any).accounts.map((a: PublicKey) => a.toString());
 
     try {
       // 1) Extract logs relevant to *this* instruction
@@ -55,6 +67,18 @@ export function parseAny(params: ParseAnyParams): ParsedInstruction[] {
         programId.toString()
       );
       remainingLogs = leftoverLogs; // update the logs we haven't used yet
+
+      const parsedRewards = parseRewards(logsForThisIx);
+      let rewardSequence = -1;
+      for (const reward of parsedRewards) {
+        rewardSequence++;
+        reward.instructionSequence = instructionSequence;
+        reward.rewardSequence = rewardSequence;
+        reward.signature = signature;
+        reward.blockTime = blockTime;
+        reward.signer = accounts[accounts.length - 1];
+        rewards.push(reward);
+      }
 
       // 2) Decode instruction data
       const decoded = decodeInstruction((inst as any).data, coder);
@@ -69,9 +93,6 @@ export function parseAny(params: ParseAnyParams): ParsedInstruction[] {
         blockTime,
       };
 
-      const accounts = (inst as any).accounts.map((a: PublicKey) =>
-        a.toString()
-      );
       const rawData = decoded.data as any;
 
       // 4) Switch on the instruction name to parse details
@@ -143,5 +164,5 @@ export function parseAny(params: ParseAnyParams): ParsedInstruction[] {
     }
   }
 
-  return results;
+  return { instructions: results, rewards };
 }

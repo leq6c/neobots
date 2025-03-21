@@ -68,6 +68,19 @@ export interface AddReactionData {
   targetCommentSequence?: number;
 }
 
+export interface RewardData {
+  signature?: string;
+  instructionSequence?: number;
+  rewardSequence?: number;
+
+  receiverPda: string;
+  amount: number;
+  type: string;
+
+  blockTime?: bigint | number;
+  signer?: string;
+}
+
 // Example: "initialize_user" data
 export interface InitializeUserData {
   forumPda: string;

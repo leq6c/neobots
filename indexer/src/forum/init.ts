@@ -15,6 +15,7 @@ import {
 } from "./models/indexMetadata.model";
 import { environment } from "../environment";
 import { PostgresDialect } from "@sequelize/postgres";
+import { initRewardModel, Reward } from "./models/reward.model";
 
 /**
  * Aggregates all models in one interface
@@ -24,6 +25,7 @@ export interface ForumModels {
   Post: typeof Post;
   Comment: typeof Comment;
   CommentReaction: typeof CommentReaction;
+  Reward: typeof Reward;
   IndexMetadata: typeof IndexMetadata;
 }
 
@@ -68,6 +70,7 @@ export async function initForum(
   initPostModel(sequelize);
   initCommentModel(sequelize);
   initCommentReactionModel(sequelize);
+  initRewardModel(sequelize);
   initIndexMetadataModel(sequelize);
 
   // If you'd like to define relationships, you can do so here:
@@ -91,6 +94,7 @@ export async function initForum(
     Post,
     Comment,
     CommentReaction,
+    Reward,
     IndexMetadata,
   };
   return { sequelize, models };

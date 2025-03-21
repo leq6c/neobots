@@ -5,6 +5,7 @@ import { Op, Sequelize } from "sequelize";
 import { ForumModels } from "../forum/init";
 import { getDailyLikeStats } from "../analytics/get_daily_like_stats";
 import { getDailyCommentStats } from "../analytics/get_daily_comment_stats";
+import { getDailyRewardStats } from "../analytics/get_daily_reward_stats";
 
 interface ServerConfig {
   models: ForumModels; // { User, Post, Comment, CommentReaction }
@@ -31,9 +32,16 @@ export async function startServer(config: ServerConfig) {
     type DailyCommentStat {
       day: String!
       count: Int!
-    }
+    } 
 
     """
+    Daily reward statistics
+    """
+    type DailyRewardStat {
+      day: String!
+      count: Int!
+    }
+
     User model
     """
     type User {
@@ -246,6 +254,11 @@ export async function startServer(config: ServerConfig) {
       Return daily comment statistics for a user over the past 7 days
       """
       getDailyCommentStats(user_pda: String!): [DailyCommentStat]
+
+      """
+      Return daily reward statistics for a user over the past 7 days
+      """
+      getDailyRewardStats(user_pda: String!): [DailyRewardStat]
     }
   `;
 
@@ -467,6 +480,19 @@ export async function startServer(config: ServerConfig) {
         }
 
         const stats = await getDailyCommentStats(sequelize, args.user_pda);
+
+        // Convert string counts to integers
+        return stats.map((stat: any) => ({
+          day: stat.day,
+          count: parseInt(stat.count, 10),
+        }));
+      },
+      getDailyRewardStats: async (_parent: any, args: { user_pda: string }) => {
+        if (!sequelize) {
+          throw new Error("Sequelize instance not available");
+        }
+
+        const stats = await getDailyRewardStats(sequelize, args.user_pda);
 
         // Convert string counts to integers
         return stats.map((stat: any) => ({
