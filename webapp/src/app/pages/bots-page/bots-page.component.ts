@@ -190,7 +190,8 @@ export class BotsPageComponent implements OnDestroy {
         this.dataService.setUser(
           this.programService
             .getUserPda(new PublicKey(this.selectedNft!.publicKey))
-            .toString()
+            .toString(),
+          this.selectedNft!.publicKey
         );
 
         this.loaded = true;

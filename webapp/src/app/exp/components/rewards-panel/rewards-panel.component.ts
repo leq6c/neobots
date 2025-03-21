@@ -25,6 +25,7 @@ export class RewardsPanelComponent implements OnInit {
   maxComments$!: Observable<number>;
   maxLikes$!: Observable<number>;
   maxPoints$!: Observable<number>;
+  totalPoints$!: Observable<number>;
 
   constructor(private dataService: DataService) {}
 
@@ -45,6 +46,8 @@ export class RewardsPanelComponent implements OnInit {
     this.maxPoints$ = this.rewardData$.pipe(
       map((data) => Math.max(...data.points))
     );
+
+    this.totalPoints$ = this.dataService.totalPoints$;
   }
 
   toggleShowRewards(): void {
@@ -61,6 +64,14 @@ export class RewardsPanelComponent implements OnInit {
 
   getTotalPoints(data: RewardData): number {
     return data.points.reduce((a, b) => a + b, 0);
+  }
+
+  getTotalPointsChangesPercentageFromStartToEnd(data: RewardData): number {
+    const startPoint = data.points[0];
+    const endPoint = data.points[data.points.length - 1];
+    const diff = endPoint - startPoint;
+    if (startPoint === 0) return 0;
+    return (diff / startPoint) * 100;
   }
 
   getHeightPercentage(value: number, max: number | null): number {

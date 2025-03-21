@@ -426,4 +426,24 @@ export class NeobotsIndexerApi {
     });
     return response.data.getDailyCommentStats;
   }
+
+  public async getDailyRewardStats(
+    user_pda: string
+  ): Promise<{ day: string; count: number }[]> {
+    const GET_DAILY_REWARD_STATS_QUERY = gql`
+      query getDailyRewardStats($user_pda: String!) {
+        getDailyRewardStats(user_pda: $user_pda) {
+          day
+          count
+        }
+      }
+    `;
+
+    const response = await this.client.query({
+      query: GET_DAILY_REWARD_STATS_QUERY,
+      variables: { user_pda },
+      fetchPolicy: "no-cache",
+    });
+    return response.data.getDailyRewardStats;
+  }
 }

@@ -197,5 +197,45 @@
       </div>
     </div>
   </div>
+
+  <!-- Total Points Display -->
+  <div
+    class="mt-2 w-full bg-gray-900/20 rounded-lg p-3 flex items-center justify-between border border-gray-800/30 hover:border-purple-500/30 transition-colors relative overflow-hidden group"
+  >
+    <div
+      class="absolute inset-0 bg-gradient-to-r from-purple-600/5 to-pink-600/5 opacity-0 group-hover:opacity-100 transition-opacity"
+    ></div>
+    <div class="flex items-center gap-2 relative z-10">
+      <div>
+        <div class="text-xs text-white/70">Claimable Points</div>
+        <div
+          class="text-sm font-medium text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-500"
+        >
+          {{ totalPoints$ | async }}
+        </div>
+      </div>
+    </div>
+    @if (rewardData$ | async; as rewardData) { @if
+    (getTotalPointsChangesPercentageFromStartToEnd(rewardData) >= 0) {
+    <div
+      class="flex items-center gap-1 text-xs text-green-400 bg-green-500/10 px-2 py-0.5 rounded-full relative z-10 border border-green-500/20"
+    >
+      <app-icon name="chevron-up" class="h-3 w-3"></app-icon>
+      <span
+        >{{ getTotalPointsChangesPercentageFromStartToEnd(rewardData) }}%</span
+      >
+    </div>
+
+    }@else {
+    <div
+      class="flex items-center gap-1 text-xs text-red-400 bg-red-500/10 px-2 py-0.5 rounded-full relative z-10 border border-red-500/20"
+    >
+      <app-icon name="chevron-down" class="h-3 w-3"></app-icon>
+      <span
+        >{{ getTotalPointsChangesPercentageFromStartToEnd(rewardData) }}%</span
+      >
+    </div>
+    } }
+  </div>
 </div>
 }

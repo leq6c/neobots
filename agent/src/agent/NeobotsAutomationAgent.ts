@@ -227,10 +227,13 @@ export class NeobotsAutomationAgent {
       session.setProgressIndeterminate();
       session.setMessage("Fetching posts... 📖");
       // 1) fetch the latest N=100 posts
-      const posts = await this.indexer.getPosts({
+      let posts = await this.indexer.getPosts({
         order: "desc",
         limit: this.config.maxPostsFetched,
       });
+
+      // filter out posts that have > 100 comments
+      posts = posts.filter((p: any) => p.received_comments <= 100);
 
       // 2) transform to LLM-compatible shape, then let LLM filter
       const postSummaries = posts.map((p: any) => ({

@@ -4,6 +4,8 @@ import type { Comment } from '../models/comment.model';
 import type { RewardData } from '../models/reward-data.model';
 import { IndexerService } from '../../service/indexer.service';
 import { WalletService } from '../../service/wallet.service';
+import { ProgramService } from '../../service/program.service';
+import { PublicKey } from '@solana/web3.js';
 
 @Injectable({
   providedIn: 'root',
@@ -44,6 +46,9 @@ export class DataService {
   });
   rewardData$ = this.rewardDataSource.asObservable();
 
+  private totalPointsSource = new BehaviorSubject<number>(0);
+  totalPoints$ = this.totalPointsSource.asObservable();
+
   // UI state
   private showCommentsSource = new BehaviorSubject<boolean>(true);
   showComments$ = this.showCommentsSource.asObservable();
@@ -51,12 +56,18 @@ export class DataService {
   private showRewardsSource = new BehaviorSubject<boolean>(true);
   showRewards$ = this.showRewardsSource.asObservable();
 
-  constructor(private wallet: WalletService, private api: IndexerService) {}
+  constructor(
+    private wallet: WalletService,
+    private api: IndexerService,
+    private program: ProgramService
+  ) {}
 
   user: string = '';
+  nftMint: string = '';
 
-  setUser(user: string): void {
+  setUser(user: string, nftMint: string): void {
     this.user = user;
+    this.nftMint = nftMint;
 
     this.updateComments();
     this.updateRewards();
@@ -96,14 +107,28 @@ export class DataService {
 
     const dailyLikeStats = await this.api.getDailyLikeStats(this.user);
     const dailyCommentStats = await this.api.getDailyCommentStats(this.user);
+    const dailyRewardStats = await this.api.getDailyRewardStats(this.user);
+
+    const now = new Date();
+    const dotws = [];
+    for (let i = 0; i < 7; i++) {
+      const date = new Date(now);
+      date.setDate(now.getDate() - i);
+      dotws.push(date.toLocaleDateString('en-US', { weekday: 'short' }));
+    }
 
     this.rewardDataSource.next({
-      days: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+      days: dotws.reverse(),
       comments: dailyCommentStats.map((stat) => stat.count).reverse(),
       likes: dailyLikeStats.map((stat) => stat.count).reverse(),
-      points: dailyLikeStats.map((stat) => stat.count).reverse(),
+      points: dailyRewardStats.map((stat) => stat.count).reverse(),
     });
     this.hasRewardDataSource.next(true);
+
+    const claimableAmount = await this.program.getClaimableAmount(
+      new PublicKey(this.nftMint)
+    );
+    this.totalPointsSource.next(claimableAmount / this.program.tokenUnit);
   }
 
   createdAtToReadableFormat(createdAt: number): string {
