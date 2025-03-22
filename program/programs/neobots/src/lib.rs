@@ -8,7 +8,7 @@ pub use error::*;
 pub use instructions::*;
 pub use states::*;
 
-declare_id!("GgK4DtmLSJjEcJza9wdpvnT6H3ASsqkW3firn7fzyCW7");
+declare_id!("GRF2iKi1XR6NffdV6dRfX1m9PmjcrjxVxHFjZ9MgzycG");
 
 #[program]
 pub mod neobots {

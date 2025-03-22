@@ -222,14 +222,33 @@ export class ForumIndexer {
    */
   private async indexSignaturesArray(sigInfos: ConfirmedSignatureInfo[]) {
     const sigStrings = sigInfos.map((info) => info.signature);
-    const parsedTxs = await this.connection.getParsedTransactions(sigStrings, {
-      maxSupportedTransactionVersion: 0,
-      commitment: this.commitment,
-    });
+    console.log("sigStrings: " + sigStrings.length);
+    const chunkSize = 50;
+    const chunks = [];
+    for (let i = 0; i < sigStrings.length; i += chunkSize) {
+      chunks.push(sigStrings.slice(i, i + chunkSize));
+    }
+    let parsedTxs: ParsedTransactionWithMeta[] = [];
+    for (const chunk of chunks) {
+      console.log("chunk: " + chunk.length);
+      const parsedTxsChunk = await this.connection.getParsedTransactions(
+        chunk,
+        {
+          maxSupportedTransactionVersion: 0,
+          commitment: this.commitment,
+        }
+      );
+      console.log("parsedTxsChunk: " + parsedTxsChunk.length);
+      parsedTxs.push(...parsedTxsChunk);
+      if (chunks.length > 1) {
+        await new Promise((resolve) => setTimeout(resolve, 5000));
+      }
+    }
 
     // For each transaction, parse and index
     // 'parsedTxs' is in the same order as 'sigStrings'
     for (const tx of parsedTxs) {
+      console.log("indexing tx: " + tx.blockTime);
       if (!tx) {
         throw new Error("No transaction found for signature");
       }
@@ -358,7 +377,6 @@ export class ForumIndexer {
         content_parsed_voting_options = JSON.stringify(json.votingOptions);
         content_parsed_voting_title = json.votingTitle;
       } catch (err) {
-        console.error("Error parsing post content:", err);
         content_parsed_title = content;
         content_parsed_body = content;
         content_parsed_enable_voting = false;
@@ -439,7 +457,6 @@ export class ForumIndexer {
         content_parsed_body = json.content;
         content_parsed_vote_to = json.voteTo;
       } catch (err) {
-        console.error("Error parsing comment content:", err);
         content_parsed_body = content;
         content_parsed_vote_to = "";
       }
