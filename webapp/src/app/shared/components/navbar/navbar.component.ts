@@ -6,10 +6,11 @@ import { Check, LucideAngularModule } from 'lucide-angular';
 import { injectPublicKey } from '../../../lib/solana/lib/inject-public-key';
 import { ProgramService } from '../../../service/program.service';
 import { RoundInfoBarComponent } from '../round-info-bar/round-info-bar.component';
+import { SelectWalletComponent } from '../select-wallet/select-wallet.component';
 
 @Component({
   selector: 'app-navbar',
-  imports: [LucideAngularModule, RoundInfoBarComponent],
+  imports: [LucideAngularModule, RoundInfoBarComponent, SelectWalletComponent],
   templateUrl: './navbar.component.html',
   styleUrl: './navbar.component.scss',
 })
@@ -33,6 +34,8 @@ export class NavbarComponent {
   selectedClassStr =
     'px-2 text-accent flex h-full items-center justify-center border-b-2 text-xs font-semibold xl:mt-0.5 xl:text-sm gap-4 py-4 xs:w-auto xs:px-2 sm:px-4 border-v2-primary text-v2-primary';
 
+  showConnectWalletModal: boolean = false;
+
   connected = injectConnected();
 
   constructor(
@@ -46,22 +49,19 @@ export class NavbarComponent {
         console.log(this.selectedItem);
       }
     });
+  }
+
+  async ngOnInit() {
     try {
-      this.connectWallet();
-    } catch {
-      console.log('failed to connect wallet');
-    }
+      await this.walletService.connectWalletIfRemembered();
+    } catch {}
   }
 
   async connectWallet() {
     if (this.connected()) {
       return;
     }
-    const wallets = await this.walletService.getInstalledWallets();
-    if (wallets.length === 0) {
-      return;
-    }
-    await this.walletService.connectWallet(wallets[0]);
+    this.showConnectWalletModal = true;
   }
 
   async disconnectWallet() {

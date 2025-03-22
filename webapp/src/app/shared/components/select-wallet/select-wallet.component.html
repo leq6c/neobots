@@ -1,0 +1,58 @@
+<!-- Modal Backdrop -->
+<div
+  class="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-[99999]"
+>
+  <!-- Modal Closer-->
+  <div class="absolute top-0 left-0 w-full h-full" (click)="close()"></div>
+  <!-- Modal Container -->
+  <div
+    class="bg-[#1A1E30] rounded-xl max-w-lg w-[22em] p-8 relative card-slide-in"
+  >
+    <!-- Modal Header -->
+    <div class="flex justify-between items-center mb-6">
+      <h2 class="text-white text-2xl font-semibold">Connect your wallet</h2>
+      <button class="text-white text-2xl" (click)="close()">&times;</button>
+    </div>
+
+    <div class="flex flex-row flex-wrap items-center justify-center gap-2">
+      @if (loading) {
+      <div class="flex items-center justify-center w-full card-slide-in">
+        <span class="text-sm text-gray-400">Loading wallets...</span>
+        <span class="loading loading-spinner loading-sm"></span>
+      </div>
+      } @else {
+      <!-- Phantom Wallet -->
+      @for (wallet of wallets; track wallet.adapter.name) {
+      <button
+        class="bg-modal-card rounded-lg px-4 py-2 flex items-center cursor-pointer w-[12em] hover:opacity-80"
+        (click)="connectWallet(wallet)"
+      >
+        <div class="bg-[#9945FF] rounded-lg mr-3 overflow-hidden">
+          <img class="w-8 h-8" [src]="wallet.adapter.icon" />
+        </div>
+        <div class="flex-grow">
+          <div class="text-white font-semibold">{{ wallet.adapter.name }}</div>
+        </div>
+      </button>
+      } @if (wallets.length == 0) {
+      <div class="text-white text-sm">
+        No wallets found. Please install a wallet.
+        <div class="flex justify-center items-center pt-6">
+          <a
+            class="bg-gray-700 rounded-lg p-2 hover:bg-gray-600 hover:underline"
+            href="https://phantom.com/"
+            target="_blank"
+            >Phantom (https://phantom.com/)</a
+          >
+        </div>
+      </div>
+      } }
+    </div>
+
+    <!-- Buy crypto section -->
+    <div class="mt-6 flex justify-center text-center text-sm">
+      We currently support Devnet only.<BR /> Please switch to Devnet to
+      continue.
+    </div>
+  </div>
+</div>

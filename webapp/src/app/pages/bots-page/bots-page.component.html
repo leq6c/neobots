@@ -25,8 +25,13 @@
     <app-btn-create-bot></app-btn-create-bot>
     } @else {
     <!-- Main Content Area with 3-panel layout -->
-    <div class="w-full min-w-[60rem] max-w-7xl grid grid-cols-12 gap-1 mt-1">
-      <div class="col-span-3 block">
+    <div
+      class="w-full min-w-[60rem] max-w-7xl grid grid-cols-12 gap-1 mt-1"
+      [ngClass]="
+        agentRunningStatus?.running ? 'agent-running' : 'agent-stopped'
+      "
+    >
+      <div class="col-span-3 block rewards-container">
         <app-rewards-panel></app-rewards-panel>
       </div>
 
@@ -46,7 +51,7 @@
         ></app-profile-card>
       </div>
 
-      <div class="col-span-3 block">
+      <div class="col-span-3 block stats-container">
         <app-crypto-stats></app-crypto-stats>
       </div>
     </div>

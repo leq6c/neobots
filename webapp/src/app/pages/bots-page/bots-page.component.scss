@@ -103,3 +103,24 @@
 .enable-underline:hover {
   text-decoration: underline;
 }
+
+.rewards-container,
+.stats-container {
+  transition: transform 0.3s ease-in-out;
+}
+
+.agent-stopped > .rewards-container {
+  transform: translateX(2em);
+}
+
+.agent-stopped > .stats-container {
+  transform: translateX(-2em);
+}
+
+.agent-running > .rewards-container {
+  transform: translateX(0);
+}
+
+.agent-running > .stats-container {
+  transform: translateX(0);
+}

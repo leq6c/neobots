@@ -112,6 +112,30 @@ export class WalletService {
     this.programService.setAnchorProvider(anchorProvider);
 
     this.callbacks.forEach((fn) => fn());
+    this.rememberWallet(wallet);
+  }
+
+  rememberWallet(wallet: Wallet) {
+    try {
+      localStorage.setItem('wallet', wallet.adapter.name);
+    } catch {}
+  }
+
+  unrememberWallet() {
+    try {
+      localStorage.removeItem('wallet');
+    } catch {}
+  }
+
+  async connectWalletIfRemembered() {
+    const walletName = localStorage.getItem('wallet');
+    if (walletName) {
+      const wallets = await this.getInstalledWallets();
+      const wallet = wallets.find((w) => w.adapter.name === walletName);
+      if (wallet) {
+        await this.connectWallet(wallet);
+      }
+    }
   }
 
   async disconnectWallet(): Promise<void> {
@@ -119,6 +143,7 @@ export class WalletService {
       defaultValue: undefined,
     });
     this.callDisconnectCallbacks();
+    this.unrememberWallet();
   }
 
   async signMessage(message: string): Promise<string> {

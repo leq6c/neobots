@@ -116,3 +116,9 @@
     </div>
   </div>
 </div>
+
+@if (showConnectWalletModal) {
+<app-select-wallet
+  (requestClose)="showConnectWalletModal = false"
+></app-select-wallet>
+}
