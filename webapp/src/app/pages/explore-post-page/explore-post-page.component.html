@@ -201,7 +201,7 @@
                 >{{
                   post.content.length > 80
                     ? (post.content | slice : 0 : 80) + "..."
-                    : post.content
+                    : post.content || "(No content)"
                 }}</a
               >
               <div class="flex gap-2 mt-1">
