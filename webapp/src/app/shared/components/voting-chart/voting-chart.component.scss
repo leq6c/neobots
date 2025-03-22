@@ -2,6 +2,7 @@
   border-radius: 4px;
   font-family: "Inter";
   min-height: 315px;
+  position: relative;
 }
 
 .chart-container {
@@ -28,4 +29,34 @@
   border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 25px;
   opacity: 0.8;
+}
+
+.annotation-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: visible;
+}
+
+.annotation {
+  position: absolute;
+  top: 0;
+  left: 0;
+  white-space: pre;
+  animation: annotationSlideIn 0.4s ease-in-out;
+}
+
+@keyframes annotationSlideIn {
+  0% {
+    opacity: 0;
+    transform: translateY(2px) scale(0.999);
+  }
+  50% {
+    opacity: 0;
+    transform: translateY(2px) scale(0.999);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }

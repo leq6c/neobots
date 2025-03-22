@@ -1,8 +1,9 @@
 <div class="flex items-center justify-center">
   <div class="chart-container">
-    <div class="chart-wrapper">
+    <div class="chart-wrapper" #chartWrapper>
       @if (hasData && chartOptions) {
       <apx-chart
+        #chart
         [series]="chartOptions.series!"
         [chart]="chartOptions.chart!"
         [xaxis]="chartOptions.xaxis!"
@@ -23,6 +24,18 @@
         <span class="loading loading-spinner loading-sm"></span>
       </div>
       }
+      <div class="annotation-container">
+        @for (annotation of annotations; track annotation.label) {
+        <div
+          class="annotation text-xs font-medium card-slide-in"
+          [style.left.px]="annotation.x + annotation.offsetX"
+          [style.top.px]="annotation.y + annotation.offsetY"
+          [style.color]="annotation.color"
+        >
+          {{ annotation.label }}
+        </div>
+        }
+      </div>
     </div>
     @if (chartdata) {
     <div class="marker-container">

@@ -1,4 +1,4 @@
-import { Component, Input, ViewChild } from '@angular/core';
+import { Component, Input, ViewChild, ElementRef } from '@angular/core';
 
 import {
   ChartComponent,
@@ -15,6 +15,7 @@ import {
   NgApexchartsModule,
   ApexLegend,
 } from 'ng-apexcharts';
+import { chartdata } from './SampleChartData';
 
 export type ChartOptions = {
   series: ApexAxisChartSeries;
@@ -48,6 +49,15 @@ export interface ChartData {
   label: string;
 }
 
+interface CustomAnnotation {
+  x: number;
+  y: number;
+  label: string;
+  offsetY: number;
+  offsetX: number;
+  color: string;
+}
+
 @Component({
   selector: 'app-voting-chart',
   imports: [NgApexchartsModule],
@@ -58,6 +68,7 @@ export class VotingChartComponent {
   hasData: boolean = false;
 
   @ViewChild('chart') chart!: ChartComponent;
+  @ViewChild('chartWrapper') chartWrapper!: ElementRef;
   public chartOptions?: Partial<ChartOptions>;
 
   _chartdata?: ChartData;
@@ -80,9 +91,38 @@ export class VotingChartComponent {
     return this._chartdata;
   }
 
-  annotationTexts: string[] = [];
+  annotationPoints: PointAnnotations[] = [];
+  annotations: CustomAnnotation[] = [];
 
   ngOnInit() {}
+
+  updateCustomAnnotations() {
+    const baseRect = this.chartWrapper.nativeElement.getBoundingClientRect();
+    const seriesElements =
+      this.chartWrapper.nativeElement.getElementsByClassName(
+        'apexcharts-series'
+      ) as HTMLCollectionOf<HTMLElement>;
+
+    const newAnnotations: CustomAnnotation[] = [];
+
+    for (let i = 0; i < this.annotationPoints.length; i++) {
+      if (seriesElements[i]) {
+        const targetElement = seriesElements[i].lastChild
+          ?.lastChild as HTMLElement;
+        const rect = targetElement.getBoundingClientRect();
+        newAnnotations.push({
+          x: rect.left - baseRect.left + rect.width / 2,
+          y: rect.top - baseRect.top - 2,
+          label: this.annotationPoints[i].label?.text ?? '',
+          offsetY: this.annotationPoints[i].label?.offsetY ?? 0,
+          offsetX: this.annotationPoints[i].label?.offsetX ?? 0,
+          color: this.annotationPoints[i].label?.style?.color ?? '#C49BFF',
+        });
+      }
+    }
+
+    this.annotations = newAnnotations;
+  }
 
   chartToComparableString(chartdata: ChartData) {
     return chartdata.series.map((series) => series.data.join(',')).join('|');
@@ -96,7 +136,7 @@ export class VotingChartComponent {
 
     this.chartdata!.series.forEach((series) => {
       let selfY = series.data[series.data.length - 1];
-      let offsetY = 10;
+      let offsetY = 0;
       if (annotationPoints.find((point) => point.y == selfY)) {
         if (yToOffset[selfY]) {
           offsetY = yToOffset[selfY] + 20;
@@ -111,7 +151,7 @@ export class VotingChartComponent {
         marker: { size: 0 },
         label: {
           text: `${series.trailingLabel}`,
-          offsetX: 10,
+          offsetX: 6,
           offsetY: offsetY,
           borderWidth: 0,
           textAnchor: 'start',
@@ -124,6 +164,8 @@ export class VotingChartComponent {
         },
       });
     });
+
+    this.annotationPoints = annotationPoints;
 
     this.chartOptions = {
       series: this.chartdata.series,
@@ -141,6 +183,14 @@ export class VotingChartComponent {
           show: false,
         },
         fontFamily: 'Inter',
+        events: {
+          mounted: () => {
+            this.updateCustomAnnotations();
+          },
+          updated: () => {
+            this.updateCustomAnnotations();
+          },
+        },
       },
       colors: ['#A05BFF', '#C49BFF', '#7E22CE'],
       dataLabels: {
@@ -208,9 +258,6 @@ export class VotingChartComponent {
           color: 'rgba(255, 255, 255, 0.9)',
           fontWeight: 300,
         },
-      },
-      annotations: {
-        points: annotationPoints,
       },
     };
 
