@@ -62,6 +62,14 @@ export class VotingChartComponent {
 
   _chartdata?: ChartData;
   @Input() set chartdata(value: ChartData | undefined) {
+    if (
+      value &&
+      this._chartdata &&
+      this.chartToComparableString(value) ===
+        this.chartToComparableString(this._chartdata)
+    ) {
+      return;
+    }
     this._chartdata = value;
     setTimeout(() => {
       this.updateChart();
@@ -75,6 +83,10 @@ export class VotingChartComponent {
   annotationTexts: string[] = [];
 
   ngOnInit() {}
+
+  chartToComparableString(chartdata: ChartData) {
+    return chartdata.series.map((series) => series.data.join(',')).join('|');
+  }
 
   updateChart() {
     if (!this.chartdata) return;

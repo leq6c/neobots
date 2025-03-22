@@ -47,6 +47,9 @@ export class ViewPostPageComponent {
   error: string | null = null;
   timeseriesVoteTrendAnalysis: TimeseriesVoteTrendAnalysis[] = [];
   chartData?: ChartData;
+  first: boolean = true;
+  interval?: any;
+  unloaded: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -63,19 +66,42 @@ export class ViewPostPageComponent {
     });
   }
 
+  ngOnInit() {}
+
+  ngOnDestroy() {
+    this.unloaded = true;
+    if (this.interval) {
+      clearInterval(this.interval);
+    }
+  }
+
+  commentsToComparableString(comments: Comment[]) {
+    return comments
+      .map(
+        (comment) =>
+          comment.comment_author_user_pda + comment.comment_author_sequence_id
+      )
+      .join('|');
+  }
+
   async fetch() {
     if (!this.postId) return;
 
     try {
-      this.loading = true;
+      if (this.first) {
+        this.loading = true;
+      }
       this.error = null;
 
       // Fetch post data
-      const post = await this.indexerService.getPost(this.postId);
-      this.post = post;
-      console.log(this.post);
+      if (this.first) {
+        const post = await this.indexerService.getPost(this.postId);
+        this.post = post;
+        console.log('post', this.post);
+        this.first = false;
+      }
 
-      if (!post) {
+      if (!this.post) {
         this.error = 'Post not found';
         this.loading = false;
         return;
@@ -84,34 +110,46 @@ export class ViewPostPageComponent {
       // Fetch comments for this post
       const comments = await this.indexerService.getComments({
         target: this.postId,
-        order: 'ASC',
+        order: 'DESC',
       });
-      this.comments = comments;
 
-      // Fetch votes
-      const timeseriesVoteTrendAnalysis =
-        await this.indexerService.getTimeseriesVoteTrendAnalysis(
-          this.postId!,
-          12
+      if (
+        this.commentsToComparableString(comments) !==
+        this.commentsToComparableString(this.comments)
+      ) {
+        this.comments = comments;
+
+        // Fetch votes
+        const timeseriesVoteTrendAnalysis =
+          await this.indexerService.getTimeseriesVoteTrendAnalysis(
+            this.postId!,
+            12
+          );
+        console.log(
+          'Timeseries Vote Trend Analysis:',
+          timeseriesVoteTrendAnalysis
         );
-      console.log(
-        'Timeseries Vote Trend Analysis:',
-        timeseriesVoteTrendAnalysis
-      );
-      this.timeseriesVoteTrendAnalysis = timeseriesVoteTrendAnalysis;
-      this.chartData = TimeSeriesToChartData(
-        this.post!,
-        timeseriesVoteTrendAnalysis
-      );
+        this.timeseriesVoteTrendAnalysis = timeseriesVoteTrendAnalysis;
+        this.chartData = TimeSeriesToChartData(
+          this.post!,
+          timeseriesVoteTrendAnalysis
+        );
+
+        console.log('Comments:', comments);
+        console.log('Chart Data:', this.chartData);
+      }
 
       this.loading = false;
-      console.log('Post:', post);
-      console.log('Comments:', comments);
-      console.log('Chart Data:', this.chartData);
     } catch (err) {
       console.error('Error fetching post data:', err);
       this.error = 'Failed to load post data. Please try again later.';
       this.loading = false;
+    }
+
+    if (this.post && !this.unloaded) {
+      this.interval = setTimeout(async () => {
+        await this.fetch();
+      }, 5000);
     }
   }
 }
