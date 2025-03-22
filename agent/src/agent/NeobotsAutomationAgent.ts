@@ -7,6 +7,8 @@ import { IReaction } from "../model/reaction.model";
 import { NeobotsOffChainApi } from "../api/NeobotsOffchainApi";
 import { NeobotsAgentStatusManager } from "./NeobotsAgentStatusManager";
 import { CancellationToken } from "./CancellationToken";
+import { IPost } from "../model/post.model";
+
 interface AutomationConfig {
   maxPostsFetched: number; // e.g. 100
   maxPostsToRead: number; // e.g. 10 (how many the LLM narrows down to)
@@ -187,7 +189,15 @@ export class NeobotsAutomationAgent {
       const user = await this.operator.getUser();
 
       session.setMessage("Uploading post to the storage... 📂", "running");
-      const contentUri = await this.storage.put(post.content);
+      const contentUri = await this.storage.put(
+        JSON.stringify({
+          title: post.title,
+          content: post.content,
+          voteTitle: post.voteTitle,
+          voteOptions: post.voteOptions,
+          enableVoting: post.enableVoting,
+        })
+      );
       session.setMessage("Post uploaded to the storage.", "success");
 
       session.setMessage("Sending post to Chain... 🔗", "running");
@@ -238,7 +248,7 @@ export class NeobotsAutomationAgent {
       // 2) transform to LLM-compatible shape, then let LLM filter
       const postSummaries = posts.map((p: any) => ({
         postId: p.post_pda,
-        title: p.content.slice(0, 80), // or anything that can stand as "title"
+        title: p.content_parsed_title,
       }));
 
       session.setMessage("Selecting posts to read... 📖");
@@ -268,7 +278,10 @@ export class NeobotsAutomationAgent {
         // fetch full post data
         session.setMessage("Reading a post... 📖 " + choice.postId);
         const fullPost = await this.indexer.getPost(choice.postId);
-        session.setTargetContent(fullPost?.content || "", choice.postId);
+        session.setTargetContent(
+          fullPost?.content_parsed_title || "",
+          choice.postId
+        );
         console.log("fullPost", fullPost);
         if (!fullPost) {
           session.setMessage("Post not found. Skipping...");
@@ -291,30 +304,51 @@ export class NeobotsAutomationAgent {
         );
         const selectedComments = this.selectComments(rawComments);
 
-        // transform to IComment for LLM
-        const existingComments = selectedComments.map((c: any) => ({
-          commentId: `${c.comment_author_user_pda}:${c.comment_author_sequence_id}`,
-          postId: fullPost.post_pda,
-          content: c.content,
-        }));
-
         // transform the post to something IPost for the LLM
         const iPost = {
           postId: fullPost.post_pda,
-          title: "some title",
-          content: fullPost.content,
+          title: fullPost.content_parsed_title,
+          content: fullPost.content_parsed_body,
+          voteTitle: fullPost.content_parsed_vote_title,
+          voteOptions: fullPost.content_parsed_vote_options,
           category: fullPost.tag_name || "General",
           tags: [fullPost.tag_name || "General"],
         };
 
-        // 4) [LLM] create a new comment
-        session.setMessage("Writing a new comment... 💬");
-        const newComment = await this.agent.createComment(
-          session,
-          iPost,
-          existingComments,
-          this.getCancellationToken()
-        );
+        let newComment: IComment;
+
+        if (fullPost.content_parsed_enable_voting) {
+          const existingComments = selectedComments.map((c: any) => ({
+            commentId: `${c.comment_author_user_pda}:${c.comment_author_sequence_id}`,
+            postId: fullPost.post_pda,
+            content: c.content_parsed_body,
+            voteTo: c.content_parsed_vote_to,
+          }));
+
+          // 4) [LLM] create a new comment
+          session.setMessage("Writing a new comment... 💬");
+          newComment = await this.agent.createCommentWithVotingEnabled(
+            session,
+            iPost as IPost,
+            existingComments,
+            this.getCancellationToken()
+          );
+        } else {
+          const existingComments = selectedComments.map((c: any) => ({
+            commentId: `${c.comment_author_user_pda}:${c.comment_author_sequence_id}`,
+            postId: fullPost.post_pda,
+            content: c.content_parsed_body,
+          }));
+          // 4) [LLM] create a new comment
+          session.setMessage("Writing a new comment... 💬");
+          newComment = await this.agent.createComment(
+            session,
+            iPost as IPost,
+            existingComments,
+            this.getCancellationToken()
+          );
+        }
+
         session.setMessage("Comment written! Posting to chain... 🔗");
         console.log("New LLM comment:", newComment);
 
@@ -324,7 +358,12 @@ export class NeobotsAutomationAgent {
           user.nftMint,
           fullPost.post_sequence_id, // or however your chain code expects the post ID
           new PublicKey(fullPost.post_author_pda),
-          await this.storage.put(newComment.content)
+          await this.storage.put(
+            JSON.stringify({
+              content: newComment.content,
+              voteTo: newComment.voteTo,
+            })
+          )
         );
         session.setMessage("Comment posted! sig:" + sig);
         console.log("Added comment (sig): ", sig);

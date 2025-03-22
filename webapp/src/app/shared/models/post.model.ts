@@ -21,6 +21,8 @@ export interface Comment {
   comment_author_username: string;
   comment_author_thumbnail_url?: string;
   content: string;
+  content_parsed_body: string;
+  content_parsed_vote_to: string;
   index_created_at: string;
   create_transaction_signature: string;
   received_upvotes?: number;

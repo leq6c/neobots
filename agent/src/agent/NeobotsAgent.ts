@@ -39,7 +39,7 @@ export class NeobotsAgent {
       session.setProgressIndeterminate();
       const systemPrompt = `You are ${this.config.persona}. Rationality level: ${this.config.rationality}.
 You respond ONLY with a valid JSON object of the form:
-{"title":"...", "content":"...", "category":"...", "tags":["..."]}`;
+{"title":"...", "content":"...", "category":"...", "tags":["..."], "enableVoting":boolean, "voteTitle":string, "voteOptions":["..."]}`;
 
       const userPrompt = `# Create a new post
 You are going to create a new forum post. The post must have:
@@ -47,6 +47,12 @@ You are going to create a new forum post. The post must have:
 - content
 - category
 - tags (array of strings)
+- enableVoting (boolean) (optional, default is false)
+- voteTitle (string) (optional, default is "")
+- voteOptions (array of strings) (optional, default is [])
+
+For voting configs, you can choose to enable voting or not based on the post's content.
+If you choose to enable voting, you must provide a title for the vote and a list of options.
 
 Generate a suitable post (in any language).`;
 
@@ -76,6 +82,9 @@ Generate a suitable post (in any language).`;
           content: parsed.content || "",
           category: parsed.category || "",
           tags: parsed.tags || [],
+          enableVoting: parsed.enableVoting || false,
+          voteTitle: parsed.voteTitle || "",
+          voteOptions: parsed.voteOptions || [],
         };
         return newPost;
       } catch (error) {
@@ -170,7 +179,7 @@ ${JSON.stringify(post, null, 2)}
 Existing comments:
 ${JSON.stringify(existingComments, null, 2)}
 
-Please generate the next comment.
+Please generate your comment.
 "quoteId" can reference at most one existing comment (by its ID). If you do not wish to quote, leave it blank or omit it.
 Return ONLY JSON.`;
 
@@ -205,6 +214,72 @@ Return ONLY JSON.`;
         commentId: this.generateRandomId(),
         postId: post.postId,
         content: "Failed to parse LLM output.",
+      };
+    }
+  }
+
+  public async createCommentWithVotingEnabled(
+    session: AgentActionStatusNotifierSession,
+    post: IPost,
+    existingComments: IComment[],
+    cancellationToken: CancellationToken
+  ): Promise<IComment> {
+    if (!post.voteTitle || !post.voteOptions) {
+      throw new Error("Post has no voting enabled");
+    }
+    const systemPrompt = `You are ${this.config.persona}. Rationality level: ${this.config.rationality}.
+You respond ONLY with a JSON object matching:
+{
+  "content": "...",
+  "quoteId": "..." (optional),
+  "voteTo": "..."
+}`;
+
+    const userPrompt = `# Generate a new comment for a post
+Post:
+${JSON.stringify(post, null, 2)}
+
+Existing comments:
+${JSON.stringify(existingComments, null, 2)}
+
+Please generate your comment.
+"quoteId" can reference at most one existing comment (by its ID). If you do not wish to quote, leave it blank or omit it.
+"voteTo" can be one of the following options: ${post.voteOptions.join(", ")}.
+Return ONLY JSON.`;
+
+    const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
+    const rawResponse = await this.llm.infer(
+      fullPrompt,
+      2048,
+      (chunk) => {
+        session.setInferenceChunk(chunk);
+      },
+      cancellationToken
+    );
+
+    try {
+      const parsed = this.parseJsonResponse<IComment>(
+        rawResponse,
+        cancellationToken
+      );
+      const newComment: IComment = {
+        commentId: this.generateRandomId(),
+        postId: post.postId,
+        content: parsed.content || "",
+        reason: parsed.reason || "",
+        quoteId: parsed.quoteId || "",
+        voteTo: parsed.voteTo || "",
+      };
+      return newComment;
+    } catch (error) {
+      if (cancellationToken.isCancelled) {
+        throw new Error("Cancelled");
+      }
+      return {
+        commentId: this.generateRandomId(),
+        postId: post.postId,
+        content: "Failed to parse LLM output.",
+        voteTo: "",
       };
     }
   }

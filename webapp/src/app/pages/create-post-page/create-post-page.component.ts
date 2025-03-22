@@ -29,13 +29,18 @@ import { FooterComponent } from '../../shared/components/footer/footer.component
 })
 export class CreatePostPageComponent {
   placeholder: string = 'Write to unleash your idea to Neobots.';
-  content: string = '';
   posting: boolean = false;
   posted: boolean = false;
   comments: Comment[] = [];
   walletConnected: boolean = false;
   hasNft: boolean = false;
   callbackRemovers: (() => void)[] = [];
+
+  title: string = '';
+  content: string = '';
+  voting: boolean = false;
+  votingTitle: string = '';
+  votingOptions: string = '';
 
   constructor(
     private walletService: WalletService,
@@ -65,6 +70,31 @@ export class CreatePostPageComponent {
   }
 
   async post() {
+    if (this.voting) {
+      if (!this.votingTitle || !this.votingOptions) {
+        this.toast.show('Voting title and options are required', {
+          icon: '✖',
+          position: 'bottom-right',
+        });
+        return;
+      }
+      if (this.votingOptions.split(',').length < 2) {
+        this.toast.show('Voting options must be at least 2', {
+          icon: '✖',
+          position: 'bottom-right',
+        });
+        return;
+      }
+    }
+
+    if (!this.title || !this.content) {
+      this.toast.show('Title and content are required', {
+        icon: '✖',
+        position: 'bottom-right',
+      });
+      return;
+    }
+
     try {
       this.comments = [];
       this.posting = true;
@@ -90,7 +120,15 @@ export class CreatePostPageComponent {
     const nft = (await this.nftService.getOwnedNfts())[0]!;
     const sig = await this.program.createPost(
       new PublicKey(nft.publicKey),
-      await this.putOffchainData(this.content),
+      await this.putOffchainData(
+        JSON.stringify({
+          title: this.title,
+          content: this.content,
+          enableVoting: this.voting,
+          votingTitle: this.votingTitle,
+          votingOptions: this.votingOptions.split(','),
+        })
+      ),
       'default'
     );
     this.posted = true;

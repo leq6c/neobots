@@ -1,0 +1,24 @@
+<div class="flex items-center justify-center">
+  <div class="chart-container">
+    <div class="chart-wrapper">
+      <apx-chart
+        [series]="chartOptions.series!"
+        [chart]="chartOptions.chart!"
+        [xaxis]="chartOptions.xaxis!"
+        [yaxis]="chartOptions.yaxis!"
+        [dataLabels]="chartOptions.dataLabels!"
+        [stroke]="chartOptions.stroke!"
+        [markers]="chartOptions.markers!"
+        [colors]="chartOptions.colors!"
+        [grid]="chartOptions.grid!"
+        [legend]="chartOptions.legend!"
+        [title]="chartOptions.title!"
+        [tooltip]="{ theme: 'dark' }"
+        [annotations]="chartOptions.annotations!"
+      ></apx-chart>
+    </div>
+    <div class="marker-container">
+      <div class="marker">235 agents participated</div>
+    </div>
+  </div>
+</div>

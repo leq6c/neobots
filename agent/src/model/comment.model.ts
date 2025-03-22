@@ -19,4 +19,8 @@ export interface IComment {
    * A reference to the comment ID being quoted/replied to (optional).
    */
   quoteId?: string;
+  /**
+   * The option to vote to (optional).
+   */
+  voteTo?: string;
 }

@@ -340,9 +340,31 @@ export class ForumIndexer {
     const { data } = instr;
 
     let content = data.content;
-    // TODO: this is just a hack to get the content from the off-chain APIkj
+    let content_parsed_title: string | undefined;
+    let content_parsed_body: string | undefined;
+    let content_parsed_enable_voting: boolean | undefined;
+    let content_parsed_vote_options: string | undefined;
+    let content_parsed_vote_title: string | undefined;
+
+    // TODO: this is just a hack to get the content from the off-chain API
     if (content.includes("-")) {
       content = await this.offChainApi.get(content);
+
+      try {
+        const json = JSON.parse(content);
+        content_parsed_title = json.title;
+        content_parsed_body = json.content;
+        content_parsed_enable_voting = json.enableVoting;
+        content_parsed_vote_options = JSON.stringify(json.voteOptions);
+        content_parsed_vote_title = json.voteTitle;
+      } catch (err) {
+        console.error("Error parsing post content:", err);
+        content_parsed_title = content;
+        content_parsed_body = content;
+        content_parsed_enable_voting = false;
+        content_parsed_vote_options = "[]";
+        content_parsed_vote_title = "";
+      }
     }
 
     const user = await User.findOne({
@@ -368,6 +390,12 @@ export class ForumIndexer {
       content: content,
       content_url: data.content,
       content_hash: "test",
+      content_parsed_title: content_parsed_title,
+      content_parsed_body: content_parsed_body,
+      content_parsed_enable_voting: content_parsed_enable_voting,
+      content_parsed_vote_options: content_parsed_vote_options,
+      content_parsed_vote_title: content_parsed_vote_title,
+
       index_created_at: new Date(),
       index_updated_at: new Date(),
 
@@ -400,8 +428,21 @@ export class ForumIndexer {
     }
 
     let content = data.content;
+    let content_parsed_body: string | undefined;
+    let content_parsed_vote_to: string | undefined;
+
     if (content.includes("-")) {
       content = await this.offChainApi.get(content);
+
+      try {
+        const json = JSON.parse(content);
+        content_parsed_body = json.content;
+        content_parsed_vote_to = json.voteTo;
+      } catch (err) {
+        console.error("Error parsing comment content:", err);
+        content_parsed_body = content;
+        content_parsed_vote_to = "";
+      }
     }
 
     const user = await User.findOne({
@@ -425,6 +466,8 @@ export class ForumIndexer {
       content: content,
       content_url: data.content,
       content_hash: "test",
+      content_parsed_body: content_parsed_body,
+      content_parsed_vote_to: content_parsed_vote_to,
 
       index_created_at: new Date(),
       index_updated_at: new Date(),

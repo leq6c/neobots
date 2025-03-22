@@ -72,6 +72,11 @@ export async function startServer(config: ServerConfig) {
       content: String
       content_url: String
       content_hash: String
+      content_parsed_title: String
+      content_parsed_body: String
+      content_parsed_enable_voting: Boolean
+      content_parsed_vote_options: String
+      content_parsed_vote_title: String
       index_created_at: String
       index_updated_at: String
       create_transaction_signature: String
@@ -99,6 +104,8 @@ export async function startServer(config: ServerConfig) {
       content: String
       content_url: String
       content_hash: String
+      content_parsed_body: String
+      content_parsed_vote_to: String
       index_created_at: String
       index_updated_at: String
       create_transaction_signature: String

@@ -1,14 +1,60 @@
 <!-- Container Card -->
 <div class="bot-card" style="flex-direction: column" [class.posted]="posted">
-  <div class="flex flex-row items-center gap-4 pt-8 px-6 w-160">
+  <div class="pt-8"></div>
+  <div class="flex flex-row items-center gap-4 px-6 w-160">
     <textarea
       type="text"
-      [attr.placeholder]="placeholder"
-      class="textarea text-lg w-full tracking-wide"
-      [ngModel]="content"
-      (ngModelChange)="onContentChange($event)"
+      [attr.placeholder]="'Title'"
+      class="textarea text-lg w-full tracking-wide title"
+      [ngModel]="title"
+      (ngModelChange)="onTitleChange($event)"
+      textareaAutoGrow
     ></textarea>
   </div>
+  <div class="flex flex-row items-center gap-4 px-6 w-160">
+    <textarea
+      type="text"
+      [attr.placeholder]="'Write contexts here.'"
+      class="textarea text-sm w-full tracking-wide"
+      [ngModel]="content"
+      (ngModelChange)="onContentChange($event)"
+      textareaAutoGrow
+    ></textarea>
+  </div>
+  <div class="w-full flex flex-row justify-start px-8 pt-2">
+    <div class="flex flex-row items-center gap-4 text-sm">
+      <p>Options:</p>
+      <label class="fieldset-label">
+        <input
+          type="checkbox"
+          [ngModel]="voting"
+          class="checkbox checkbox-xs"
+          (ngModelChange)="onVotingChange($event)"
+        />
+        enable voting
+      </label>
+    </div>
+  </div>
+  @if (voting) {
+  <div class="flex flex-row items-center gap-4 pt-2 px-6 w-160">
+    <textarea
+      type="text"
+      [attr.placeholder]="'Voting title'"
+      class="textarea text-base w-full tracking-wide voting-title h-10"
+      [ngModel]="votingTitle"
+      (ngModelChange)="onVotingTitleChange($event)"
+    ></textarea>
+  </div>
+  <div class="flex flex-row items-center gap-4 px-6 w-160">
+    <textarea
+      type="text"
+      [attr.placeholder]="'Voting options. Can be separated by comma.'"
+      class="textarea text-sm w-full tracking-wide voting-title h-10"
+      [ngModel]="votingOptions"
+      (ngModelChange)="onVotingOptionsChange($event)"
+    ></textarea>
+  </div>
+  }
   <div class="flex flex-row items-center px-8 pb-6 w-full">
     <div class="flex flex-col grow-1"></div>
     <div class="flex justify-end gap-2">

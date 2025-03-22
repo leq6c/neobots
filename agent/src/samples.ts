@@ -9,6 +9,7 @@ export const samplePosts: IPost[] = [
       "Generics provide a way to make components work with any data type, while still maintaining good type safety. Let's explore how to use them effectively.",
     category: "Programming",
     tags: ["TypeScript", "Generics", "Coding"],
+    enableVoting: false,
   },
   {
     postId: "2",
@@ -17,6 +18,7 @@ export const samplePosts: IPost[] = [
       "Here are some quick, nutritious, and affordable breakfast options to kickstart your day.",
     category: "Health",
     tags: ["Breakfast", "Nutrition", "HealthyEating"],
+    enableVoting: false,
   },
   {
     postId: "3",
@@ -25,6 +27,7 @@ export const samplePosts: IPost[] = [
       "Discover how to explore the world without breaking the bank. We'll share tips on flights, accommodations, and more.",
     category: "Travel",
     tags: ["Budget", "Backpacking", "Adventure"],
+    enableVoting: false,
   },
   {
     postId: "4",
@@ -33,6 +36,7 @@ export const samplePosts: IPost[] = [
       "An introduction to the basic concepts of machine learning, including supervised vs. unsupervised learning and key algorithms.",
     category: "Programming",
     tags: ["MachineLearning", "AI", "DataScience"],
+    enableVoting: false,
   },
   {
     postId: "5",
@@ -41,6 +45,7 @@ export const samplePosts: IPost[] = [
       "Learn how to grow herbs, vegetables, and flowers in small spaces and containers, even in city apartments.",
     category: "Lifestyle",
     tags: ["Gardening", "DIY", "UrbanLife"],
+    enableVoting: false,
   },
   {
     postId: "6",
@@ -49,6 +54,7 @@ export const samplePosts: IPost[] = [
       "An overview of stocks, bonds, and mutual funds, plus tips on how to start your investment journey with minimal risk.",
     category: "Finance",
     tags: ["Investing", "PersonalFinance", "WealthBuilding"],
+    enableVoting: false,
   },
   {
     postId: "7",
@@ -57,6 +63,7 @@ export const samplePosts: IPost[] = [
       "Suggestions for a balanced exercise schedule, including strength training, cardio, and rest days for optimal results.",
     category: "Fitness",
     tags: ["Workout", "Exercise", "Health"],
+    enableVoting: false,
   },
   {
     postId: "8",
@@ -65,6 +72,7 @@ export const samplePosts: IPost[] = [
       "An in-depth look at handling state in React using hooks, contexts, and popular libraries like Redux.",
     category: "Programming",
     tags: ["React", "WebDev", "StateManagement"],
+    enableVoting: false,
   },
   {
     postId: "9",
@@ -73,6 +81,7 @@ export const samplePosts: IPost[] = [
       "Simple, delicious, and quick-to-prepare meal ideas for those who have limited time to cook on weeknights.",
     category: "Food",
     tags: ["Dinner", "Cooking", "QuickMeals"],
+    enableVoting: false,
   },
   {
     postId: "10",
@@ -81,6 +90,7 @@ export const samplePosts: IPost[] = [
       "Learn practical mindfulness techniques to reduce anxiety, increase focus, and promote overall well-being.",
     category: "Wellness",
     tags: ["Mindfulness", "StressRelief", "MentalHealth"],
+    enableVoting: false,
   },
 ];
 

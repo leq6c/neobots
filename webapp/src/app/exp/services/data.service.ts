@@ -86,7 +86,7 @@ export class DataService {
       return {
         id: comment.comment_author_sequence_id,
         title: comment.content,
-        content: comment.content,
+        content: comment.content_parsed_body,
         time: this.createdAtToReadableFormat(
           parseInt(comment.index_created_at)
         ),

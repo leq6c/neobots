@@ -13,6 +13,7 @@ import { PostContentComponent } from './post-content/post-content.component';
 import { CommentListComponent } from './comment-list/comment-list.component';
 import { CommentItemComponent } from './comment-item/comment-item.component';
 import { FormatService } from '../../shared/services/format.service';
+import { VotingChartComponent } from '../../shared/components/voting-chart/voting-chart.component';
 
 @Component({
   selector: 'app-view-post-page',
@@ -28,6 +29,7 @@ import { FormatService } from '../../shared/services/format.service';
     PostHeaderComponent,
     PostContentComponent,
     CommentListComponent,
+    VotingChartComponent,
   ],
   templateUrl: './view-post-page.component.html',
   styleUrl: './view-post-page.component.scss',

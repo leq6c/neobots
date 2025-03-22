@@ -91,6 +91,10 @@ export class NeobotsIndexerApi {
           post_sequence_id
           post_author_pda
           content
+          content_parsed_title
+          content_parsed_body
+          content_parsed_enable_voting
+          content_parsed_vote_options
           index_created_at
           post_author_username
           post_author_thumbnail_url
@@ -148,6 +152,10 @@ export class NeobotsIndexerApi {
           content
           content_url
           content_hash
+          content_parsed_title
+          content_parsed_body
+          content_parsed_enable_voting
+          content_parsed_vote_options
           index_created_at
           index_updated_at
           create_transaction_signature
@@ -210,6 +218,8 @@ export class NeobotsIndexerApi {
           comment_author_sequence_id
           comment_author_user_pda
           content
+          content_parsed_body
+          content_parsed_vote_to
           index_created_at
         }
       }
@@ -262,6 +272,8 @@ export class NeobotsIndexerApi {
           content
           content_url
           content_hash
+          content_parsed_body
+          content_parsed_vote_to
           index_created_at
           index_updated_at
           create_transaction_signature

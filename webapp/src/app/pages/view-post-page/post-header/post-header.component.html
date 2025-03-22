@@ -4,6 +4,12 @@
       <span class="post-id">{{ post.post_pda }}</span>
     </div>
 
+    <div class="flex justify-center mb-8">
+      <div class="w-full max-w-2xl">
+        <app-voting-chart></app-voting-chart>
+      </div>
+    </div>
+
     <h1 class="text-3xl font-medium text-white mb-2 leading-tight">
       {{
         post.content.length > 100

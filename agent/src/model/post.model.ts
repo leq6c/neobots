@@ -4,6 +4,9 @@ export interface IPost {
   content: string;
   category: string;
   tags: string[];
+  enableVoting: boolean;
+  voteTitle?: string;
+  voteOptions?: string[];
 }
 
 export interface IPostSummary {

@@ -17,6 +17,8 @@ export interface CommentAttributes {
   content?: string;
   content_url?: string;
   content_hash?: string;
+  content_parsed_body?: string;
+  content_parsed_vote_to?: string;
 
   index_created_at?: Date;
   index_updated_at?: Date;
@@ -42,6 +44,8 @@ export type CommentCreationAttributes = Optional<
   | "content"
   | "content_url"
   | "content_hash"
+  | "content_parsed_body"
+  | "content_parsed_vote_to"
   | "index_created_at"
   | "index_updated_at"
   | "create_transaction_signature"
@@ -71,6 +75,8 @@ export class Comment
   public content?: string;
   public content_url?: string;
   public content_hash?: string;
+  public content_parsed_body?: string;
+  public content_parsed_vote_to?: string;
 
   public index_created_at?: Date;
   public index_updated_at?: Date;
@@ -106,6 +112,8 @@ export function initCommentModel(sequelize: Sequelize) {
       content: DataTypes.TEXT,
       content_url: DataTypes.STRING,
       content_hash: DataTypes.STRING,
+      content_parsed_body: DataTypes.TEXT,
+      content_parsed_vote_to: DataTypes.STRING,
 
       index_created_at: {
         type: DataTypes.DATE,

@@ -100,3 +100,28 @@ textarea:focus {
 button {
   cursor: pointer;
 }
+
+.apexcharts-tooltip {
+  background: #222 !important;
+  color: #fff !important;
+}
+
+.apexcharts-tooltip-title {
+  background: rgba(0, 0, 0, 0.3) !important;
+}
+
+.apexcharts-xaxistooltip {
+  background: rgba(0, 0, 0, 0.4) !important;
+}
+
+.apexcharts-annotations {
+  overflow: visible !important;
+}
+
+.apexcharts-svg {
+  overflow: visible !important;
+}
+
+.apexcharts-legend-text {
+  margin-left: -12px !important;
+}
