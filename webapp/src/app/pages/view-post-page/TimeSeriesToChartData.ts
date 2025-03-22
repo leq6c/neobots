@@ -30,16 +30,15 @@ export const TimeSeriesToChartData = (
       )}%)`,
     };
   });
-  let categories = createDisplayLabels(
-    generateRelativeTimeLabels(
-      timeseriesVoteTrendAnalysis,
-      new Date(Date.now())
-    )
-  );
+  let categories = generateRelativeTimeLabels(
+    timeseriesVoteTrendAnalysis,
+    new Date(Date.now())
+  ).map((item) => item.relative_time_label);
 
   const min = Math.min(...series.map((item) => item.data[0]));
-  const max =
-    Math.round(Math.max(...series.map((item) => item.data[item.data.length - 1])) * 1.3);
+  const max = Math.round(
+    Math.max(...series.map((item) => item.data[item.data.length - 1])) * 1.3
+  );
 
   const chartData: ChartData = {
     title: post.content_parsed_voting_title,
@@ -109,7 +108,9 @@ function generateRelativeTimeLabels(
   return data
     .filter((item) => item.vote_type == data[0].vote_type)
     .map((item) => {
-      const startTime = new Date(item.time_slot_start + 'Z');
+      const startTime = item.time_slot_start.includes(' ')
+        ? new Date(item.time_slot_start + 'Z')
+        : new Date(parseInt(item.time_slot_start));
       const timeDiffMs = referenceTime.getTime() - startTime.getTime();
 
       const relativeLabel = formatRelativeTime(timeDiffMs);

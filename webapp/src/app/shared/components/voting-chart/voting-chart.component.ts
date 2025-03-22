@@ -72,20 +72,35 @@ export class VotingChartComponent {
     return this._chartdata;
   }
 
+  annotationTexts: string[] = [];
+
   ngOnInit() {}
 
   updateChart() {
     if (!this.chartdata) return;
 
-    const annotationPoints = this.chartdata!.series.map((series) => {
-      return {
+    let annotationPoints: PointAnnotations[] = [];
+    let yToOffset: { [key: number]: number } = {};
+
+    this.chartdata!.series.forEach((series) => {
+      let selfY = series.data[series.data.length - 1];
+      let offsetY = 10;
+      if (annotationPoints.find((point) => point.y == selfY)) {
+        if (yToOffset[selfY]) {
+          offsetY = yToOffset[selfY] + 20;
+        } else {
+          offsetY += 20;
+        }
+        yToOffset[selfY] = offsetY;
+      }
+      annotationPoints.push({
         x: this.chartdata!.categories[this.chartdata!.categories.length - 1],
         y: series.data[series.data.length - 1],
         marker: { size: 0 },
         label: {
           text: `${series.trailingLabel}`,
           offsetX: 10,
-          offsetY: 10,
+          offsetY: offsetY,
           borderWidth: 0,
           textAnchor: 'start',
           style: {
@@ -95,7 +110,7 @@ export class VotingChartComponent {
             fontWeight: 600,
           },
         },
-      };
+      });
     });
 
     this.chartOptions = {

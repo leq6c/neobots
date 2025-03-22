@@ -85,7 +85,7 @@ export class DataService {
     const comments = result.map((comment) => {
       return {
         id: comment.comment_author_sequence_id,
-        title: comment.content,
+        title: comment.content_parsed_body,
         content: comment.content_parsed_body,
         time: this.createdAtToReadableFormat(
           parseInt(comment.index_created_at)

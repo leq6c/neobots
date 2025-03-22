@@ -36,6 +36,8 @@ export interface Comment {
   received_likes?: number;
   received_banvotes?: number;
   karmas?: number;
+
+  iconColor?: string;
 }
 
 export interface User {
