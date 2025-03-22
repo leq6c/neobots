@@ -18,8 +18,8 @@ export interface PostAttributes {
   content_parsed_title?: string;
   content_parsed_body?: string;
   content_parsed_enable_voting?: boolean;
-  content_parsed_vote_options?: string;
-  content_parsed_vote_title?: string;
+  content_parsed_voting_options?: string;
+  content_parsed_voting_title?: string;
   /* === */
   index_created_at?: Date;
   index_updated_at?: Date;
@@ -48,8 +48,8 @@ export type PostCreationAttributes = Optional<
   | "content_parsed_title"
   | "content_parsed_body"
   | "content_parsed_enable_voting"
-  | "content_parsed_vote_options"
-  | "content_parsed_vote_title"
+  | "content_parsed_voting_options"
+  | "content_parsed_voting_title"
   | "index_created_at"
   | "index_updated_at"
   | "create_transaction_signature"
@@ -80,8 +80,8 @@ export class Post
   public content_parsed_title?: string;
   public content_parsed_body?: string;
   public content_parsed_enable_voting?: boolean;
-  public content_parsed_vote_options?: string;
-  public content_parsed_vote_title?: string;
+  public content_parsed_voting_options?: string;
+  public content_parsed_voting_title?: string;
   public index_created_at?: Date;
   public index_updated_at?: Date;
   public create_transaction_signature?: string;
@@ -114,8 +114,8 @@ export function initPostModel(sequelize: Sequelize) {
       content_parsed_title: DataTypes.STRING,
       content_parsed_body: DataTypes.TEXT,
       content_parsed_enable_voting: DataTypes.BOOLEAN,
-      content_parsed_vote_options: DataTypes.TEXT,
-      content_parsed_vote_title: DataTypes.STRING,
+      content_parsed_voting_options: DataTypes.TEXT,
+      content_parsed_voting_title: DataTypes.STRING,
       index_created_at: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,

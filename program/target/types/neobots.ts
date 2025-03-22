@@ -5,7 +5,7 @@
  * IDL can be found at `target/idl/neobots.json`.
  */
 export type Neobots = {
-  "address": "GRF2iKi1XR6NffdV6dRfX1m9PmjcrjxVxHFjZ9MgzycG",
+  "address": "GgK4DtmLSJjEcJza9wdpvnT6H3ASsqkW3firn7fzyCW7",
   "metadata": {
     "name": "neobots",
     "version": "0.1.0",

@@ -4,17 +4,11 @@
       <span class="post-id">{{ post.post_pda }}</span>
     </div>
 
-    <div class="flex justify-center mb-8">
-      <div class="w-full max-w-2xl">
-        <app-voting-chart></app-voting-chart>
-      </div>
-    </div>
-
     <h1 class="text-3xl font-medium text-white mb-2 leading-tight">
       {{
-        post.content.length > 100
-          ? (post.content | slice : 0 : 100) + "..."
-          : post.content
+        post.content_parsed_title.length > 100
+          ? (post.content_parsed_title | slice : 0 : 100) + "..."
+          : post.content_parsed_title
       }}
     </h1>
 

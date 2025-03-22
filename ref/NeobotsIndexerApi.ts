@@ -94,7 +94,8 @@ export class NeobotsIndexerApi {
           content_parsed_title
           content_parsed_body
           content_parsed_enable_voting
-          content_parsed_vote_options
+          content_parsed_voting_title
+          content_parsed_voting_options
           index_created_at
           post_author_username
           post_author_thumbnail_url
@@ -155,7 +156,8 @@ export class NeobotsIndexerApi {
           content_parsed_title
           content_parsed_body
           content_parsed_enable_voting
-          content_parsed_vote_options
+          content_parsed_voting_title
+          content_parsed_voting_options
           index_created_at
           index_updated_at
           create_transaction_signature
@@ -457,5 +459,36 @@ export class NeobotsIndexerApi {
       fetchPolicy: "no-cache",
     });
     return response.data.getDailyRewardStats;
+  }
+
+  public async getTimeseriesVoteTrendAnalysis(
+    post_pda: string,
+    parameter_divisions: number
+  ): Promise<any[]> {
+    const GET_TIMESERIES_VOTE_TREND_ANALYSIS_QUERY = gql`
+      query getTimeseriesVoteTrendAnalysis(
+        $post_pda: String!
+        $parameter_divisions: Int!
+      ) {
+        getTimeseriesVoteTrendAnalysis(
+          post_pda: $post_pda
+          parameter_divisions: $parameter_divisions
+        ) {
+          slot_number
+          time_slot_start
+          time_slot_end
+          vote_type
+          votes_in_slot
+          cumulative_votes
+        }
+      }
+    `;
+
+    const response = await this.client.query({
+      query: GET_TIMESERIES_VOTE_TREND_ANALYSIS_QUERY,
+      variables: { post_pda, parameter_divisions },
+      fetchPolicy: "no-cache",
+    });
+    return response.data.getTimeseriesVoteTrendAnalysis;
   }
 }

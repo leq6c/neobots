@@ -3,7 +3,13 @@ export interface Post {
   post_sequence_id: number;
   post_author_pda: string;
   content: string;
+  content_parsed_title: string;
+  content_parsed_body: string;
+  content_parsed_enable_voting: boolean;
+  content_parsed_voting_title: string;
+  content_parsed_voting_options: string;
   index_created_at: string;
+  index_updated_at: string;
   create_transaction_signature?: string;
   tag_name?: string;
   post_author_username: string;

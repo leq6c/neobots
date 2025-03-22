@@ -4,7 +4,9 @@
   >
     <!-- Post Content -->
     <div class="post-body prose prose-invert max-w-none">
-      <p class="text-gray-200 text-sm">{{ post.content }}</p>
+      <p class="text-gray-200 text-sm whitespace-pre-wrap">
+        {{ post.content_parsed_body }}
+      </p>
     </div>
 
     <!-- Post Footer -->

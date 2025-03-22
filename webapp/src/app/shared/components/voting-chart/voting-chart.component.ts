@@ -1,4 +1,4 @@
-import { Component, ViewChild } from '@angular/core';
+import { Component, Input, ViewChild } from '@angular/core';
 
 import {
   ChartComponent,
@@ -31,6 +31,23 @@ export type ChartOptions = {
   colors: string[];
 };
 
+export interface ChartData {
+  title: string;
+
+  categories: string[];
+  series: {
+    name: string;
+    data: number[];
+    trailingLabel: string;
+  }[];
+
+  min: number;
+  max: number;
+  tickAmount: number;
+
+  label: string;
+}
+
 @Component({
   selector: 'app-voting-chart',
   imports: [NgApexchartsModule],
@@ -38,25 +55,51 @@ export type ChartOptions = {
   styleUrl: './voting-chart.component.scss',
 })
 export class VotingChartComponent {
-  @ViewChild('chart') chart!: ChartComponent;
-  public chartOptions: Partial<ChartOptions>;
+  hasData: boolean = false;
 
-  constructor() {
+  @ViewChild('chart') chart!: ChartComponent;
+  public chartOptions?: Partial<ChartOptions>;
+
+  _chartdata?: ChartData;
+  @Input() set chartdata(value: ChartData | undefined) {
+    this._chartdata = value;
+    setTimeout(() => {
+      this.updateChart();
+    }, 100);
+  }
+
+  get chartdata(): ChartData | undefined {
+    return this._chartdata;
+  }
+
+  ngOnInit() {}
+
+  updateChart() {
+    if (!this.chartdata) return;
+
+    const annotationPoints = this.chartdata!.series.map((series) => {
+      return {
+        x: this.chartdata!.categories[this.chartdata!.categories.length - 1],
+        y: series.data[series.data.length - 1],
+        marker: { size: 0 },
+        label: {
+          text: `${series.trailingLabel}`,
+          offsetX: 10,
+          offsetY: 10,
+          borderWidth: 0,
+          textAnchor: 'start',
+          style: {
+            color: '#C49BFF',
+            background: 'transparent',
+            fontSize: '12px',
+            fontWeight: 600,
+          },
+        },
+      };
+    });
+
     this.chartOptions = {
-      series: [
-        {
-          name: 'Yes',
-          data: [50, 47, 40, 44, 49, 51],
-        },
-        {
-          name: 'Abstain',
-          data: [20, 25, 28, 30, 31, 31],
-        },
-        {
-          name: 'No',
-          data: [30, 28, 32, 26, 20, 18],
-        },
-      ],
+      series: this.chartdata.series,
       chart: {
         zoom: {
           enabled: false,
@@ -94,7 +137,7 @@ export class VotingChartComponent {
         strokeDashArray: 4, // makes dotted lines
       },
       xaxis: {
-        categories: ['Jan 15', 'Jan 30', 'Feb 15', 'Mar 1', 'Mar 15', 'Mar 21'],
+        categories: this.chartdata.categories,
         labels: {
           style: {
             colors: 'rgba(255, 255, 255, 0.5)',
@@ -111,11 +154,11 @@ export class VotingChartComponent {
       },
       yaxis: [
         {
-          min: 0,
-          max: 100,
-          tickAmount: 5,
+          min: this.chartdata.min,
+          max: this.chartdata.max,
+          tickAmount: this.chartdata.tickAmount,
           labels: {
-            formatter: (val) => `${val}%`,
+            formatter: (val) => `${val} Votes`,
             style: {
               colors: 'rgba(255, 255, 255, 0.5)',
             },
@@ -131,7 +174,7 @@ export class VotingChartComponent {
         offsetY: 20,
       },
       title: {
-        text: 'Will market go bankrupt?',
+        text: this.chartdata.title,
         align: 'left',
         style: {
           fontSize: '16px',
@@ -140,63 +183,10 @@ export class VotingChartComponent {
         },
       },
       annotations: {
-        points: [
-          {
-            x: 'Mar 21',
-            y: 51,
-            marker: { size: 0 },
-            label: {
-              text: 'Yes (51%)',
-              offsetX: 10,
-              offsetY: 10,
-              borderWidth: 0,
-              textAnchor: 'start',
-              style: {
-                color: '#A05BFF',
-                background: 'transparent',
-                fontSize: '12px',
-                fontWeight: 600,
-              },
-            },
-          },
-          {
-            x: 'Mar 21',
-            y: 31,
-            marker: { size: 0 },
-            label: {
-              text: 'Abstain (31%)',
-              offsetX: 10,
-              offsetY: 10,
-              borderWidth: 0,
-              textAnchor: 'start',
-              style: {
-                color: '#C49BFF',
-                background: 'transparent',
-                fontSize: '12px',
-                fontWeight: 600,
-              },
-            },
-          },
-          {
-            x: 'Mar 21',
-            y: 18,
-            marker: { size: 0 },
-            label: {
-              text: 'No (18%)',
-              offsetX: 10,
-              offsetY: 10,
-              borderWidth: 0,
-              textAnchor: 'start',
-              style: {
-                color: '#7E22CE',
-                background: 'transparent',
-                fontSize: '12px',
-                fontWeight: 600,
-              },
-            },
-          },
-        ],
+        points: annotationPoints,
       },
     };
+
+    this.hasData = true;
   }
 }

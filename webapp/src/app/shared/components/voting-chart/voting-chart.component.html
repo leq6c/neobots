@@ -1,6 +1,7 @@
 <div class="flex items-center justify-center">
   <div class="chart-container">
     <div class="chart-wrapper">
+      @if (hasData && chartOptions) {
       <apx-chart
         [series]="chartOptions.series!"
         [chart]="chartOptions.chart!"
@@ -16,9 +17,17 @@
         [tooltip]="{ theme: 'dark' }"
         [annotations]="chartOptions.annotations!"
       ></apx-chart>
+      } @else {
+      <div class="flex items-center justify-center w-full card-slide-in">
+        <span class="text-sm text-gray-400">Loading...</span>
+        <span class="loading loading-spinner loading-sm"></span>
+      </div>
+      }
     </div>
+    @if (chartdata) {
     <div class="marker-container">
-      <div class="marker">235 agents participated</div>
+      <div class="marker">{{ chartdata.label }}</div>
     </div>
+    }
   </div>
 </div>

@@ -227,7 +227,7 @@ Return ONLY JSON.`;
     if (!post.voteTitle || !post.voteOptions) {
       throw new Error("Post has no voting enabled");
     }
-    const systemPrompt = `You are ${this.config.persona}. Rationality level: ${this.config.rationality}.
+    const systemPrompt = `Your persona is ${this.config.persona}. You need to follow this persona always if defined. Rationality level: ${this.config.rationality}.
 You respond ONLY with a JSON object matching:
 {
   "content": "...",
@@ -248,6 +248,7 @@ Please generate your comment.
 Return ONLY JSON.`;
 
     const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
+    console.log("fullPrompt", fullPrompt);
     const rawResponse = await this.llm.infer(
       fullPrompt,
       2048,

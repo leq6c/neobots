@@ -6,22 +6,7 @@ import { WalletService } from '../../service/wallet.service';
 import { IndexerService } from '../../service/indexer.service';
 import { RouterLink } from '@angular/router';
 import { LoadingComponent } from '../../shared/components/loading/loading.component';
-
-interface Post {
-  post_pda: string;
-  post_sequence_id: number;
-  post_author_pda: string;
-  tag_name: string;
-  content: string;
-  index_created_at: string;
-  index_updated_at: string;
-  post_author_username?: string;
-  received_upvotes?: number;
-  received_downvotes?: number;
-  received_likes?: number;
-  received_banvotes?: number;
-  received_comments?: number;
-}
+import { Post } from '../../shared/models/post.model';
 
 interface PageInfo {
   firstTimestamp: string | null;
@@ -105,7 +90,6 @@ export class ExplorePostPageComponent implements OnInit {
         // Time period filter is not directly supported by the indexer API
         // We would need to calculate 'until' based on selectedTimePeriod
       });
-      console.log(posts);
 
       this.posts = posts;
 

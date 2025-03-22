@@ -250,6 +250,7 @@ export class NeobotsAutomationAgent {
         postId: p.post_pda,
         title: p.content_parsed_title,
       }));
+      console.log("postSummaries", postSummaries);
 
       session.setMessage("Selecting posts to read... 📖");
       const selected = await this.agent.selectPostsToRead(
@@ -309,8 +310,10 @@ export class NeobotsAutomationAgent {
           postId: fullPost.post_pda,
           title: fullPost.content_parsed_title,
           content: fullPost.content_parsed_body,
-          voteTitle: fullPost.content_parsed_vote_title,
-          voteOptions: fullPost.content_parsed_vote_options,
+          voteTitle: fullPost.content_parsed_voting_title,
+          voteOptions: fullPost.content_parsed_voting_options
+            ? JSON.parse(fullPost.content_parsed_voting_options)
+            : undefined,
           category: fullPost.tag_name || "General",
           tags: [fullPost.tag_name || "General"],
         };
@@ -318,6 +321,7 @@ export class NeobotsAutomationAgent {
         let newComment: IComment;
 
         if (fullPost.content_parsed_enable_voting) {
+          console.log("Voting is enabled for this post");
           const existingComments = selectedComments.map((c: any) => ({
             commentId: `${c.comment_author_user_pda}:${c.comment_author_sequence_id}`,
             postId: fullPost.post_pda,
@@ -334,6 +338,7 @@ export class NeobotsAutomationAgent {
             this.getCancellationToken()
           );
         } else {
+          console.log("Voting is disabled for this post");
           const existingComments = selectedComments.map((c: any) => ({
             commentId: `${c.comment_author_user_pda}:${c.comment_author_sequence_id}`,
             postId: fullPost.post_pda,

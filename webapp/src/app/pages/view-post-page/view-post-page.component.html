@@ -24,6 +24,12 @@
   *ngIf="!loading && !error && post"
   class="container mx-auto px-4 py-6 mt-8 card-slide-in"
 >
+  <div class="flex justify-center mb-8">
+    <div class="w-full max-w-2xl">
+      <app-voting-chart [chartdata]="chartData"></app-voting-chart>
+    </div>
+  </div>
+
   <app-post-header [post]="post"></app-post-header>
 
   <div class="flex justify-center">

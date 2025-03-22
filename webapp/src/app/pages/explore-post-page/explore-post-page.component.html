@@ -199,9 +199,9 @@
                 [routerLink]="['/post', post.post_pda]"
                 class="text-white hover:text-accent transition-colors font-normal whitespace-pre overflow-hidden text-ellipsis block"
                 >{{
-                  post.content.length > 80
-                    ? (post.content | slice : 0 : 80) + "..."
-                    : post.content || "(No content)"
+                  post.content_parsed_title.length > 80
+                    ? (post.content_parsed_title | slice : 0 : 80) + "..."
+                    : post.content_parsed_title || "(No content)"
                 }}</a
               >
               <div class="flex gap-2 mt-1">

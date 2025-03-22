@@ -13,7 +13,12 @@ import { PostContentComponent } from './post-content/post-content.component';
 import { CommentListComponent } from './comment-list/comment-list.component';
 import { CommentItemComponent } from './comment-item/comment-item.component';
 import { FormatService } from '../../shared/services/format.service';
-import { VotingChartComponent } from '../../shared/components/voting-chart/voting-chart.component';
+import {
+  VotingChartComponent,
+  ChartData,
+} from '../../shared/components/voting-chart/voting-chart.component';
+import { TimeseriesVoteTrendAnalysis } from '../../shared/models/timeseries_vote.model';
+import { TimeSeriesToChartData } from './TimeSeriesToChartData';
 
 @Component({
   selector: 'app-view-post-page',
@@ -40,6 +45,8 @@ export class ViewPostPageComponent {
   comments: Comment[] = [];
   loading: boolean = true;
   error: string | null = null;
+  timeseriesVoteTrendAnalysis: TimeseriesVoteTrendAnalysis[] = [];
+  chartData?: ChartData;
 
   constructor(
     private route: ActivatedRoute,
@@ -81,9 +88,26 @@ export class ViewPostPageComponent {
       });
       this.comments = comments;
 
+      // Fetch votes
+      const timeseriesVoteTrendAnalysis =
+        await this.indexerService.getTimeseriesVoteTrendAnalysis(
+          this.postId!,
+          12
+        );
+      console.log(
+        'Timeseries Vote Trend Analysis:',
+        timeseriesVoteTrendAnalysis
+      );
+      this.timeseriesVoteTrendAnalysis = timeseriesVoteTrendAnalysis;
+      this.chartData = TimeSeriesToChartData(
+        this.post!,
+        timeseriesVoteTrendAnalysis
+      );
+
       this.loading = false;
       console.log('Post:', post);
       console.log('Comments:', comments);
+      console.log('Chart Data:', this.chartData);
     } catch (err) {
       console.error('Error fetching post data:', err);
       this.error = 'Failed to load post data. Please try again later.';

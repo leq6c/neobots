@@ -4,7 +4,6 @@
  * DO NOT ADD ANY PRIVATE INFORMATION
  */
 
-/*
 export const environment = {
   solana: {
     rpcUrl: 'http://127.0.0.1:8899',
@@ -22,8 +21,8 @@ export const environment = {
     },
   },
 };
-*/
 
+/*
 export const environment = {
   solana: {
     rpcUrl: 'https://misti-53ajzu-fast-devnet.helius-rpc.com',
@@ -41,3 +40,4 @@ export const environment = {
     },
   },
 };
+*/

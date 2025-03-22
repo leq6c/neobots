@@ -4,7 +4,9 @@ export async function getDailyRewardStats(
   sequelize: Sequelize,
   userPda: string
 ) {
-  const query = `
+  let query;
+  if (sequelize.getDialect() == "postgres") {
+    query = `
     WITH daily_counts AS (
       SELECT 
         date_trunc('day', to_timestamp(create_transaction_block_time::DOUBLE PRECISION))::date AS day,
@@ -27,6 +29,37 @@ export async function getDailyRewardStats(
     LEFT JOIN daily_counts dc ON d.day = dc.day
     ORDER BY d.day DESC;
   `;
+  } else {
+    query = `
+    WITH RECURSIVE days(day) AS (
+    -- Start at 'today' minus 6 days
+    SELECT date('now', '-6 days')
+    UNION ALL
+    -- Recursively add 1 day until today
+    SELECT date(day, '+1 day')
+    FROM days
+    WHERE day < date('now')
+),
+daily_counts AS (
+    SELECT
+        date(create_transaction_block_time, 'unixepoch') AS day,
+        COUNT(*) AS count
+    FROM reward
+    WHERE 
+        receiver_user_pda = :userPda
+        -- only include rows from the last 7 days
+        AND create_transaction_block_time >= strftime('%s', 'now', '-6 days')
+    GROUP BY day
+)
+SELECT 
+    d.day AS day,
+    COALESCE(dc.count, 0) AS count
+FROM days d
+LEFT JOIN daily_counts dc ON d.day = dc.day
+ORDER BY d.day DESC;
+
+    `;
+  }
 
   /*
   sample utput:

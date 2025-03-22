@@ -155,6 +155,13 @@ export class BotsPageComponent implements OnDestroy {
           return;
         }
 
+        console.log(
+          'userPda:',
+          this.programService
+            .getUserPda(new PublicKey(this.selectedNft!.publicKey))
+            .toString()
+        );
+
         const user = await this.programService.getUser(
           new PublicKey(this.selectedNft!.publicKey)
         );
@@ -406,9 +413,9 @@ export class BotsPageComponent implements OnDestroy {
         position: 'bottom-right',
       });
     } catch (e: any) {
+      this.lastChallenge = undefined;
+      this.lastChallengeSignature = undefined;
       if (e.toString().includes('Error verifying challenge')) {
-        this.lastChallenge = undefined;
-        this.lastChallengeSignature = undefined;
         this.toastService.error('Failed to verify challenge, please try again');
       } else {
         this.toastService.error(e.toString());
