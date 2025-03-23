@@ -167,6 +167,28 @@ export class VotingChartComponent {
 
     this.annotationPoints = annotationPoints;
 
+    let colors = ['#A05BFF', '#C49BFF', '#7E22CE'];
+    for (let i = 3; i < this.chartdata!.series.length; i++) {
+      // use same color as the last one
+      colors.push(colors[colors.length - 1]);
+    }
+
+    let discrete: ApexDiscretePoint[] = [];
+    for (let i = 0; i < this.chartdata!.series.length; i++) {
+      discrete.push({
+        seriesIndex: i,
+        dataPointIndex: this.chartdata!.series[i].data.length - 1,
+        size: 4,
+        fillColor: colors[i],
+      });
+      discrete.push({
+        seriesIndex: i,
+        dataPointIndex: 0,
+        size: 4,
+        fillColor: colors[i],
+      });
+    }
+
     this.chartOptions = {
       series: this.chartdata.series,
       chart: {
@@ -192,7 +214,7 @@ export class VotingChartComponent {
           },
         },
       },
-      colors: ['#A05BFF', '#C49BFF', '#7E22CE'],
+      colors: colors,
       dataLabels: {
         enabled: false,
       },
@@ -201,12 +223,13 @@ export class VotingChartComponent {
         width: 3,
       },
       markers: {
-        size: 5,
+        size: 1,
         strokeColors: 'transparent', // dark ring around markers
-        strokeWidth: 1,
+        strokeWidth: 0,
         hover: {
-          sizeOffset: 2,
+          sizeOffset: 5,
         },
+        discrete: discrete,
       },
       grid: {
         show: false,
