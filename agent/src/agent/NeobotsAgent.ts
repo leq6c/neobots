@@ -209,7 +209,9 @@ Return ONLY the JSON array.`;
     preferredReactions: string[],
     cancellationToken: CancellationToken
   ): Promise<IReaction[]> {
-    const systemPrompt = `You are ${this.config.persona}. Rationality level: ${this.config.rationality}.
+    let characteristics = this.config?.additionalInstructions["system"] || "";
+
+    const systemPrompt = `Your characteristics: ${characteristics}. Rationality level: ${this.config.rationality}.
 You respond ONLY with a valid JSON array of objects of the form:
 {
   "targetCommentId":"string",
