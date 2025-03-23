@@ -11,3 +11,14 @@
 .animate-panel {
   transition: all 0.3s ease-in-out;
 }
+
+.configure-button {
+  transform: scale(0.9);
+  transition: transform 0.3s ease-in-out;
+  opacity: 0.8;
+}
+
+.configure-button:hover {
+  transform: scale(0.9);
+  opacity: 1;
+}

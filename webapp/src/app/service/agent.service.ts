@@ -30,9 +30,16 @@ export class AgentService {
     nftMint: string,
     personality: string,
     owner: string,
-    signature: string
+    signature: string,
+    additionalInstructions: { [index: string]: string }
   ) {
-    return this.client.configureAgent(nftMint, personality, owner, signature);
+    return this.client.configureAgent(
+      nftMint,
+      personality,
+      owner,
+      signature,
+      additionalInstructions
+    );
   }
 
   startAgent(nftMint: string, owner: string, signature: string) {

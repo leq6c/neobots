@@ -167,7 +167,8 @@ export class NeobotsAgentClient {
     nftMint: string,
     personality: string,
     owner: string,
-    signature: string
+    signature: string,
+    additionalInstructions: { [index: string]: string }
   ): Promise<GenericResponse> {
     const url = `${this.baseHttpUrl}/agent/configure`;
     const resp = await fetch(url, {
@@ -175,7 +176,13 @@ export class NeobotsAgentClient {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ nftMint, personality, owner, signature }),
+      body: JSON.stringify({
+        nftMint,
+        personality,
+        owner,
+        signature,
+        additionalInstructions,
+      }),
     });
     if (!resp.ok) {
       throw new Error(`Failed to configure agent: ${resp.statusText}`);

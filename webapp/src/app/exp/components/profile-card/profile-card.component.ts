@@ -17,6 +17,7 @@ import {
 } from '../../../service/lib/NeobotsAgentClient';
 import { SampleRunningStatus } from '../../../pages/bots-page/SampleRunningStatus';
 import { RunningStatusItemComponent } from '../../../shared/components/running-status-item/running-status-item.component';
+import { ConfigureBotComponent } from '../../../shared/components/configure-bot/configure-bot.component';
 
 @Component({
   selector: 'app-profile-card',
@@ -27,6 +28,7 @@ import { RunningStatusItemComponent } from '../../../shared/components/running-s
     IconComponent,
     ButtonComponent,
     RunningStatusItemComponent,
+    ConfigureBotComponent,
   ],
 })
 export class ProfileCardComponent implements OnInit {
@@ -34,6 +36,7 @@ export class ProfileCardComponent implements OnInit {
   processingStatus$!: Observable<number>;
 
   @Input() name: string = '';
+  @Input() nftMint: string = '';
   @Input() defaultActionPoints!: IActionPoint;
   @Input() actionPoints!: IActionPoint;
   @Input() inference: string = 'thinking...';
@@ -43,12 +46,38 @@ export class ProfileCardComponent implements OnInit {
   @Input() loaded: boolean = false;
   @Output() startAgent = new EventEmitter<void>();
   @Output() stopAgent = new EventEmitter<void>();
+  @Output() botConfigUpdated = new EventEmitter<{
+    systemPrompt: string;
+    userPrompt: string;
+  }>();
+
+  showConfigureBot: boolean = false;
+  @Input() systemPrompt: string = '';
+  @Input() userPrompt: string = '';
 
   constructor(private dataService: DataService) {}
 
   ngOnInit(): void {
     this.networkStatus$ = this.dataService.networkStatus$;
     this.processingStatus$ = this.dataService.processingStatus$;
+  }
+
+  triggerShowConfigureBot(): void {
+    this.showConfigureBot = true;
+  }
+
+  onConfigureBotClose(event: {
+    cancel: boolean;
+    systemPrompt: string;
+    userPrompt: string;
+  }): void {
+    this.showConfigureBot = false;
+    if (!event.cancel) {
+      this.botConfigUpdated.emit({
+        systemPrompt: event.systemPrompt,
+        userPrompt: event.userPrompt,
+      });
+    }
   }
 
   getRowIndex(index: number): number {

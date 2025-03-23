@@ -39,6 +39,7 @@
       <div class="col-span-6 flex justify-center">
         <app-profile-card
           [name]="name"
+          [nftMint]="selectedNft?.publicKey ?? ''"
           [defaultActionPoints]="defaultActionPoints"
           [inference]="inference"
           [actionPoints]="actionPoints"
@@ -48,6 +49,9 @@
           [starting]="starting"
           [stopping]="stopping"
           [loaded]="loaded"
+          (botConfigUpdated)="botConfigUpdated($event)"
+          [systemPrompt]="systemPrompt"
+          [userPrompt]="userPrompt"
         ></app-profile-card>
       </div>
 

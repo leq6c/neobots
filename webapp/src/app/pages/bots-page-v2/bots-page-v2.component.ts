@@ -331,7 +331,8 @@ export class BotsPageV2Component implements OnDestroy {
         this.selectedNft!.publicKey,
         this.personality,
         this.walletService.publicKey()!.toString(),
-        signature
+        signature,
+        {}
       );
       if (!result.success) {
         this.toastService.error(result.message);

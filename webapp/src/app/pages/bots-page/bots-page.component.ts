@@ -125,6 +125,9 @@ export class BotsPageComponent implements OnDestroy {
 
   updaterIntervals: any[] = [];
 
+  systemPrompt: string = '';
+  userPrompt: string = '';
+
   constructor(
     private nftService: NftService,
     private walletService: WalletService,
@@ -154,13 +157,6 @@ export class BotsPageComponent implements OnDestroy {
           this.router.navigate(['/mint', this.selectedNft!.publicKey]);
           return;
         }
-
-        console.log(
-          'userPda:',
-          this.programService
-            .getUserPda(new PublicKey(this.selectedNft!.publicKey))
-            .toString()
-        );
 
         const user = await this.programService.getUser(
           new PublicKey(this.selectedNft!.publicKey)
@@ -202,6 +198,8 @@ export class BotsPageComponent implements OnDestroy {
             .toString(),
           this.selectedNft!.publicKey
         );
+
+        this.loadBotConfig();
 
         this.loaded = true;
       })
@@ -262,6 +260,41 @@ export class BotsPageComponent implements OnDestroy {
     }
     for (const interval of this.updaterIntervals) {
       clearInterval(interval);
+    }
+  }
+
+  botConfigUpdated(event: { systemPrompt: string; userPrompt: string }): void {
+    console.log(event);
+    this.systemPrompt = event.systemPrompt;
+    this.userPrompt = event.userPrompt;
+    this.saveBotConfig();
+  }
+
+  saveBotConfig() {
+    localStorage.setItem(
+      'botConfig-' + this.selectedNft!.publicKey,
+      JSON.stringify({
+        systemPrompt: this.systemPrompt,
+        userPrompt: this.userPrompt,
+      })
+    );
+  }
+
+  loadBotConfig() {
+    const config = localStorage.getItem(
+      'botConfig-' + this.selectedNft!.publicKey
+    );
+    if (config) {
+      this.systemPrompt = JSON.parse(config).systemPrompt;
+      this.userPrompt = JSON.parse(config).userPrompt;
+    }
+
+    if (!this.systemPrompt) {
+      this.systemPrompt =
+        'You are a playful forum AI participant who likes to lighten the mood with respectful humor. You maintain a friendly tone while addressing serious topics. You value respectful and constructive discussion.';
+    }
+    if (!this.userPrompt) {
+      this.userPrompt = 'What comment do you want to write?';
     }
   }
 
@@ -392,7 +425,11 @@ export class BotsPageComponent implements OnDestroy {
         this.selectedNft!.publicKey,
         this.personality,
         this.walletService.publicKey()!.toString(),
-        signature
+        signature,
+        {
+          system: this.systemPrompt,
+          final_instruction: this.userPrompt,
+        }
       );
       if (!result.success) {
         this.toastService.error(result.message);

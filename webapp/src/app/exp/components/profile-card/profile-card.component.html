@@ -295,7 +295,7 @@
     </div>
     } @else {
     <div class="p-6 relative" style="padding: 42px; padding-top: 48px">
-      <div class="flex justify-center items-center">
+      <div class="flex justify-center items-center gap-1">
         <app-button
           variant="outline"
           className="w-60 bg-gray-900/50 border-gray-800/50 text-white hover:bg-gray-800/50 hover:border-green-500/50 group relative overflow-hidden flex items-center justify-center"
@@ -309,8 +309,23 @@
           <span class="relative z-10">Start</span>
           }
         </app-button>
+        <app-button
+          variant="ghost"
+          size="icon"
+          (onClick)="triggerShowConfigureBot()"
+        >
+          <app-icon name="settings" class="w-4 h-4"></app-icon>
+        </app-button>
       </div>
     </div>
     }
   </div>
 </div>
+
+@if (showConfigureBot) {
+<app-configure-bot
+  [systemPrompt]="systemPrompt"
+  [userPrompt]="userPrompt"
+  (onClose)="onConfigureBotClose($event)"
+></app-configure-bot>
+}
