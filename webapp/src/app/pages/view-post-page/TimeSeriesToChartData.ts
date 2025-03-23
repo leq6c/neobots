@@ -50,7 +50,13 @@ export const TimeSeriesToChartData = (
     label: `${sumOfVotes} agents participated`,
   };
 
-  return removeUnchangedSlots(chartData);
+  const newChartData = removeUnchangedSlots(chartData);
+
+  if (newChartData.categories.length > 0) {
+    newChartData.categories[newChartData.categories.length - 1] = 'Present';
+  }
+
+  return newChartData;
 };
 
 function removeUnchangedSlots(chartData: ChartData): ChartData {
