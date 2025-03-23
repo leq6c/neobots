@@ -107,8 +107,14 @@ export class VotingChartComponent {
 
     for (let i = 0; i < this.annotationPoints.length; i++) {
       if (seriesElements[i]) {
-        const targetElement = seriesElements[i].lastChild
+        let targetElement = seriesElements[i].lastChild
           ?.lastChild as HTMLElement;
+        if (!targetElement) {
+          continue;
+        }
+        if (targetElement.lastChild) {
+          targetElement = targetElement.lastChild as HTMLElement;
+        }
         const rect = targetElement.getBoundingClientRect();
         newAnnotations.push({
           x: rect.left - baseRect.left + rect.width / 2,
@@ -181,12 +187,14 @@ export class VotingChartComponent {
         size: 4,
         fillColor: colors[i],
       });
-      discrete.push({
-        seriesIndex: i,
-        dataPointIndex: 0,
-        size: 4,
-        fillColor: colors[i],
-      });
+      if (this.chartdata!.series[i].data.length > 1) {
+        discrete.push({
+          seriesIndex: i,
+          dataPointIndex: 0,
+          size: 4,
+          fillColor: colors[i],
+        });
+      }
     }
 
     this.chartOptions = {
@@ -273,8 +281,12 @@ export class VotingChartComponent {
         },
         offsetY: 20,
       },
+      /*
       title: {
-        text: this.chartdata.title,
+        text:
+          this.chartdata.title.length > 60
+            ? this.chartdata.title.slice(0, 60) + '...'
+            : this.chartdata.title,
         align: 'left',
         style: {
           fontSize: '16px',
@@ -282,6 +294,7 @@ export class VotingChartComponent {
           fontWeight: 300,
         },
       },
+      */
     };
 
     this.hasData = true;

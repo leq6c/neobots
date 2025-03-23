@@ -7,7 +7,9 @@
 
   @if (posted && comments.length === 0) {
   <div class="flex items-center justify-center w-full mt-4">
-    <span class="text-sm text-gray-400">Sending... Please wait...</span>
+    <span class="text-sm text-gray-400"
+      >Post successfully created! Waiting for comments...</span
+    >
     <span class="loading loading-spinner loading-sm"></span>
   </div>
   } @else if (posted && comments.length > 0) {

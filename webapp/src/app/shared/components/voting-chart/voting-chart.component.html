@@ -1,5 +1,10 @@
-<div class="flex items-center justify-center">
+<div class="flex items-center justify-center overflow-hidden">
   <div class="chart-container">
+    <p
+      class="opacity-90 max-w-[calc(100%-5em)] text-base font-light pl-[0.65em] pt-[0.1em]"
+    >
+      {{ chartdata?.title }}
+    </p>
     <div class="chart-wrapper" #chartWrapper>
       @if (hasData && chartOptions) {
       <apx-chart

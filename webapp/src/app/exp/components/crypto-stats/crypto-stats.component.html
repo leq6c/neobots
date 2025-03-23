@@ -130,5 +130,48 @@
       </div>
     </div>
   </div>
+
+  <div
+    class="flex justify-between items-center relative z-10 w-full mb-2 mt-4 opacity-transition"
+    [style.opacity]="hasVisibleActions() ? 1 : 0"
+  >
+    <h3 class="text-white text-sm font-medium flex items-center gap-1">
+      <div
+        class="w-6 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center"
+        style="background: transparent"
+      >
+        <app-icon name="braces" class="w-4 h-4 text-purple-400"></app-icon>
+      </div>
+      <span>Interacting with:</span>
+    </h3>
+  </div>
+  <div
+    class="h-[0px] opacity-transition"
+    [style.opacity]="hasVisibleActions() ? 1 : 0"
+  >
+    @for (action of agentRunningStatus?.actions; track action.id) { @if
+    (action.status == 'running' && action.targetContent && action.targetPda) {
+    <div
+      class="bg-gray-900/30 rounded-lg px-1 py-2 relative overflow-hidden group w-full flex flex-row mb-1"
+    >
+      <div
+        class="absolute inset-0 bg-gradient-to-br opacity-0 group-hover:opacity-100 transition-opacity"
+      ></div>
+      <div
+        class="w-8 h-8 bg-gradient-to-br rounded flex items-center justify-center flex-shrink-0 relative"
+      >
+        <app-icon name="message-circle" class="w-4 h-4"></app-icon>
+      </div>
+      <a
+        class="text-gray-300 text-xs relative z-10 interaction-text flex items-center overflow-hidden text-ellipsis interaction-content"
+        target="_blank"
+        [href]="'post/' + action.targetPda"
+      >
+        {{ action.targetContent }}
+        <span class="animate-pulse hidden">|</span>
+      </a>
+    </div>
+    } }
+  </div>
 </div>
 }

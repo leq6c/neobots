@@ -5,10 +5,12 @@ import { CommonModule } from '@angular/common';
 import { IconComponent } from '../../shared/icon/icon.component';
 import { ButtonComponent } from '../../shared/button/button.component';
 import { RoundInfoService } from '../../../service/round-info.service';
+import { AgentStatusUpdate } from '../../../service/lib/NeobotsAgentClient';
 
 @Component({
   selector: 'app-crypto-stats',
   templateUrl: './crypto-stats.component.html',
+  styleUrls: ['./crypto-stats.component.scss'],
   imports: [CommonModule, IconComponent, ButtonComponent],
 })
 export class CryptoStatsComponent implements OnInit {
@@ -24,6 +26,7 @@ export class CryptoStatsComponent implements OnInit {
   showValue: boolean = false;
   first: boolean = true;
   interval: any;
+  @Input() agentRunningStatus?: AgentStatusUpdate;
 
   constructor(
     private dataService: DataService,
@@ -90,5 +93,32 @@ export class CryptoStatsComponent implements OnInit {
     return `M 0,${100 - prices[0] / 2} ${prices
       .map((price, i) => `L ${i * 10},${100 - price / 2}`)
       .join(' ')}`;
+  }
+
+  hasVisibleActions() {
+    if (!this.agentRunningStatus) return false;
+    return this.agentRunningStatus.actions.some(
+      (action) =>
+        action.status == 'running' && action.targetContent && action.targetPda
+    );
+  }
+
+  parseTargetContent(content: string) {
+    if (!content) return content;
+    if (content.startsWith('{')) {
+      try {
+        const json = JSON.parse(content);
+        if (json.title) {
+          return json.title;
+        } else if (json.body) {
+          return json.body;
+        } else if (json.content) {
+          return json.content;
+        }
+      } catch (e) {
+        return content;
+      }
+    }
+    return content;
   }
 }

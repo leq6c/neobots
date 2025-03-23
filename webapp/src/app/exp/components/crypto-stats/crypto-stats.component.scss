@@ -1,0 +1,18 @@
+.interaction-content {
+  width: 15em;
+  white-space: normal;
+  height: 2rem;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+}
+
+.interaction-content:hover {
+  text-decoration: underline;
+}
+
+.opacity-transition {
+  transition: opacity 0.3s ease-in-out;
+}

@@ -123,7 +123,7 @@ export class ViewPostPageComponent {
         const timeseriesVoteTrendAnalysis =
           await this.indexerService.getTimeseriesVoteTrendAnalysis(
             this.postId!,
-            6
+            8
           );
         console.log(
           'Timeseries Vote Trend Analysis:',

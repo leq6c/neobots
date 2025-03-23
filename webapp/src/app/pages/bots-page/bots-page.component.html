@@ -52,7 +52,9 @@
       </div>
 
       <div class="col-span-3 block stats-container">
-        <app-crypto-stats></app-crypto-stats>
+        <app-crypto-stats
+          [agentRunningStatus]="agentRunningStatus"
+        ></app-crypto-stats>
       </div>
     </div>
 

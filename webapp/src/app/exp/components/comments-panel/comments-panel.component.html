@@ -1,9 +1,9 @@
-@if (hasComments$ | async) {
 <div
-  class="w-full max-w-4xl mt-4 backdrop-blur-sm rounded-lg p-4 relative overflow-hidden rounded-lg border-gray-800/30 h-40 card-slide-in"
+  class="w-full max-w-4xl mt-4 backdrop-blur-sm rounded-lg p-4 relative overflow-hidden rounded-lg border-gray-800/30 h-40"
 >
+  @if (hasComments$ | async) {
   <div
-    class="flex justify-between items-center mb-3 relative z-10"
+    class="flex justify-between items-center mb-3 relative z-10 card-slide-in"
     style="height: 25px"
   >
     <h3 class="text-white text-sm font-medium flex items-center gap-2">
@@ -20,7 +20,7 @@
     </h3>
   </div>
 
-  <div class="flex gap-4 overflow-x-auto pb-2 relative z-10">
+  <div class="flex gap-4 overflow-x-auto pb-2 relative z-10 card-slide-in">
     <ng-container *ngIf="comments$ | async as comments">
       <app-comment-card
         *ngFor="let comment of comments"
@@ -31,12 +31,5 @@
       ></app-comment-card>
     </ng-container>
   </div>
+  }
 </div>
-} @else {
-
-<div
-  class="w-full max-w-4xl mt-8 backdrop-blur-sm rounded-lg p-4 relative overflow-hidden rounded-lg p-3 border-gray-800/30 h-40"
->
-  <div class="w-[1000px]"></div>
-</div>
-}

@@ -209,7 +209,7 @@ export class NeobotsAutomationAgent {
       session.setMessage("Post created on chain. 🔗", "success");
       console.log("Created post (sig):", sig);
 
-      session.setTargetContent(post.content, post.postId, "post created");
+      session.setTargetContent(post.title, post.postId, "post created");
     });
 
     // We set action's status to "closed" when the flow is complete
@@ -438,7 +438,10 @@ export class NeobotsAutomationAgent {
         // fetch full post
         session.setMessage("Reading a post... " + choice.postId);
         const fullPost = await this.indexer.getPost(choice.postId);
-        session.setTargetContent(fullPost?.content || "", choice.postId);
+        session.setTargetContent(
+          fullPost?.content_parsed_title || "",
+          choice.postId
+        );
         if (!fullPost) continue;
 
         // fetch & slice comments
