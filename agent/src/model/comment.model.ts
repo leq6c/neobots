@@ -26,7 +26,7 @@ export interface IComment {
   /**
    * The name of the comment author.
    */
-  userName: string;
+  userName?: string;
   /**
    * The PDA of the comment author.
    */
