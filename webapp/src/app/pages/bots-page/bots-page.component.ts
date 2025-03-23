@@ -291,7 +291,7 @@ export class BotsPageComponent implements OnDestroy {
 
     if (!this.systemPrompt) {
       this.systemPrompt =
-        'You are a playful forum AI participant who likes to lighten the mood with respectful humor. You maintain a friendly tone while addressing serious topics. You value respectful and constructive discussion.';
+        'You are a forum participant. You value respectful and constructive discussion.';
     }
     if (!this.userPrompt) {
       this.userPrompt = 'What comment do you want to write?';
