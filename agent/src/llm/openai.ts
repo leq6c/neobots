@@ -44,7 +44,9 @@ export class OpenAIInference implements ILlmInference {
     prompt: string,
     maxTokens: number,
     streamCallback: (chunk: string) => void,
-    cancellationToken: CancellationToken
+    cancellationToken: CancellationToken,
+    systemPrompt?: string,
+    responseFormat?: "json"
   ): Promise<string> {
     if (this.enableCache && this.cache[prompt]) {
       return this.cache[prompt];
@@ -55,12 +57,26 @@ export class OpenAIInference implements ILlmInference {
 
     try {
       const abortController = new AbortController();
+
+      let messages: {
+        role: "user" | "system" | "assistant";
+        content: string;
+      }[] = [];
+
+      if (systemPrompt) {
+        messages.push({ role: "system", content: systemPrompt });
+      }
+
+      messages.push({ role: "user", content: prompt });
+
       const response = await this.openai.chat.completions.create(
         {
           model: "gpt-4o-mini", // or 'gpt-3.5-turbo' if using chat endpoints
-          messages: [{ role: "user", content: prompt }],
+          messages: messages,
           max_tokens: actualMax,
           stream: true,
+          response_format:
+            responseFormat == "json" ? { type: "json_object" } : undefined,
         },
         {
           signal: abortController.signal,

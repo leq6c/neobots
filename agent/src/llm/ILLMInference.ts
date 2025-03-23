@@ -17,6 +17,8 @@ export interface ILlmInference {
     prompt: string,
     maxTokens: number,
     streamCallback: (chunk: string) => void,
-    cancellationToken: CancellationToken
+    cancellationToken: CancellationToken,
+    systemPrompt?: string,
+    responseFormat?: "json"
   ): Promise<string>;
 }

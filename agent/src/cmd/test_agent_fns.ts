@@ -11,8 +11,11 @@ export async function testAgentFns() {
   const openai = new OpenAIInference(environment.openai.apiKey);
   const agent = new NeobotsAgent(
     {
+      name: "John Doe",
+      pda: "1234567890",
       persona: "A very angry person",
       rationality: "100%",
+      additionalInstructions: {},
     },
     openai
   );

@@ -16,6 +16,7 @@ interface AutomationConfig {
   maxCommentsTail: number; // e.g. 50
   maxReactionsPerRound: number; // e.g. 20
   enableCreatePost: boolean;
+  dryRun: boolean;
 }
 
 /**
@@ -201,13 +202,17 @@ export class NeobotsAutomationAgent {
       session.setMessage("Post uploaded to the storage.", "success");
 
       session.setMessage("Sending post to Chain... 🔗", "running");
-      const sig = await this.operator.getProgramService().createPost(
-        user.nftMint,
-        contentUri,
-        "general" // TODO: use the category from the LLM
-      );
-      session.setMessage("Post created on chain. 🔗", "success");
-      console.log("Created post (sig):", sig);
+      if (!this.config.dryRun) {
+        const sig = await this.operator.getProgramService().createPost(
+          user.nftMint,
+          contentUri,
+          "general" // TODO: use the category from the LLM
+        );
+        session.setMessage("Post created on chain. 🔗", "success");
+        console.log("Created post (sig):", sig);
+      } else {
+        console.log("Dry run, skipping post creation");
+      }
 
       session.setTargetContent(post.title, post.postId, "post created");
     });
@@ -306,10 +311,11 @@ export class NeobotsAutomationAgent {
         const selectedComments = this.selectComments(rawComments);
 
         // transform the post to something IPost for the LLM
-        const iPost = {
+        const iPost: IPost = {
           postId: fullPost.post_pda,
           title: fullPost.content_parsed_title,
           content: fullPost.content_parsed_body,
+          enableVoting: fullPost.content_parsed_enable_voting,
           voteTitle: fullPost.content_parsed_voting_title,
           voteOptions: fullPost.content_parsed_voting_options
             ? JSON.parse(fullPost.content_parsed_voting_options)
@@ -320,58 +326,46 @@ export class NeobotsAutomationAgent {
 
         let newComment: IComment;
 
-        if (fullPost.content_parsed_enable_voting) {
-          console.log("Voting is enabled for this post");
-          const existingComments = selectedComments.map((c: any) => ({
-            commentId: `${c.comment_author_user_pda}:${c.comment_author_sequence_id}`,
-            postId: fullPost.post_pda,
-            content: c.content_parsed_body,
-            voteTo: c.content_parsed_vote_to,
-          }));
+        const existingComments = selectedComments.map((c: any) => ({
+          commentId: `${c.comment_author_user_pda}:${c.comment_author_sequence_id}`,
+          postId: fullPost.post_pda,
+          content: c.content_parsed_body,
+          voteTo: c.content_parsed_vote_to,
+          userName: c.comment_author_username,
+          userPda: c.comment_author_user_pda,
+        }));
 
-          // 4) [LLM] create a new comment
-          session.setMessage("Writing a new comment... 💬");
-          newComment = await this.agent.createCommentWithVotingEnabled(
-            session,
-            iPost as IPost,
-            existingComments,
-            this.getCancellationToken()
-          );
-        } else {
-          console.log("Voting is disabled for this post");
-          const existingComments = selectedComments.map((c: any) => ({
-            commentId: `${c.comment_author_user_pda}:${c.comment_author_sequence_id}`,
-            postId: fullPost.post_pda,
-            content: c.content_parsed_body,
-          }));
-          // 4) [LLM] create a new comment
-          session.setMessage("Writing a new comment... 💬");
-          newComment = await this.agent.createComment(
-            session,
-            iPost as IPost,
-            existingComments,
-            this.getCancellationToken()
-          );
-        }
+        // 4) [LLM] create a new comment
+        session.setMessage("Writing a new comment... 💬");
+        newComment = await this.agent.createComment(
+          session,
+          iPost as IPost,
+          existingComments,
+          this.getCancellationToken()
+        );
 
         session.setMessage("Comment written! Posting to chain... 🔗");
         console.log("New LLM comment:", newComment);
 
         // 5) post on chain
-        const user = await this.operator.getUser();
-        const sig = await this.operator.getProgramService().addComment(
-          user.nftMint,
-          fullPost.post_sequence_id, // or however your chain code expects the post ID
-          new PublicKey(fullPost.post_author_pda),
-          await this.storage.put(
-            JSON.stringify({
-              content: newComment.content,
-              voteTo: newComment.voteTo,
-            })
-          )
-        );
-        session.setMessage("Comment posted! sig:" + sig);
-        console.log("Added comment (sig): ", sig);
+        if (!this.config.dryRun) {
+          const user = await this.operator.getUser();
+          const sig = await this.operator.getProgramService().addComment(
+            user.nftMint,
+            fullPost.post_sequence_id, // or however your chain code expects the post ID
+            new PublicKey(fullPost.post_author_pda),
+            await this.storage.put(
+              JSON.stringify({
+                content: newComment.content,
+                voteTo: newComment.voteTo,
+              })
+            )
+          );
+          session.setMessage("Comment posted! sig:" + sig);
+          console.log("Added comment (sig): ", sig);
+        } else {
+          console.log("Dry run, skipping comment posting");
+        }
 
         // consume 1 comment point
         ap.commentActionPoints -= 1;
@@ -568,25 +562,29 @@ export class NeobotsAutomationAgent {
 
           session.setMessage("Sending reaction to chain... 🔗");
 
-          const sig = await this.operator
-            .getProgramService()
-            .addReaction(
-              user.nftMint,
-              fullPost.post_sequence_id,
-              seqId,
-              new PublicKey(fullPost.post_author_pda),
-              r.reactionType as "upvote" | "downvote" | "like" | "banvote"
-            );
-          session.setMessage("Reaction sent! sig:" + sig);
-          // consume 1 reaction point
-          if (r.reactionType === "upvote") {
-            ap.upvoteActionPoints -= 1;
-          } else if (r.reactionType === "downvote") {
-            ap.downvoteActionPoints -= 1;
-          } else if (r.reactionType === "like") {
-            ap.likeActionPoints -= 1;
-          } else if (r.reactionType === "banvote") {
-            ap.banvoteActionPoints -= 1;
+          if (!this.config.dryRun) {
+            const sig = await this.operator
+              .getProgramService()
+              .addReaction(
+                user.nftMint,
+                fullPost.post_sequence_id,
+                seqId,
+                new PublicKey(fullPost.post_author_pda),
+                r.reactionType as "upvote" | "downvote" | "like" | "banvote"
+              );
+            session.setMessage("Reaction sent! sig:" + sig);
+            // consume 1 reaction point
+            if (r.reactionType === "upvote") {
+              ap.upvoteActionPoints -= 1;
+            } else if (r.reactionType === "downvote") {
+              ap.downvoteActionPoints -= 1;
+            } else if (r.reactionType === "like") {
+              ap.likeActionPoints -= 1;
+            } else if (r.reactionType === "banvote") {
+              ap.banvoteActionPoints -= 1;
+            }
+          } else {
+            console.log("Dry run, skipping reaction posting");
           }
         }
       }

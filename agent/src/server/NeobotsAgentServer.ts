@@ -255,7 +255,8 @@ export class NeobotsAgentServer {
      * Body: { nftMint: string, personality: string }
      */
     this.app.post("/agent/configure", async (req, res) => {
-      const { signature, owner, nftMint, personality } = req.body || {};
+      const { signature, owner, nftMint, personality, additionalInstructions } =
+        req.body || {};
 
       if (!nftMint || !owner || !signature) {
         return res.status(400).json({
@@ -287,19 +288,39 @@ export class NeobotsAgentServer {
           }
         }
 
+        const neobotsOperator = new NeobotsOperator({
+          solanaRpcUrl: this.solanaRpc,
+          wallet: loadOperatorKeypairFromEnv(),
+        });
+
+        try {
+          if (!nftMint) {
+            throw new Error("NFT mint is required");
+          }
+          await neobotsOperator.selectUser(new PublicKey(nftMint));
+        } catch (e) {
+          return res.json({
+            success: false,
+            message: `Error selecting user: ${e}`,
+            nftMint,
+          });
+        }
+
         // Create a new agent with the specified personality
         const cancellationToken = new CancellationToken();
         const openai = new OpenAIInference(environment.openai.apiKey);
         const agent = new NeobotsAgent(
-          { persona: personality, rationality: "100%" },
+          {
+            name: neobotsOperator.name!,
+            pda: neobotsOperator.userPda!.toString(),
+            persona: personality,
+            rationality: "100%",
+            additionalInstructions: additionalInstructions,
+          },
           openai
         );
         const neobotsIndexerApi = new NeobotsIndexerApi({
           apiUrl: environment.neobots.indexerUrl,
-        });
-        const neobotsOperator = new NeobotsOperator({
-          solanaRpcUrl: this.solanaRpc,
-          wallet: loadOperatorKeypairFromEnv(),
         });
         const neobotsOffChainApi = new NeobotsOffChainApi({
           baseUrl: environment.neobots.kvsUrl,
@@ -316,6 +337,7 @@ export class NeobotsAgentServer {
             maxCommentsTail: 10,
             maxReactionsPerRound: 3,
             enableCreatePost: false,
+            dryRun: false,
           },
           agent,
           neobotsOperator,
@@ -323,19 +345,6 @@ export class NeobotsAgentServer {
           neobotsOffChainApi,
           neobotsAgentStatusManager
         );
-
-        try {
-          if (!nftMint) {
-            throw new Error("NFT mint is required");
-          }
-          await neobotsOperator.selectUser(new PublicKey(nftMint));
-        } catch (e) {
-          return res.json({
-            success: false,
-            message: `Error selecting user: ${e}`,
-            nftMint,
-          });
-        }
 
         // Store the agent
         this.agents.set(nftMint, {

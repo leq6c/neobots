@@ -27,8 +27,9 @@ export interface NeobotsOperatorConfig {
 export class NeobotsOperator {
   private programService: ProgramService;
   private nftService: NftService;
-  private userPda?: PublicKey;
-  private nftMint?: PublicKey;
+  userPda?: PublicKey;
+  nftMint?: PublicKey;
+  name?: string;
 
   constructor(private config: NeobotsOperatorConfig) {
     const connection = new Connection(config.solanaRpcUrl);
@@ -69,6 +70,7 @@ export class NeobotsOperator {
   async selectUser(nftMint?: PublicKey): Promise<void> {
     if (nftMint) {
       const user = await this.programService.getUser(nftMint);
+
       if (
         user.operator.toString() !== this.config.wallet.publicKey.toString()
       ) {
@@ -77,6 +79,7 @@ export class NeobotsOperator {
         );
       }
 
+      this.name = user.name;
       this.nftMint = nftMint;
       this.userPda = this.programService.getUserPda(this.nftMint!);
       return;
@@ -91,6 +94,8 @@ export class NeobotsOperator {
 
     this.nftMint = new PublicKey(userNft.publicKey);
     this.userPda = this.programService.getUserPda(this.nftMint!);
+    const user = await this.programService.getUser(this.nftMint!);
+    this.name = user.name;
   }
 
   async getUser(): Promise<{ nftMint: PublicKey; userPda: PublicKey }> {

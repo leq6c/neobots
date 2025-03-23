@@ -10,10 +10,15 @@ import {
   AgentActionStatusNotifierSession,
 } from "./NeobotsAgentStatusManager";
 import { CancellationToken } from "./CancellationToken";
+import { generateRawComment } from "./prompt/comment_prompt";
+import { convertRawCommentToComment } from "./prompt/comment_result_converter";
 
 export interface IConfig {
+  name: string;
+  pda: string;
   persona: string;
   rationality: string;
+  additionalInstructions: { [key: string]: string };
 }
 
 /**
@@ -164,125 +169,32 @@ Return ONLY the JSON array.`;
     existingComments: IComment[],
     cancellationToken: CancellationToken
   ): Promise<IComment> {
-    const systemPrompt = `You are ${this.config.persona}. Rationality level: ${this.config.rationality}.
-You respond ONLY with a JSON object matching:
-{
-  "content": "...",
-  "reason": "...",
-  "quoteId": "..." (optional)
-}`;
-
-    const userPrompt = `# Generate a new comment for a post
-Post:
-${JSON.stringify(post, null, 2)}
-
-Existing comments:
-${JSON.stringify(existingComments, null, 2)}
-
-Please generate your comment.
-"quoteId" can reference at most one existing comment (by its ID). If you do not wish to quote, leave it blank or omit it.
-Return ONLY JSON.`;
-
-    const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
-    const rawResponse = await this.llm.infer(
-      fullPrompt,
-      2048,
-      (chunk) => {
-        session.setInferenceChunk(chunk);
-      },
+    const comment = await generateRawComment(
+      this.llm,
+      this.config.name,
+      this.config.pda,
+      post,
+      existingComments,
+      this.config.additionalInstructions,
+      session,
+      cancellationToken
+    );
+    const formattedComment = await convertRawCommentToComment(
+      this.llm,
+      post,
+      comment,
+      session,
       cancellationToken
     );
 
-    try {
-      const parsed = this.parseJsonResponse<IComment>(
-        rawResponse,
-        cancellationToken
-      );
-      const newComment: IComment = {
-        commentId: this.generateRandomId(),
-        postId: post.postId,
-        content: parsed.content || "",
-        reason: parsed.reason || "",
-        quoteId: parsed.quoteId || "",
-      };
-      return newComment;
-    } catch (error) {
-      if (cancellationToken.isCancelled) {
-        throw new Error("Cancelled");
-      }
-      return {
-        commentId: this.generateRandomId(),
-        postId: post.postId,
-        content: "Failed to parse LLM output.",
-      };
-    }
-  }
-
-  public async createCommentWithVotingEnabled(
-    session: AgentActionStatusNotifierSession,
-    post: IPost,
-    existingComments: IComment[],
-    cancellationToken: CancellationToken
-  ): Promise<IComment> {
-    if (!post.voteTitle || !post.voteOptions) {
-      throw new Error("Post has no voting enabled");
-    }
-    const systemPrompt = `Your persona is ${this.config.persona}. You need to follow this persona always if defined. Rationality level: ${this.config.rationality}.
-You respond ONLY with a JSON object matching:
-{
-  "content": "...",
-  "quoteId": "..." (optional),
-  "voteTo": "..."
-}`;
-
-    const userPrompt = `# Generate a new comment for a post
-Post:
-${JSON.stringify(post, null, 2)}
-
-Existing comments:
-${JSON.stringify(existingComments, null, 2)}
-
-Please generate your comment.
-"quoteId" can reference at most one existing comment (by its ID). If you do not wish to quote, leave it blank or omit it.
-"voteTo" can be one of the following options: ${post.voteOptions.join(", ")}.
-Return ONLY JSON.`;
-
-    const fullPrompt = `${systemPrompt}\n\n${userPrompt}`;
-    console.log("fullPrompt", fullPrompt);
-    const rawResponse = await this.llm.infer(
-      fullPrompt,
-      2048,
-      (chunk) => {
-        session.setInferenceChunk(chunk);
-      },
-      cancellationToken
-    );
-
-    try {
-      const parsed = this.parseJsonResponse<IComment>(
-        rawResponse,
-        cancellationToken
-      );
-      const newComment: IComment = {
-        commentId: this.generateRandomId(),
-        postId: post.postId,
-        content: parsed.content || "",
-        reason: parsed.reason || "",
-        quoteId: parsed.quoteId || "",
-        voteTo: parsed.voteTo || "",
-      };
-      return newComment;
-    } catch (error) {
-      if (cancellationToken.isCancelled) {
-        throw new Error("Cancelled");
-      }
-      return {
-        commentId: this.generateRandomId(),
-        postId: post.postId,
-        content: "Failed to parse LLM output.",
-        voteTo: "",
-      };
-    }
+    return {
+      commentId: this.generateRandomId(),
+      postId: post.postId,
+      content: formattedComment.content,
+      userName: this.config.name,
+      quoteId: formattedComment.quoteId,
+      voteTo: formattedComment.voteTo,
+    };
   }
 
   /**

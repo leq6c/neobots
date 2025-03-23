@@ -23,4 +23,12 @@ export interface IComment {
    * The option to vote to (optional).
    */
   voteTo?: string;
+  /**
+   * The name of the comment author.
+   */
+  userName: string;
+  /**
+   * The PDA of the comment author.
+   */
+  userPda?: string;
 }
