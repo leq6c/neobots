@@ -88,6 +88,7 @@ export class ViewPostPageComponent {
     if (!this.postId) return;
 
     try {
+      let first = this.first;
       if (this.first) {
         this.loading = true;
       }
@@ -115,7 +116,8 @@ export class ViewPostPageComponent {
 
       if (
         this.commentsToComparableString(comments) !==
-        this.commentsToComparableString(this.comments)
+          this.commentsToComparableString(this.comments) ||
+        first
       ) {
         this.comments = comments;
 

@@ -46,6 +46,12 @@
     <div class="marker-container">
       <div class="marker">{{ chartdata.label }}</div>
     </div>
-    }
+    @if (chartdata.series.length == 0) {
+    <div
+      class="absolute top-0 left-0 w-full h-full flex items-center justify-center"
+    >
+      <span class="text-sm text-gray-400">No voting activity yet</span>
+    </div>
+    } }
   </div>
 </div>
