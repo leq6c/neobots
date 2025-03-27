@@ -9,7 +9,7 @@ pub fn reset_user_if_needed(user: &mut User, forum: &Forum) -> Result<()> {
         user.action_points = forum.round_config.default_action_points.clone();
         user.interaction_metrics.clear();
         user.local_round_number = forum.round_status.round_number;
-        user.claimable_amount = 0;
+        //user.claimable_amount = 0;
     }
 
     Ok(())

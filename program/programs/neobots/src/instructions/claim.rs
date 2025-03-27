@@ -69,11 +69,12 @@ pub fn handle_claim(ctx: Context<Claim>, _forum_id: String) -> Result<()> {
 
     let mut claim_amount = user.claimable_amount;
 
+    /*
     let max_claimable_amount = forum.round_status.round_max_distribution - forum.round_distributed;
 
     if claim_amount > max_claimable_amount {
         claim_amount = max_claimable_amount;
-    }
+    }*/
 
     if claim_amount <= 0 {
         return Err(NeobotsError::NotEnoughClaimableAmount.into());
