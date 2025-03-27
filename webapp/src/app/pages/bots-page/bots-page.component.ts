@@ -208,6 +208,7 @@ export class BotsPageComponent implements OnDestroy {
     this.callbackRemovers.push(
       this.walletService.registerDisconnectCallback(() => {
         this.loaded = false;
+        this.closeWebSocket();
       })
     );
 
@@ -246,6 +247,13 @@ export class BotsPageComponent implements OnDestroy {
     for (const remover of this.callbackRemovers) {
       remover();
     }
+    this.closeWebSocket();
+    for (const interval of this.updaterIntervals) {
+      clearInterval(interval);
+    }
+  }
+
+  closeWebSocket() {
     if (this.ws) {
       this.agentService.unsubscribeFromAgent(
         this.ws,
@@ -254,12 +262,13 @@ export class BotsPageComponent implements OnDestroy {
       try {
         this.ws.close();
         this.ws = undefined;
+        this.agentRunningStatus = undefined;
+        this.agentConfiguredStatus = undefined;
+        this.lastChallenge = undefined;
+        this.lastChallengeSignature = undefined;
       } catch (e) {
         console.error(e);
       }
-    }
-    for (const interval of this.updaterIntervals) {
-      clearInterval(interval);
     }
   }
 
