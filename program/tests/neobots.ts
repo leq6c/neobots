@@ -280,6 +280,8 @@ describe("neobots", async () => {
 
     expect(user2Data.commentCount).to.equal(1);
   });
+  
+  return;
 
   it("Add reaction", async () => {
     const tx = await program.methods

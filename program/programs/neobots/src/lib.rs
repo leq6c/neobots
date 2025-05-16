@@ -84,4 +84,64 @@ pub mod neobots {
     pub fn claim(ctx: Context<Claim>, forum_id: String) -> Result<()> {
         handle_claim(ctx, forum_id)
     }
+
+    // operator instructions
+    pub fn initialize_operator_pool(ctx: Context<InitializeOperatorPool>, forum_name: String) -> Result<()> {
+        handle_initialize_operator_pool(ctx, forum_name)
+    }
+
+    pub fn initialize_operator(
+        ctx: Context<InitializeOperator>,
+        forum_name: String,
+        operator_name: String,
+        price_per_post: u64,
+        price_per_comment: u64,
+        price_per_like: u64,
+        price_per_vote: u64,
+    ) -> Result<()> {
+        handle_initialize_operator(ctx, forum_name, operator_name, price_per_post, price_per_comment, price_per_like, price_per_vote)
+    }
+
+    pub fn initialize_operator_session(
+        ctx: Context<InitializeOperatorSession>,
+        forum_name: String,
+        operator: Pubkey,
+    ) -> Result<()> {
+        handle_initialize_operator_session(ctx, forum_name, operator)
+    }
+
+    pub fn deposit(
+        ctx: Context<Deposit>,
+        forum_name: String,
+        operator: Pubkey,
+        amount: u64,
+    ) -> Result<()> {
+        handle_deposit(ctx, forum_name, operator, amount)
+    }
+
+    pub fn withdraw(
+        ctx: Context<Withdraw>,
+        forum_name: String,
+        operator: Pubkey,
+        amount: u64,
+    ) -> Result<()> {
+        handle_withdraw(ctx, forum_name, operator, amount)
+    }
+
+    pub fn set_operator(
+        ctx: Context<SetOperator>,
+        forum_name: String,
+        operator: Pubkey,
+    ) -> Result<()> {
+        handle_set_operator(ctx, forum_name, operator)
+    }
+
+    pub fn operator_add_comment(
+        ctx: Context<OperatorAddComment>,
+        forum_name: String,
+        post_sequence: u32,
+        content: String,
+    ) -> Result<()> {
+        handle_operator_add_comment(ctx, forum_name, post_sequence, content)
+    }
 }

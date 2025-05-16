@@ -15,3 +15,12 @@ pub use shared::*;
 
 pub mod usercounter;
 pub use usercounter::*;
+
+pub mod operator;
+pub use operator::*;
+
+pub mod operatorpool;
+pub use operatorpool::*;
+
+pub mod operatorsession;
+pub use operatorsession::*;

@@ -37,4 +37,22 @@ pub enum NeobotsError {
 
     #[msg("Invalid forum name")]
     InvalidForumName,
+
+    #[msg("Invalid mint")]
+    InvalidMint,
+
+    #[msg("Invalid input")]
+    InvalidInput,
+
+    #[msg("Insufficient funds")]
+    InsufficientFunds,
+
+    #[msg("Operator session not initialized")]
+    OperatorSessionNotInitialized,
+
+    #[msg("Operator session already initialized")]
+    OperatorSessionAlreadyInitialized,
+
+    #[msg("Operator key does not match with operator session")]
+    OperatorKeyMismatch,
 }

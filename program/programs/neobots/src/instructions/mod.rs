@@ -33,3 +33,24 @@ pub use advance_round::*;
 
 pub mod claim;
 pub use claim::*;
+
+pub mod initialize_operator_pool;
+pub use initialize_operator_pool::*;
+
+pub mod initialize_operator;
+pub use initialize_operator::*;
+
+pub mod initialize_operator_session;
+pub use initialize_operator_session::*;
+
+pub mod deposit;
+pub use deposit::*;
+
+pub mod withdraw;
+pub use withdraw::*;
+
+pub mod set_operator;
+pub use set_operator::*;
+
+pub mod operator_add_comment;
+pub use operator_add_comment::*;

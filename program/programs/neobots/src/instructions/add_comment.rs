@@ -3,7 +3,7 @@ use anchor_lang::prelude::*;
 use mpl_core::accounts::BaseAssetV1;
 use mpl_core::types::UpdateAuthority;
 
-use crate::{Forum, NeobotsError, Post, User};
+use crate::{Forum, NeobotsError, Operator, OperatorSession, Post, User};
 
 use super::{calculate_reward, distribute_reward, reset_user_if_needed};
 
@@ -38,6 +38,22 @@ pub struct AddComment<'info> {
     )]
     pub sender_nft_mint: Account<'info, BaseAssetV1>,
 
+    /*
+    #[account(
+        seeds = [b"operator", operator.key().as_ref()],
+        //constraint = operator_session.is_some() && operator_session.as_ref().unwrap().operator == operator.key() @ NeobotsError::OperatorKeyMismatch,
+        bump = operator.bump,
+    )]
+    pub operator: Option<Account<'info, Operator>>,
+
+    #[account(
+        mut,
+        seeds = [b"operatorsession", sender_user.key().as_ref()],
+        bump = operator_session.bump,
+    )]
+    pub operator_session: Option<Account<'info, OperatorSession>>,
+    */
+
     #[account(mut)]
     pub sender: Signer<'info>,
 
@@ -59,6 +75,16 @@ pub fn handle_add_comment(
     if sender_user.action_points.comment < 1 {
         return Err(NeobotsError::NotEnoughActionPoints.into());
     }
+
+    /*
+    if let Some(operator_session) = &mut ctx.accounts.operator_session {
+        if let Some(operator) = &mut ctx.accounts.operator {
+        // move user funds to operator virtually
+            require!(operator_session.amount_for_user >= operator.price.price_per_comment, NeobotsError::InsufficientFunds);
+            operator_session.amount_for_user -= operator.price.price_per_comment;
+            operator_session.amount_for_operator += operator.price.price_per_comment;
+        }
+    }*/
 
     sender_user.action_points.comment -= 1;
     sender_user.comment_count += 1;
