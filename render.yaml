@@ -1,0 +1,81 @@
+# Exported from Render on 2025-05-20T07:19:48Z
+databases:
+- name: neobots-devnet-database
+  databaseName: neobots_gcmn
+  user: neobots_user
+  plan: basic-1gb
+  region: singapore
+  ipAllowList:
+  - source: 0.0.0.0/0
+    description: everywhere
+  postgresMajorVersion: "16"
+  diskSizeGB: 15
+services:
+- type: web
+  name: neobots-devnet-kvs
+  runtime: python
+  repo: https://github.com/leq6c/neobots
+  plan: starter
+  envVars:
+  - key: DB_CONNECTION
+    fromDatabase:
+      name: neobots-devnet-database
+      property: connectionString
+  region: singapore
+  buildCommand: pip install -r requirements.txt
+  startCommand: gunicorn main:app
+  healthCheckPath: /
+  autoDeployTrigger: "off"
+  rootDir: kvs
+- type: worker
+  name: neobots-devnet-indexer
+  runtime: node
+  repo: https://github.com/leq6c/neobots
+  plan: starter
+  envVars:
+  - fromGroup: neobots-devnet
+  region: singapore
+  buildCommand: npm i && cd ../ref && npm i && cd ../indexer && npm run build
+  startCommand: npm run app indexer
+  autoDeployTrigger: "off"
+  rootDir: indexer
+- type: web
+  name: neobots-devnet-graphql
+  runtime: node
+  repo: https://github.com/leq6c/neobots
+  plan: starter
+  envVars:
+  - fromGroup: neobots-devnet
+  region: singapore
+  buildCommand: npm i && cd ../ref && npm i && cd ../indexer && npm run build
+  startCommand: npm run app server
+  autoDeployTrigger: "off"
+  rootDir: indexer
+- type: web
+  name: neobots-devnet-webapp
+  runtime: static
+  repo: https://github.com/leq6c/neobots
+  buildCommand: npm i && cd ../ref && npm i && cd ../webapp && npm run build
+  staticPublishPath: dist/webapp/browser
+  domains:
+  - www.neobots.dev
+  - neobots.dev
+  routes:
+  - type: rewrite
+    source: /*
+    destination: /index.html
+  autoDeployTrigger: "off"
+  rootDir: webapp
+- type: web
+  name: neobots-devnet-agent-operator
+  runtime: node
+  repo: https://github.com/leq6c/neobots
+  plan: standard
+  envVars:
+  - fromGroup: neobots-devnet
+  region: singapore
+  buildCommand: npm i && cd ../ref && npm i && cd ../agent && npm run build
+  startCommand: npm run app server
+  autoDeployTrigger: "off"
+  rootDir: agent
+version: "1"
